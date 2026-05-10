@@ -1,0 +1,61 @@
+---
+/**
+ * 主按鈕（BRAND §7.1）：Caramel Gold 背景 + Charcoal Bean 文字
+ * 次按鈕：Chalk White 背景 + Espresso Tan 邊框
+ */
+type Variant = 'primary' | 'secondary' | 'ghost';
+type Size = 'sm' | 'md' | 'lg';
+
+interface Props {
+  href?: string;
+  variant?: Variant;
+  size?: Size;
+  type?: 'button' | 'submit' | 'reset';
+  class?: string;
+  external?: boolean;
+  ariaLabel?: string;
+}
+
+const {
+  href,
+  variant = 'primary',
+  size = 'md',
+  type = 'button',
+  class: className = '',
+  external = false,
+  ariaLabel,
+} = Astro.props;
+
+const base =
+  'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 ease-[var(--ease-brand)] hover:-translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-caramel disabled:opacity-50 disabled:pointer-events-none';
+
+const variants: Record<Variant, string> = {
+  primary:
+    'bg-caramel text-charcoal hover:bg-[#b8924f] shadow-sm hover:shadow-md',
+  secondary:
+    'bg-chalk text-espresso border border-espresso hover:bg-cream',
+  ghost: 'bg-transparent text-espresso hover:bg-cream',
+};
+
+const sizes: Record<Size, string> = {
+  sm: 'h-9 px-4 text-sm',
+  md: 'h-11 px-6 text-base',
+  lg: 'h-14 px-8 text-lg',
+};
+
+const classes = [base, variants[variant], sizes[size], className].join(' ');
+const target = external ? '_blank' : undefined;
+const rel = external ? 'noopener noreferrer' : undefined;
+---
+
+{
+  href ? (
+    <a href={href} class={classes} target={target} rel={rel} aria-label={ariaLabel}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class={classes} aria-label={ariaLabel}>
+      <slot />
+    </button>
+  )
+}

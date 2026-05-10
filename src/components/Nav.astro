@@ -1,0 +1,105 @@
+---
+import Button from './Button.astro';
+
+const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
+
+const links = [
+  { href: '/about', label: '關於我們' },
+  { href: '/teachers', label: '師資' },
+  { href: '/courses', label: '課程' },
+  { href: '/posts', label: '文章' },
+  { href: '/testimonials', label: '學生見證' },
+  { href: '/faq', label: '常見問題' },
+  { href: '/contact', label: '聯絡我們' },
+];
+---
+
+<header
+  id="site-nav"
+  class="sticky top-0 z-40 w-full bg-latte/85 backdrop-blur-md border-b border-transparent transition-shadow duration-200 ease-[var(--ease-brand)]"
+>
+  <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
+    <a href="/" class="font-serif text-xl font-bold text-charcoal hover:text-espresso">
+      賈伯斯數理教室
+    </a>
+
+    <ul class="hidden lg:flex items-center gap-7 text-sm font-medium text-charcoal">
+      {
+        links.map((l) => (
+          <li>
+            <a href={l.href} class="hover:text-espresso transition-colors">
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="hidden lg:block">
+      <Button href={lineUrl} variant="primary" size="sm" external={lineUrl !== '#'}>
+        加 LINE 試聽
+      </Button>
+    </div>
+
+    <button
+      id="mobile-menu-toggle"
+      class="lg:hidden p-2 text-charcoal"
+      aria-label="開啟選單"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </button>
+  </nav>
+
+  <div
+    id="mobile-menu"
+    class="lg:hidden hidden border-t border-cream bg-latte"
+  >
+    <ul class="flex flex-col px-4 py-3 text-base">
+      {
+        links.map((l) => (
+          <li>
+            <a
+              href={l.href}
+              class="block py-3 border-b border-cream/60 text-charcoal hover:text-espresso"
+            >
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+      <li class="pt-4">
+        <Button href={lineUrl} variant="primary" size="md" external={lineUrl !== '#'}>
+          加 LINE 試聽
+        </Button>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<script>
+  const nav = document.getElementById('site-nav');
+  const onScroll = () => {
+    if (!nav) return;
+    if (window.scrollY > 8) {
+      nav.classList.add('shadow-md', 'border-cream');
+    } else {
+      nav.classList.remove('shadow-md', 'border-cream');
+    }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  const toggle = document.getElementById('mobile-menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  toggle?.addEventListener('click', () => {
+    if (!menu) return;
+    const isOpen = menu.classList.toggle('hidden') === false;
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+</script>

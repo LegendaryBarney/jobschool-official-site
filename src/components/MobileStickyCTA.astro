@@ -1,0 +1,24 @@
+---
+const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
+---
+
+<div
+  class="lg:hidden fixed bottom-0 inset-x-0 z-30 p-3 bg-latte/95 backdrop-blur-md border-t border-cream shadow-lg"
+>
+  <div class="flex gap-2">
+    <a
+      href="/contact"
+      class="flex-1 inline-flex items-center justify-center h-12 rounded-lg bg-caramel text-charcoal font-medium text-base"
+    >
+      立即試聽
+    </a>
+    <a
+      href={lineUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center justify-center h-12 px-4 rounded-lg bg-chalk border border-espresso text-espresso font-medium text-base"
+    >
+      加 LINE
+    </a>
+  </div>
+</div>

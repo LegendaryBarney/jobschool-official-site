@@ -1,0 +1,50 @@
+# Build output
+dist/
+.output/
+.vercel/
+.netlify/
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Astro
+.astro/
+
+# Pagefind
+public/pagefind/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE / Editor
+.vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+.idea/
+.claude/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS
+desktop.ini
+
+# TypeScript
+*.tsbuildinfo

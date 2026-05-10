@@ -1,0 +1,47 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+
+export async function getStaticPaths() {
+  const courses = await getCollection('courses');
+  return courses.map((c) => ({
+    params: { slug: c.id.replace(/\.(md|mdx)$/, '') },
+    props: { entry: c },
+  }));
+}
+
+const { entry: course } = Astro.props as { entry: CollectionEntry<'courses'> };
+const { Content } = await render(course);
+const { name, summary, schedule, priceRange, grade, subject } = course.data;
+---
+
+<PageLayout
+  title={name}
+  description={course.data.seoDescription ?? summary}
+  heading={name}
+  subheading={`${grade} ${subject}`}
+>
+  <div class="grid gap-8 lg:grid-cols-3">
+    <aside class="space-y-4 text-sm">
+      <div>
+        <h3 class="font-semibold text-espresso">上課時段</h3>
+        <ul class="mt-2 space-y-1 text-charcoal/80">
+          {schedule.map((s) => <li>{s}</li>)}
+        </ul>
+      </div>
+      {
+        priceRange && (
+          <div>
+            <h3 class="font-semibold text-espresso">價格</h3>
+            <p class="mt-2 text-charcoal/80">{priceRange}</p>
+          </div>
+        )
+      }
+    </aside>
+
+    <article class="lg:col-span-2 prose prose-stone max-w-none">
+      <p class="lead text-charcoal/85">{summary}</p>
+      <Content />
+    </article>
+  </div>
+</PageLayout>

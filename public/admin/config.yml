@@ -1,0 +1,128 @@
+backend:
+  name: git-gateway
+  branch: main
+
+locale: zh_Hant
+publish_mode: editorial_workflow
+media_folder: public/uploads
+public_folder: /uploads
+
+site_url: https://jobsedu.com.tw
+display_url: https://jobsedu.com.tw
+logo_url: https://jobsedu.com.tw/favicon.svg
+
+collections:
+  - name: teachers
+    label: 師資
+    folder: src/content/teachers
+    create: true
+    slug: '{{slug}}'
+    extension: md
+    format: frontmatter
+    fields:
+      - { name: name, label: 姓名, widget: string }
+      - { name: title, label: 職稱, widget: string }
+      - { name: photo, label: 照片, widget: image, required: false }
+      - { name: education, label: 學歷, widget: list, required: false }
+      - { name: yearsOfExperience, label: 教學年資, widget: number, default: 0, value_type: int, min: 0 }
+      - { name: subjects, label: 教學科目, widget: list, required: false }
+      - { name: philosophy, label: 教學理念, widget: text, required: false }
+      - { name: featured, label: 精選, widget: boolean, default: false }
+      - { name: order, label: 排序, widget: number, default: 0, value_type: int }
+      - { name: seoDescription, label: SEO 描述, widget: text, required: false }
+      - { name: body, label: 內文, widget: markdown }
+
+  - name: courses
+    label: 課程
+    folder: src/content/courses
+    create: true
+    slug: '{{slug}}'
+    extension: md
+    format: frontmatter
+    fields:
+      - { name: name, label: 課程名稱, widget: string }
+      - name: grade
+        label: 年級
+        widget: select
+        options: ['國中', '高中']
+      - { name: gradeLevel, label: 適合年級, widget: list, required: false }
+      - { name: subject, label: 科目, widget: string }
+      - { name: teacher, label: 講師（slug）, widget: string, required: false }
+      - { name: summary, label: 課程簡介, widget: text }
+      - { name: schedule, label: 上課時段, widget: list, required: false }
+      - { name: priceRange, label: 價格區間, widget: string, required: false }
+      - { name: cover, label: 封面圖, widget: image, required: false }
+      - { name: featured, label: 精選, widget: boolean, default: false }
+      - { name: order, label: 排序, widget: number, default: 0, value_type: int }
+      - { name: seoDescription, label: SEO 描述, widget: text, required: false }
+      - { name: body, label: 內文, widget: markdown }
+
+  - name: posts
+    label: 部落格文章
+    folder: src/content/posts
+    create: true
+    slug: '{{slug}}'
+    extension: mdx
+    format: frontmatter
+    fields:
+      - { name: title, label: 標題, widget: string }
+      - { name: summary, label: TL;DR / 摘要, widget: text }
+      - { name: published, label: 發佈日, widget: datetime }
+      - { name: updated, label: 最後更新, widget: datetime, required: false }
+      - { name: author, label: 作者, widget: string, default: 賈伯斯數理教室 }
+      - { name: category, label: 分類, widget: string, required: false }
+      - { name: tags, label: 標籤, widget: list, required: false }
+      - { name: cover, label: 封面圖, widget: image, required: false }
+      - { name: draft, label: 草稿, widget: boolean, default: false }
+      - { name: body, label: 內文, widget: markdown }
+
+  - name: testimonials
+    label: 學生見證
+    folder: src/content/testimonials
+    create: true
+    slug: '{{slug}}'
+    extension: md
+    format: frontmatter
+    fields:
+      - { name: studentName, label: 學生稱謂, widget: string }
+      - { name: grade, label: 年級, widget: string, required: false }
+      - { name: school, label: 就讀學校, widget: string, required: false }
+      - { name: rating, label: 評價（1-5）, widget: number, default: 5, value_type: int, min: 1, max: 5 }
+      - { name: quote, label: 心得引文, widget: text }
+      - { name: videoUrl, label: 影片網址, widget: string, required: false }
+      - { name: featured, label: 精選, widget: boolean, default: false }
+      - { name: order, label: 排序, widget: number, default: 0, value_type: int }
+      - { name: body, label: 完整內文, widget: markdown }
+
+  - name: faq
+    label: 常見問題
+    folder: src/content/faq
+    create: true
+    slug: '{{slug}}'
+    extension: md
+    format: frontmatter
+    fields:
+      - { name: question, label: 問題, widget: string }
+      - { name: category, label: 分類, widget: string, default: 一般 }
+      - { name: order, label: 排序, widget: number, default: 0, value_type: int }
+      - { name: body, label: 答案, widget: markdown }
+
+  - name: landing
+    label: 活動 Landing Page
+    folder: src/content/landing
+    create: true
+    slug: '{{slug}}'
+    extension: md
+    format: frontmatter
+    fields:
+      - { name: campaign, label: URL slug, widget: string }
+      - { name: title, label: 頁面標題, widget: string }
+      - { name: headline, label: 主標, widget: string }
+      - { name: subheadline, label: 副標, widget: text, required: false }
+      - { name: heroImage, label: 主視覺, widget: image, required: false }
+      - { name: ctaLabel, label: CTA 文字, widget: string, default: 立即試聽 }
+      - { name: ctaHref, label: CTA 連結, widget: string, default: /contact }
+      - { name: startDate, label: 活動開始日, widget: datetime, required: false }
+      - { name: endDate, label: 活動結束日, widget: datetime, required: false }
+      - { name: published, label: 發佈, widget: boolean, default: true }
+      - { name: body, label: 內文, widget: markdown }

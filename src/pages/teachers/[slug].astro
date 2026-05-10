@@ -1,0 +1,54 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+
+export async function getStaticPaths() {
+  const teachers = await getCollection('teachers');
+  return teachers.map((t) => ({
+    params: { slug: t.id.replace(/\.(md|mdx)$/, '') },
+    props: { entry: t },
+  }));
+}
+
+const { entry: teacher } = Astro.props as { entry: CollectionEntry<'teachers'> };
+const { Content } = await render(teacher);
+const { name, title, education, yearsOfExperience, subjects, philosophy } = teacher.data;
+---
+
+<PageLayout
+  title={`${name} — ${title}`}
+  description={teacher.data.seoDescription ?? philosophy}
+  heading={name}
+  subheading={title}
+>
+  <div class="grid gap-8 lg:grid-cols-3">
+    <aside class="space-y-4 text-sm">
+      <div>
+        <h3 class="font-semibold text-espresso">學歷</h3>
+        <ul class="mt-2 space-y-1 text-charcoal/80">
+          {education.map((e) => <li>{e}</li>)}
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold text-espresso">教學年資</h3>
+        <p class="mt-2 text-charcoal/80">{yearsOfExperience} 年</p>
+      </div>
+      <div>
+        <h3 class="font-semibold text-espresso">教學科目</h3>
+        <ul class="mt-2 flex flex-wrap gap-2">
+          {
+            subjects.map((s) => (
+              <li class="rounded-full bg-cream text-espresso px-3 py-1 text-xs">
+                {s}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </aside>
+
+    <article class="lg:col-span-2 prose prose-stone max-w-none">
+      <Content />
+    </article>
+  </div>
+</PageLayout>

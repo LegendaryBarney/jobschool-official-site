@@ -1,0 +1,100 @@
+@import 'tailwindcss';
+
+/*
+ * 賈伯斯數理教室 — 主題設定（Tailwind 4 @theme）
+ * HEX 完全比照 BRAND_GUIDELINES.md §3.1
+ */
+@theme {
+  /* 品牌色 */
+  --color-latte: #f5efe6;
+  --color-cream: #eae0d0;
+  --color-espresso: #8b6f47;
+  --color-charcoal: #1f1b16;
+  --color-chalk: #fafaf7;
+  --color-caramel: #c8a165;
+  --color-sienna: #a14a3a;
+
+  /* 字體 family token */
+  --font-serif-tc: 'Noto Serif TC', 'Songti TC', 'PingFang TC', serif;
+  --font-sans-tc: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  --font-serif-en: 'Fraunces', 'Times New Roman', serif;
+  --font-sans-en: 'Inter', 'Helvetica Neue', system-ui, sans-serif;
+  --font-handwriting: 'Caveat', cursive;
+
+  /* 預設 sans 與 serif（含中英對應） */
+  --font-sans:
+    'Inter', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  --font-serif: 'Fraunces', 'Noto Serif TC', 'Songti TC', 'PingFang TC', serif;
+
+  /* 動效預設緩動曲線（BRAND §6.1） */
+  --ease-brand: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 全站基礎 */
+@layer base {
+  html {
+    background-color: var(--color-latte);
+    color: var(--color-charcoal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  a {
+    color: var(--color-espresso);
+    transition: color 200ms var(--ease-brand);
+  }
+
+  a:hover {
+    color: var(--color-caramel);
+  }
+
+  ::selection {
+    background-color: var(--color-caramel);
+    color: var(--color-charcoal);
+  }
+}
+
+@layer utilities {
+  /* 手繪粉筆底線 */
+  .chalk-underline {
+    background-image: linear-gradient(transparent 92%, var(--color-caramel) 92%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+
+  /* 紙張紋理（subtle paper texture） */
+  .paper-grain {
+    background-image:
+      radial-gradient(rgba(31, 27, 22, 0.02) 1px, transparent 1px),
+      radial-gradient(rgba(31, 27, 22, 0.015) 1px, transparent 1px);
+    background-size:
+      24px 24px,
+      40px 40px;
+    background-position:
+      0 0,
+      12px 12px;
+  }
+}

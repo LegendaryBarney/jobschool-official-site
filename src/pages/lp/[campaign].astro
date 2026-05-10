@@ -1,0 +1,35 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Button from '~/components/Button.astro';
+
+export async function getStaticPaths() {
+  const lps = await getCollection('landing', ({ data }) => data.published);
+  return lps.map((lp) => ({
+    params: { campaign: lp.data.campaign },
+    props: { entry: lp },
+  }));
+}
+
+const { entry } = Astro.props as { entry: CollectionEntry<'landing'> };
+const { Content } = await render(entry);
+const { title, headline, subheadline, ctaLabel, ctaHref } = entry.data;
+---
+
+<BaseLayout title={title} description={headline}>
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-4xl px-4 py-20 lg:px-8 lg:py-28 text-center">
+      <h1 class="font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        {headline}
+      </h1>
+      {subheadline && <p class="mt-6 text-lg lg:text-xl text-charcoal/85">{subheadline}</p>}
+      <div class="mt-10">
+        <Button href={ctaHref} variant="primary" size="lg">{ctaLabel}</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-3xl px-4 py-16 lg:px-8 prose prose-stone">
+    <Content />
+  </section>
+</BaseLayout>

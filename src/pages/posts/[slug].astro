@@ -1,0 +1,45 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  return posts.map((p) => ({
+    params: { slug: p.id.replace(/\.(md|mdx)$/, '') },
+    props: { entry: p },
+  }));
+}
+
+const { entry: post } = Astro.props as { entry: CollectionEntry<'posts'> };
+const { Content } = await render(post);
+const { title, summary, published, updated, author, tags } = post.data;
+
+const fmtDate = (d: Date) =>
+  new Intl.DateTimeFormat('zh-Hant-TW', { dateStyle: 'long' }).format(d);
+---
+
+<PageLayout title={title} description={summary} heading={title}>
+  <article class="prose prose-stone max-w-none">
+    <p class="text-sm text-charcoal/60">
+      {fmtDate(published)} · {author}
+      {updated && <> · 最後更新 {fmtDate(updated)}</>}
+    </p>
+
+    <aside class="not-prose mt-6 mb-8 rounded-xl border-l-4 border-caramel bg-chalk px-5 py-4">
+      <p class="font-semibold text-espresso text-sm tracking-wide">TL;DR</p>
+      <p class="mt-1 text-charcoal/85 leading-relaxed">{summary}</p>
+    </aside>
+
+    <Content />
+
+    {
+      tags.length > 0 && (
+        <ul class="not-prose mt-8 flex flex-wrap gap-2">
+          {tags.map((t) => (
+            <li class="rounded-full bg-cream text-espresso px-3 py-1 text-xs">#{t}</li>
+          ))}
+        </ul>
+      )
+    }
+  </article>
+</PageLayout>

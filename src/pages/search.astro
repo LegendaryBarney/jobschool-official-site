@@ -1,0 +1,37 @@
+---
+import PageLayout from '~/layouts/PageLayout.astro';
+---
+
+<PageLayout
+  title="全站搜尋"
+  description="使用 Pagefind 搜尋全站文章、課程、師資。"
+  heading="全站搜尋"
+>
+  <div id="search" class="max-w-2xl"></div>
+
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.PagefindUI) {
+        new window.PagefindUI({
+          element: '#search',
+          showSubResults: true,
+          translations: {
+            placeholder: '搜尋文章、課程、師資…',
+            clear_search: '清除',
+            load_more: '載入更多',
+            search_label: '搜尋',
+            filters_label: '篩選',
+            zero_results: '沒有找到 [SEARCH_TERM] 的結果',
+            many_results: '找到 [COUNT] 筆關於 [SEARCH_TERM] 的結果',
+            one_result: '找到 1 筆關於 [SEARCH_TERM] 的結果',
+            alt_search: '沒有 [SEARCH_TERM] 的結果。改用 [DIFFERENT_TERM] 搜尋',
+            search_suggestion: '沒有找到 [SEARCH_TERM] 的結果。試試以下搜尋：',
+            searching: '搜尋中…',
+          },
+        });
+      }
+    });
+  </script>
+</PageLayout>
