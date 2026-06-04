@@ -98,7 +98,7 @@ export const SITE = {
   geo: { latitude: 23.4796, longitude: 120.4538 },
   openingHours: ['Mo-Sa 14:00-22:00'],
   openingHoursDisplay: '週一至週六 14:00–22:00（週日休）',
-  founded: 2013,
+  founded: 2014,
   socials: {
     line: '',
     facebook: '',
