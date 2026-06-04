@@ -17,6 +17,7 @@
 7. [發佈後檢查](#7-發佈後檢查)
 8. [常見問題](#8-常見問題)
 9. [求助路徑](#9-求助路徑)
+10. [著陸頁（LP）快速複製 Playbook（給工程師 / 進階使用者）](#10-著陸頁lp快速複製-playbook)
 
 ---
 
@@ -512,6 +513,173 @@ Decap 預設不直接支援排程發佈。變通方案：
 
 ---
 
-> **本手冊版本**：v1.0 / 2026-05-10
+## 10. 著陸頁（LP）快速複製 Playbook
+
+> 對應 RFP §1.2.4「LP 快速複製機制」。
+>
+> 本章與 §3.6 互補：§3.6 教您在 **Decap 後臺** 點按鈕新增 LP；本章教的是 **直接複製檔案** 的工程做法。
+> 兩條路殊途同歸（最終都產出 `src/content/landing/` 下的一個 `.md` 檔），差別只在介面 vs. 檔案。
+> 不熟程式的負責人請走 §3.6；工程師或想批次開檔的進階使用者走本章較快。
+
+### 10.0 目的
+
+著陸頁（Landing Page，LP）是針對**單一行銷活動 / 檔期**的獨立專頁，例如：
+
+- 寒假班、暑假班等季節檔期（如既有的 `summer-2026`）
+- 學測 / 會考衝刺活動
+- 特定廣告投放的到達頁（FB / Google Ads 點進來的第一頁）
+
+LP 與一般課程頁不同之處：
+
+- 版型固定（hero 大標 + 4 格賣點 + 活動內文 + 倒數計時 + 試聽表單），**不需要重新設計**，只要換文字。
+- 路由為 `/lp/[campaign]`，**刻意不進 sitemap、不被搜尋引擎索引**（見 §10.4），適合搭配廣告短期使用。
+- 活動結束後把 `published` 關掉即可下架，檔案保留供下次同檔期複製重用。
+
+「快速複製」的精神就是：**複製一個既有 LP 檔 → 改幾個欄位 → 預覽 → 上線**，5 分鐘內開出一個新活動頁。
+
+### 10.1 第 1 步 — 複製檔案
+
+1. 進到著陸頁內容目錄：
+
+   ```
+   src/content/landing/
+   ```
+
+   目前裡面有一個範本可參考：`summer-2026.md`（2026 暑期班）。
+
+2. 複製這個既有檔，改成新活動的檔名。例如要開「2026 寒假班」：
+
+   ```bash
+   # 在專案根目錄執行
+   cp src/content/landing/summer-2026.md src/content/landing/winter-2026.md
+   ```
+
+   - 檔名規則：**小寫英數 + 連字符**，不要中文與空格（例：`winter-2026.md`、`gsat-sprint-2026.md`）。
+   - 檔名本身不影響路由，路由由 frontmatter 的 `campaign` 欄位決定（見下一步），但**建議檔名與 `campaign` 取一致**，方便日後對照。
+
+> 提醒：`summer-2026.md` 是「最完整的範本」，內文已經寫滿課程、學費、試聽說明等區塊。複製後可以直接在它的骨架上改字，比從空白檔開始快很多。
+
+### 10.2 第 2 步 — 編輯 frontmatter
+
+打開剛複製的新檔，最上方 `---` 與 `---` 之間就是 frontmatter（頁面設定）。
+
+著陸頁的完整欄位定義在 `src/content/config.ts` 的 `landing` collection。逐欄說明如下：
+
+| 欄位 | 必填 | 說明 | 範例 |
+|---|---|---|---|
+| `campaign` | ✅ | **URL 路由名**，會變成 `/lp/<campaign>`。小寫英數 + 連字符 | `winter-2026`（→ 網址 `/lp/winter-2026`） |
+| `title` | ✅ | 瀏覽器分頁標題 / SEO 標題 / 麵包屑文字 | `2026 寒假班｜開學前最後衝刺` |
+| `headline` | ✅ | hero 區第一眼的大標（H1） | `寒假，是補回上學期落差的黃金 30 天` |
+| `subheadline` | 選填 | 大標下方的說明段落 | `1/20 - 2/15，數理英文小班，從盲點診斷到題型補強一次到位。` |
+| `heroImage` | 選填 | hero 主視覺；放在內容目錄旁以相對路徑引用，或先留空 | `./winter-2026-hero.jpg`（暫不需要可整行刪除） |
+| `ctaLabel` | 選填 | 行動按鈕文字（預設「立即試聽」） | `立即預約試聽` |
+| `ctaHref` | 選填 | 按鈕連結（預設 `/contact`） | `/contact` 或 LINE 連結 |
+| `startDate` | 選填 | 活動開始日，會顯示在 hero 的日期膠囊 | `2026-01-20` |
+| `endDate` | 選填 | 活動結束日；未過期時頁面會顯示「活動結束倒數」計時器 | `2026-02-15` |
+| `published` | 選填 | `true` = 對外可見並生成頁面；`false` = 不發佈（預設 `true`） | `true` |
+
+> 注意：本專案 LP 用的欄位是上表這幾個，**沒有** `id`、`slug`、`hero.title` 之類的欄位——`campaign` 同時扮演「識別碼」與「URL slug」的角色，標題類文字則是 `title` / `headline` / `subheadline`。請以 `src/content/config.ts` 為唯一真實依據。
+
+最少要改的兩個關鍵欄位：
+
+1. **`campaign`** → 改成新活動的路由名（決定網址，務必唯一，不能和既有檔重複）。
+2. **`title`／`headline`** → 改成新活動的文案。
+
+以 `winter-2026.md` 為例，frontmatter 改完大致長這樣：
+
+```yaml
+---
+campaign: winter-2026
+title: 2026 寒假班｜開學前最後衝刺
+headline: 寒假，是補回上學期落差的黃金 30 天
+subheadline: 1/20 - 2/15，數理英文小班，從盲點診斷到題型補強一次到位。
+ctaLabel: 立即預約試聽
+ctaHref: /contact
+startDate: 2026-01-20
+endDate: 2026-02-15
+published: true
+---
+```
+
+接著把 `---` 以下的**內文**（課程結構、學費、試聽說明等）改成寒假班的內容即可。內文是標準 Markdown，語法見 [§4](#4-markdown-語法快速指引)，文案請對齊 [§6 品牌守則](#6-品牌守則速查)。
+
+### 10.3 第 3 步 — 本地預覽
+
+1. 在專案根目錄啟動開發伺服器：
+
+   ```bash
+   npm run dev
+   ```
+
+2. 打開瀏覽器，網址為 `localhost:4321/lp/<campaign>`。延續上例：
+
+   ```
+   http://localhost:4321/lp/winter-2026
+   ```
+
+3. 對照檢查：
+
+   - hero 大標 / 副標 / 日期是否正確
+   - 4 格賣點區（極小班、師資、教材、免費試聽）顯示正常
+   - 內文排版（標題、清單、表格）無跑版
+   - 若有設 `endDate` 且尚未到期，倒數計時器有出現
+   - 底部試聽表單正常顯示
+   - 用瀏覽器開發者工具切到手機寬度（390px）再看一次
+
+> 改了 frontmatter 或內文後，dev server 通常會自動熱更新；若沒更新，重新整理頁面即可。新增整個檔案後若頁面 404，停掉 `npm run dev`（Ctrl + C）再重啟一次，讓 content collection 重新掃描。
+
+### 10.4 第 4 步 — 上線注意事項
+
+#### (a) getStaticPaths 會自動發現新檔 ✅
+
+路由檔 `src/pages/lp/[campaign].astro` 的 `getStaticPaths()` 這樣寫：
+
+```ts
+const lps = await getCollection('landing', ({ data }) => data.published);
+return lps.map((lp) => ({
+  params: { campaign: lp.data.campaign },
+  props: { entry: lp },
+}));
+```
+
+意思是：**只要新檔放進 `src/content/landing/` 且 frontmatter `published: true`，build 時就會自動產生對應的 `/lp/<campaign>` 頁面**，不需要手動登記任何清單。這就是「快速複製」能成立的關鍵。
+
+- 若 `published: false`，該頁不會被生成（等於下架）。
+- `campaign` 必須在所有 LP 中唯一；若兩個檔用了相同 `campaign`，build 會因路由衝突而報錯。
+
+#### (b) sitemap.xml 不會包含 LP 路由（刻意設計）⚠️
+
+`astro.config.mjs` 的 sitemap 設定明確排除了 LP：
+
+```js
+sitemap({
+  filter: (page) => !page.includes('/admin') && !page.includes('/lp/'),
+}),
+```
+
+因此 **LP 頁面不會出現在 `sitemap.xml`，也就不會主動被 Google 索引**。這是刻意的：LP 是搭配廣告投放的短期到達頁，通常不希望它和正式課程頁在自然搜尋結果裡互相競爭、或在活動結束後留下死連結。
+
+實務上代表：
+
+- LP 的流量來源是**廣告 / LINE / QR code / 直接貼網址**，靠你主動把 `/lp/<campaign>` 連結分享出去，不是靠 SEO。
+- 不需要、也不應該為了「讓 Google 找到 LP」去改這個 filter。
+- 若哪天**真的**要讓某個 LP 進 sitemap 被索引（少見），那是工程決策，請開 issue 討論，不要逕自改 config（且本專案夜跑規則禁止改動 `astro.config.mjs` 的 site 設定）。
+
+#### (c) 部署
+
+確認預覽無誤後，照一般流程把改動 commit、push 到 feature branch，Vercel 會自動產生 preview 部署可供確認；正式上線（push 到 main / production）一律由業主白天拍板，不在夜間自動執行。
+
+#### (d) 小結：複製一頁 LP 的最短路徑
+
+1. `cp src/content/landing/summer-2026.md src/content/landing/<新campaign>.md`
+2. 改 frontmatter 的 `campaign` / `title` / `headline`（+ 內文）
+3. `npm run dev` → 開 `localhost:4321/lp/<新campaign>` 檢查
+4. commit + push feature branch → preview 確認 → 交業主拍板上線
+
+整個過程不需碰任何元件或設定檔，純粹複製 + 改 Markdown，符合「內容與程式分離」原則。
+
+---
+
+> **本手冊版本**：v1.1 / 2026-06-05（新增 §10 LP 快速複製 Playbook）
 > **適用範圍**：賈伯斯數理教室官方網站 v1（Astro 5 + Decap CMS）
 > **更新負責**：每當網站有新增集合 / 流程改動，由工程師更新此手冊；歷次版本見 git 歷史
