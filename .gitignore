@@ -56,11 +56,12 @@ _archive/
 !.claude/settings.json
 !.claude/hooks/
 !.claude/scripts/
+!.claude/workflows/
 .claude/settings.local.json
 .claude/logs/
 prototypes/
 
 # Playwright 截圖暫存
 .playwright-mcp/
-home-*-desktop.jpeg
-home-*-mobile.jpeg
+home-*.jpeg
+verify-*.jpeg
