@@ -4,7 +4,7 @@
  * 次按鈕：Chalk White 背景 + Espresso Tan 邊框
  * Ghost：透明 + Espresso 文字
  */
-type Variant = 'primary' | 'secondary' | 'ghost';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'outline-chalk';
 type Size = 'sm' | 'md' | 'lg';
 
 interface Props {
@@ -40,6 +40,9 @@ const variants: Record<Variant, string> = {
   secondary:
     'bg-chalk text-espresso border border-espresso hover:bg-cream',
   ghost: 'bg-transparent text-espresso hover:bg-cream',
+  // 深色（黑板）底用：透明 + 粉筆白邊框與文字
+  'outline-chalk':
+    'bg-transparent text-chalk border border-chalk/60 hover:bg-chalk/10 hover:border-chalk',
 };
 
 const sizes: Record<Size, string> = {

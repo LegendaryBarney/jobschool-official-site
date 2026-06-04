@@ -4,33 +4,9 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import Button from '~/components/Button.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import CountUp from '~/components/CountUp';
-import TeacherCard from '~/components/TeacherCard.astro';
-import CourseCard from '~/components/CourseCard.astro';
-import PostCard from '~/components/PostCard.astro';
-import IconChalk from '~/components/IconChalk.astro';
 import { localBusinessJsonLd, educationalOrgJsonLd } from '~/lib/jsonld';
-import { ALL_LOCATIONS } from '~/lib/locations';
 
-const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
-
-const advantages = [
-  {
-    icon: 'cup' as const,
-    title: '臺大資工碩士領軍，多元背景師資',
-    desc: '由臺大資工碩士 Barney 老師領軍，師資來自臺、清、交、嘉義大學、高師大等不同背景，個人最高 15 年教學資歷，把每一個觀念講到學生真的聽得懂。',
-  },
-  {
-    icon: 'users' as const,
-    title: '極小班 / 精緻班 / 小班 三種規模',
-    desc: '依科目與年級彈性配置 2-14 人小班，每位學生卡住的地方，老師走到桌邊就看得到、改得到、跟得上。',
-  },
-  {
-    icon: 'note' as const,
-    title: '自編教材與盲點筆記',
-    desc: '過去 12 年累積的題型分類與盲點筆記，比照學測與分科測驗趨勢更新，重觀念、不灌題海。',
-  },
-];
-
+/* ---------- collections ---------- */
 const featuredCoursesAll = await getCollection('courses');
 const featuredCourses = featuredCoursesAll
   .filter((c) => c.data.featured)
@@ -54,6 +30,41 @@ const latestPosts = allPosts
   .sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
   .slice(0, 3);
 
+/* ---------- 三大優勢（品牌文案，可寫頁面）---------- */
+const advantages = [
+  {
+    num: '01',
+    title: '臺大資工碩士領軍',
+    desc: '師資來自臺、清、交、嘉義大學、高師大等不同背景，多元互補，最資深者教學經驗達 15 年。學科之外，也帶得動讀書方法。',
+    tag: '教得久，也教得對',
+  },
+  {
+    num: '02',
+    title: '極小班 · 精緻班 · 小班三種規模',
+    desc: '依孩子的程度與性格安排班別，每班 2–14 人。老師看得到每一張臉、每一次卡關，走到桌邊就跟得上。',
+    tag: '2–14 人，看得見每個人',
+  },
+  {
+    num: '03',
+    title: '自編教材與盲點筆記',
+    desc: '12 年累積的自編講義與盲點筆記，重觀念、不灌題海。把孩子真正會錯的地方挑出來，一個一個補起來。',
+    tag: '重觀念，不堆題海',
+  },
+];
+
+/* ---------- 課程數學符號 mapping（依 subject 推導）---------- */
+function courseSymbol(subject: string): string {
+  const s = subject ?? '';
+  if (s.includes('數學')) return '∫';
+  if (s.includes('物理')) return 'ΔE';
+  if (s.includes('化學')) return 'pH';
+  if (s.includes('自然') || s.includes('生物')) return '△';
+  if (s.includes('Python') || s.includes('程式')) return '{ }';
+  if (s.includes('英文')) return 'Aa';
+  if (s.includes('社會')) return '§';
+  return '∑';
+}
+
 const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
 ---
 
@@ -62,334 +73,1066 @@ const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
   description="嘉義東區精英小班補習推薦 — 由臺大資工碩士領軍，師資來自臺、清、交、嘉義大學、高師大等背景，過去 12 年品牌資歷、極小班 / 精緻班 / 小班三種規模與自編教材，協助嘉中、嘉女、協同、輔仁學生踏實累積。歡迎安排免費試聽。"
   jsonLd={jsonLd}
 >
-  {/* Hero */}
-  <section class="relative overflow-hidden">
-    <div
-      aria-hidden="true"
-      class="pointer-events-none absolute inset-0 paper-grain opacity-60"
-    ></div>
-    <div
-      aria-hidden="true"
-      class="pointer-events-none absolute right-[-10%] top-[10%] hidden lg:block"
-    >
-      <svg
-        width="520"
-        height="520"
-        viewBox="0 0 520 520"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.2"
-        class="text-espresso/15"
-      >
-        <circle cx="260" cy="260" r="200" />
-        <circle cx="260" cy="260" r="140" />
-        <path d="M120 260c40-80 240-80 280 0M120 260c40 80 240 80 280 0" />
-        <path d="M260 80v360M80 260h360" stroke-dasharray="4 6" />
-        <text x="320" y="120" font-family="Caveat" font-size="28" fill="currentColor" stroke="none">
-          π · ∫ · ∑
-        </text>
-      </svg>
+  {/* ===== 黑板 HERO ===== */}
+  <section class="hero" aria-labelledby="hero-h1">
+    <span class="math-deco s1" aria-hidden="true">π</span>
+    <span class="math-deco s2" aria-hidden="true">∑</span>
+    <span class="math-deco s3" aria-hidden="true">∫</span>
+
+    <div class="hero-wrap">
+      <p class="hero-eyebrow">嘉義 · 東區 · 康樂街</p>
+
+      <h1 id="hero-h1">
+        <span class="line l1">在嘉義東區，</span>
+        <span class="line l2">陪你把每個觀念</span>
+        <span class="line l3">
+          <span class="accent"
+            >踏實累積<svg
+              class="underline"
+              viewBox="0 0 300 24"
+              preserveAspectRatio="none"
+              aria-hidden="true"><path d="M4 16 C 70 6, 150 22, 296 9"></path></svg
+            ></span
+          >。
+        </span>
+      </h1>
+
+      <p class="hero-sub">
+        <b>臺大資工碩士領軍</b> · 過去 12 年品牌資歷 · 極小班／精緻班／小班三種規模。
+      </p>
+
+      <div class="hero-cta">
+        <Button href="/contact" variant="primary" size="lg" magnetic>立即試聽</Button>
+        <Button href="/courses" variant="outline-chalk" size="lg">探索課程</Button>
+      </div>
     </div>
 
-    <div class="relative mx-auto max-w-6xl px-4 py-20 lg:px-8 lg:py-32">
-      <p class="font-handwriting text-2xl text-espresso mb-3">嘉義 · 東區 · 康樂街</p>
-      <h1
-        data-split-text
-        class="font-serif text-5xl lg:text-7xl font-bold text-charcoal leading-[1.1] max-w-3xl"
-      >
-        在嘉義東區，<br />
-        陪你把每個觀念<span class="chalk-underline">踏實累積</span>。
-      </h1>
-      <p class="mt-6 text-lg lg:text-2xl text-charcoal/85 max-w-2xl leading-relaxed">
-        臺大資工碩士領軍 · 過去 12 年品牌資歷 · 極小班 / 精緻班 / 小班三種規模<br />
-        我們相信「個別化關注」勝過大班灌輸，<br class="hidden md:block" />
-        所以從 2014 年回到嘉義那天起，每位學生都被看見、被回應、被陪著走。
-      </p>
-      <div class="mt-10 flex flex-wrap gap-4">
-        <Button href="/contact" variant="primary" size="lg" magnetic>立即試聽</Button>
-        <Button href="/courses" variant="secondary" size="lg">探索課程</Button>
-      </div>
-
-      <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-charcoal/70">
-        <span class="inline-flex items-center gap-1.5">
-          <span class="h-1.5 w-1.5 rounded-full bg-caramel" aria-hidden="true"></span>
-          臺大資工碩士領軍
-        </span>
-        <span class="inline-flex items-center gap-1.5">
-          <span class="h-1.5 w-1.5 rounded-full bg-caramel" aria-hidden="true"></span>
-          嘉中、嘉女、協同、輔仁學生在這裡累積
-        </span>
-        <span class="inline-flex items-center gap-1.5">
-          <span class="h-1.5 w-1.5 rounded-full bg-caramel" aria-hidden="true"></span>
-          試聽免費，沒有任何壓力
-        </span>
+    {/* 科目跑馬燈 */}
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>國中數學</span><span>高中數學</span><span>物理</span><span>化學</span><span
+          >生物</span
+        ><span>Python 程式設計</span><span>英文（國小到高中）</span>
+        <span>國中數學</span><span>高中數學</span><span>物理</span><span>化學</span><span
+          >生物</span
+        ><span>Python 程式設計</span><span>英文（國小到高中）</span>
       </div>
     </div>
   </section>
 
-  {/* 三大優勢 */}
-  <SectionFadeUp class="bg-cream/40 paper-grain border-y border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24">
-      <div class="max-w-2xl">
-        <p class="font-handwriting text-2xl text-espresso">為什麼選擇我們</p>
-        <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
-          過去 12 年，我們把這三件事做到極致
-        </h2>
-        <p class="mt-3 text-charcoal/75 leading-relaxed">
-          不浮誇、不催促，把學生卡住的觀念講清楚——是我們從第一天就在做的事。
-        </p>
+  {/* ===== 三大優勢 ===== */}
+  <SectionFadeUp class="band band-latte" aria-labelledby="adv-title">
+    <div class="wrap">
+      <div class="head-row">
+        <div class="section-head">
+          <span class="eyebrow">老師在黑板旁的話</span>
+          <h2 id="adv-title">為什麼嘉義的家長，把孩子交給我們</h2>
+          <p class="lead">不是把人塞滿一間教室，而是把每個觀念講到孩子真的懂。</p>
+        </div>
+        <span class="chapter-no" aria-hidden="true">01</span>
       </div>
-
-      <div class="mt-12 grid gap-6 md:grid-cols-3">
+      <div class="adv-grid">
         {advantages.map((a) => (
-          <article class="rounded-xl bg-chalk border border-cream p-6 lg:p-8 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-md">
-            <div class="text-espresso mb-4">
-              <IconChalk name={a.icon} size={40} />
-            </div>
-            <h3 class="font-serif text-xl font-bold text-charcoal">{a.title}</h3>
-            <p class="mt-3 text-charcoal/80 leading-relaxed">{a.desc}</p>
+          <article class="adv-card">
+            <div class="adv-num">{a.num}</div>
+            <h3>{a.title}</h3>
+            <p>{a.desc}</p>
+            <span class="tag">{a.tag}</span>
           </article>
         ))}
       </div>
     </div>
   </SectionFadeUp>
 
-  {/* 數據區 */}
-  <SectionFadeUp class="bg-latte">
-    <div class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-20">
-      <div class="grid gap-8 md:grid-cols-3 text-center">
-        <div>
-          <p class="font-serif text-5xl lg:text-6xl font-bold text-espresso">
-            <CountUp client:visible to={12} suffix="+" />
-          </p>
-          <p class="mt-3 text-charcoal/80">年品牌資歷</p>
-          <p class="mt-1 text-xs text-charcoal/55">EST. 2014 · 師資個人最高 15 年</p>
+  {/* ===== 數據區 ===== */}
+  <SectionFadeUp class="band band-cream" aria-labelledby="stats-title">
+    <div class="wrap">
+      <div class="section-head section-head-center">
+        <span class="eyebrow">寫在黑板上的數字</span>
+        <h2 id="stats-title">十二年，留在嘉義東區的累積</h2>
+      </div>
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="num">
+            <CountUp client:visible to={12} /><span class="suffix">+</span>
+          </div>
+          <div class="label">年品牌資歷</div>
+          <div class="sub">EST. 2014 · 在地深耕</div>
         </div>
-        <div>
-          <p class="font-serif text-5xl lg:text-6xl font-bold text-espresso">
-            <CountUp client:visible to={1000} suffix="+" />
-          </p>
-          <p class="mt-3 text-charcoal/80">在地學生陪伴</p>
-          <p class="mt-1 text-xs text-charcoal/55">嘉中 · 嘉女 · 協同 · 輔仁</p>
+        <div class="stat">
+          <div class="num">
+            <CountUp client:visible to={1000} /><span class="suffix">+</span>
+          </div>
+          <div class="label">在地學生</div>
+          <div class="sub">嘉中 · 嘉女 · 協同 · 輔仁</div>
         </div>
-        <div>
-          <p class="font-serif text-5xl lg:text-6xl font-bold text-espresso">
-            <CountUp client:visible to={2} from={1} />
-            <span class="text-3xl text-charcoal/60">–</span>
-            <CountUp client:visible to={14} from={4} />
-          </p>
-          <p class="mt-3 text-charcoal/80">人 多種小班規模</p>
-          <p class="mt-1 text-xs text-charcoal/55">極小班 / 精緻班 / 小班 依科目而定</p>
+        <div class="stat">
+          <div class="num">
+            <CountUp client:visible to={2} /><span class="suffix">–14</span>
+          </div>
+          <div class="label">人小班規模</div>
+          <div class="sub">三種班型，因材施教</div>
         </div>
       </div>
     </div>
   </SectionFadeUp>
 
-  {/* 課程精選 */}
+  {/* ===== 課程精選 ===== */}
   {featuredCourses.length > 0 && (
-    <SectionFadeUp class="bg-cream/40 paper-grain border-y border-cream">
-      <div class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-          <div class="max-w-2xl">
-            <p class="font-handwriting text-2xl text-espresso">課程精選</p>
-            <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
-              依照年級節奏鋪陳的小班課
-            </h2>
-            <p class="mt-3 text-charcoal/75 leading-relaxed">
-              從國中銜接到高三衝刺，每一階段都有對應的課程設計。
-            </p>
+    <SectionFadeUp class="band band-latte" aria-labelledby="courses-title">
+      <div class="wrap">
+        <div class="head-row">
+          <div class="section-head">
+            <span class="eyebrow">這學期的黑板上有什麼</span>
+            <h2 id="courses-title">課程精選</h2>
+            <p class="lead">從國小到高中，數理為主、語文與程式並進，銜接得上、跟得緊。</p>
           </div>
-          <a
-            href="/courses"
-            class="inline-flex items-center gap-1 text-espresso hover:text-caramel font-medium"
-          >
-            查看所有課程
-            <span aria-hidden="true">→</span>
-          </a>
+          <span class="chapter-no" aria-hidden="true">02</span>
         </div>
-        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredCourses.map((c) => <CourseCard course={c} />)}
+        <div class="course-grid">
+          {featuredCourses.map((c) => {
+            const stage =
+              c.data.gradeLevel && c.data.gradeLevel.length > 0
+                ? c.data.gradeLevel.join(' · ')
+                : c.data.grade;
+            return (
+              <a class="course-card" href={`/courses/${c.slug}`}>
+                <div class="course-top">
+                  <div class="course-symbol" aria-hidden="true">{courseSymbol(c.data.subject)}</div>
+                  <h3>{c.data.name}</h3>
+                </div>
+                <div class="course-body">
+                  <p>{c.data.summary}</p>
+                  <span class="course-stage">{stage}</span>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+        <div class="more-row">
+          <a href="/courses" class="more-link">查看所有課程<span aria-hidden="true">→</span></a>
         </div>
       </div>
     </SectionFadeUp>
   )}
 
-  {/* 師資精選 */}
+  {/* ===== 師資精選 ===== */}
   {featuredTeachers.length > 0 && (
-    <SectionFadeUp>
-      <div class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-          <div class="max-w-2xl">
-            <p class="font-handwriting text-2xl text-espresso">師資精選</p>
-            <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
-              臺、清、交、嘉義大學、高師大資歷的老師，親自帶班
-            </h2>
-            <p class="mt-3 text-charcoal/75 leading-relaxed">
-              每位老師都對自己帶的學生負起整個學期的責任，把每個觀念講到學生真的聽得懂。
-            </p>
+    <SectionFadeUp class="band band-cream" aria-labelledby="teachers-title">
+      <div class="wrap">
+        <div class="head-row">
+          <div class="section-head">
+            <span class="eyebrow">站在黑板前的人</span>
+            <h2 id="teachers-title">師資精選</h2>
+            <p class="lead">願意把觀念講第二遍、第三遍，直到孩子點頭的老師。</p>
           </div>
-          <a
-            href="/teachers"
-            class="inline-flex items-center gap-1 text-espresso hover:text-caramel font-medium"
-          >
-            認識所有師資
-            <span aria-hidden="true">→</span>
-          </a>
+          <span class="chapter-no" aria-hidden="true">03</span>
         </div>
-        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredTeachers.map((t) => <TeacherCard teacher={t} />)}
+        <div class="teacher-grid">
+          {featuredTeachers.map((t) => {
+            const initial = (t.data.englishName?.[0] ?? t.data.name[0]) ?? '師';
+            const displayName = t.data.englishName ?? t.data.name;
+            const role =
+              t.data.title ||
+              (t.data.subjects.length > 0 ? t.data.subjects.slice(0, 2).join(' · ') : '');
+            const blurb =
+              t.data.philosophy
+                ? t.data.philosophy.length > 64
+                  ? `${t.data.philosophy.slice(0, 64)}…`
+                  : t.data.philosophy
+                : t.data.subjects.join(' · ');
+            return (
+              <a class="teacher-card" href={`/teachers/${t.slug}`}>
+                <div class="teacher-photo">
+                  <span class="initial" aria-hidden="true">{initial}</span>
+                </div>
+                <div class="teacher-body">
+                  <h3>{displayName}</h3>
+                  {role && <p class="role">{role}</p>}
+                  <p>{blurb}</p>
+                  {t.data.yearsOfExperience > 0 && (
+                    <span class="exp">教學 {t.data.yearsOfExperience} 年</span>
+                  )}
+                </div>
+              </a>
+            );
+          })}
+        </div>
+        <div class="more-row">
+          <a href="/teachers" class="more-link">認識所有師資<span aria-hidden="true">→</span></a>
         </div>
       </div>
     </SectionFadeUp>
   )}
 
-  {/* 學生見證 */}
+  {/* ===== 學生見證 ===== */}
   {featuredTestimonials.length > 0 && (
-    <SectionFadeUp class="bg-cream/40 paper-grain border-y border-cream">
-      <div class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24">
-        <div class="max-w-2xl">
-          <p class="font-handwriting text-2xl text-espresso">學生見證</p>
-          <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
-            來自嘉中、嘉女、協同、輔仁的真實心得
-          </h2>
+    <SectionFadeUp class="band band-latte" aria-labelledby="voices-title">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">學生寫在角落的話</span>
+          <h2 id="voices-title">他們在這裡的改變</h2>
         </div>
-        <div class="mt-10 grid gap-6 md:grid-cols-3">
-          {featuredTestimonials.map((t) => (
-            <figure class="rounded-xl bg-chalk border border-cream p-6 flex flex-col">
-              <blockquote class="text-charcoal/85 leading-relaxed">
-                「{t.data.quote}」
-              </blockquote>
-              <figcaption class="mt-5 pt-5 border-t border-cream/80 text-sm text-charcoal/70">
-                <span class="font-medium text-charcoal">{t.data.studentName}</span>
-                {t.data.school ? <> · {t.data.school}</> : null}
-                {t.data.grade ? <> · {t.data.grade}</> : null}
-              </figcaption>
-            </figure>
+        <div class="voice-grid">
+          {featuredTestimonials.map((t) => {
+            const dot = (t.data.school?.[0] ?? t.data.studentName[0]) ?? '生';
+            return (
+              <figure class="voice-card">
+                <div class="q" aria-hidden="true">“</div>
+                <blockquote>{t.data.quote}</blockquote>
+                <figcaption class="voice-who">
+                  <span class="dot" aria-hidden="true">{dot}</span>
+                  <div>
+                    <b>{t.data.studentName}</b>
+                    <small>
+                      {[t.data.school, t.data.grade].filter(Boolean).join(' · ')}
+                    </small>
+                  </div>
+                </figcaption>
+              </figure>
+            );
+          })}
+        </div>
+        <div class="more-row">
+          <a href="/testimonials" class="more-link">查看所有見證<span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </SectionFadeUp>
+  )}
+
+  {/* ===== 最新文章 ===== */}
+  {latestPosts.length > 0 && (
+    <SectionFadeUp class="band band-cream" aria-labelledby="posts-title">
+      <div class="wrap">
+        <div class="head-row">
+          <div class="section-head">
+            <span class="eyebrow">學習筆記</span>
+            <h2 id="posts-title">來自教學現場的觀察與技巧</h2>
+          </div>
+        </div>
+        <div class="post-grid">
+          {latestPosts.map((p) => (
+            <a class="post-card" href={`/posts/${p.slug}`}>
+              <h3>{p.data.title}</h3>
+              <p>{p.data.summary}</p>
+              <span class="post-meta">
+                {p.data.published.toLocaleDateString('zh-Hant-TW', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </span>
+            </a>
           ))}
         </div>
-        <div class="mt-8 text-center">
-          <a
-            href="/testimonials"
-            class="inline-flex items-center gap-1 text-espresso hover:text-caramel font-medium"
-          >
-            查看所有見證
-            <span aria-hidden="true">→</span>
-          </a>
+        <div class="more-row">
+          <a href="/posts" class="more-link">所有文章<span aria-hidden="true">→</span></a>
         </div>
       </div>
     </SectionFadeUp>
   )}
 
-  {/* 最新文章 */}
-  {latestPosts.length > 0 && (
-    <SectionFadeUp>
-      <div class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-          <div class="max-w-2xl">
-            <p class="font-handwriting text-2xl text-espresso">學習筆記</p>
-            <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
-              來自教學現場的觀察與技巧
-            </h2>
-          </div>
-          <a
-            href="/posts"
-            class="inline-flex items-center gap-1 text-espresso hover:text-caramel font-medium"
-          >
-            所有文章
-            <span aria-hidden="true">→</span>
-          </a>
-        </div>
-        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {latestPosts.map((p) => <PostCard post={p} />)}
-        </div>
+  {/* ===== 試聽 CTA（黑板呼應 hero）===== */}
+  <section class="cta-final" id="trial" aria-labelledby="cta-title">
+    <span class="cta-deco a" aria-hidden="true">π</span>
+    <span class="cta-deco b" aria-hidden="true">∑</span>
+    <div class="cta-wrap">
+      <span class="eyebrow">先坐進來聽一堂</span>
+      <h2 id="cta-title">試聽 1 堂課，感受小班的差別。</h2>
+      <div class="cta-points">
+        <span>免費</span>
+        <span>10 分鐘與家長溝通</span>
+        <span>不在當天要求決定</span>
       </div>
-    </SectionFadeUp>
-  )}
-
-  {/* 兩個校區簡訊 */}
-  <SectionFadeUp>
-    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
-      <div class="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p class="font-handwriting text-2xl text-espresso">兩個校區</p>
-          <h2 class="mt-2 font-serif text-2xl lg:text-3xl font-bold text-charcoal">
-            東區康樂街 · 西區杭州一街
-          </h2>
-        </div>
-        <a
-          href="/contact"
-          class="inline-flex items-center gap-1 text-espresso hover:text-caramel font-medium"
-        >
-          看地圖
-          <span aria-hidden="true">→</span>
-        </a>
-      </div>
-      <div class="mt-6 grid gap-4 md:grid-cols-2">
-        {ALL_LOCATIONS.map((loc) => (
-          <article class="rounded-xl border border-cream bg-chalk p-5 flex gap-4">
-            <span class="font-handwriting text-3xl text-espresso/70 shrink-0">
-              {loc.key === 'jobs' ? '東' : '西'}
-            </span>
-            <div>
-              <p class="font-serif text-lg font-bold text-charcoal">{loc.name}</p>
-              <p class="mt-1 text-sm text-charcoal/75 leading-relaxed">{loc.address}</p>
-              {loc.foundedYear && (
-                <p class="mt-1 text-xs text-charcoal/55">EST. {loc.foundedYear}</p>
-              )}
-            </div>
-          </article>
-        ))}
-      </div>
+      <Button href="/contact" variant="primary" size="lg" magnetic>預約試聽</Button>
     </div>
-  </SectionFadeUp>
-
-  {/* 試聽 CTA */}
-  <SectionFadeUp class="bg-cream/50 paper-grain border-t border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24">
-      <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
-        <div>
-          <p class="font-handwriting text-2xl text-espresso">下一步</p>
-          <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
-            試聽 1 堂課，<br />感受小班的差別。
-          </h2>
-          <p class="mt-4 text-charcoal/80 leading-relaxed">
-            填寫右側表單，我們會在 1 個工作日內以電話或 LINE 聯絡您，安排試聽時段。
-            若試聽後不適合，沒有任何壓力。
-          </p>
-          <ul class="mt-6 space-y-2 text-sm text-charcoal/80">
-            <li class="flex gap-2"><span class="text-caramel">·</span> 試聽完全免費</li>
-            <li class="flex gap-2"><span class="text-caramel">·</span> 試聽後與家長 10 分鐘簡短溝通</li>
-            <li class="flex gap-2"><span class="text-caramel">·</span> 不會在試聽當天就要求做決定</li>
-          </ul>
-          <div class="mt-6 flex flex-wrap gap-3">
-            <Button href="/contact" variant="primary" size="lg" magnetic>預約試聽</Button>
-            <Button href={lineUrl} variant="secondary" size="lg" external={lineUrl !== '#'}>
-              改用 LINE 詢問
-            </Button>
-          </div>
-        </div>
-        <div class="rounded-xl bg-chalk border border-cream p-6 lg:p-8">
-          <h3 class="font-serif text-xl font-bold text-charcoal">試聽流程</h3>
-          <ol class="mt-4 space-y-4 text-sm text-charcoal/80 leading-relaxed">
-            <li class="flex gap-3">
-              <span class="shrink-0 inline-flex h-7 w-7 items-center justify-center rounded-full bg-caramel/30 text-charcoal font-bold">1</span>
-              <span><strong class="text-charcoal">填寫聯絡資訊</strong>：在<a href="/contact" class="chalk-underline">聯絡頁</a>留下姓名、電話、年級與想試聽的科目。</span>
-            </li>
-            <li class="flex gap-3">
-              <span class="shrink-0 inline-flex h-7 w-7 items-center justify-center rounded-full bg-caramel/30 text-charcoal font-bold">2</span>
-              <span><strong class="text-charcoal">1 個工作日內回覆</strong>：我們會電話或 LINE 聯繫，與您討論時段與班別配對。</span>
-            </li>
-            <li class="flex gap-3">
-              <span class="shrink-0 inline-flex h-7 w-7 items-center justify-center rounded-full bg-caramel/30 text-charcoal font-bold">3</span>
-              <span><strong class="text-charcoal">免費試聽 1 堂課</strong>：實際進班，感受小班節奏。</span>
-            </li>
-            <li class="flex gap-3">
-              <span class="shrink-0 inline-flex h-7 w-7 items-center justify-center rounded-full bg-caramel/30 text-charcoal font-bold">4</span>
-              <span><strong class="text-charcoal">家長簡短溝通</strong>：試聽後 10 分鐘與家長討論觀察。不在當天要求做決定。</span>
-            </li>
-          </ol>
-        </div>
-      </div>
-    </div>
-  </SectionFadeUp>
+  </section>
 </BaseLayout>
+
+<style>
+  /* ===== 共用版型 ===== */
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 64px);
+  }
+  .band {
+    padding: clamp(64px, 8vw, 112px) 0;
+  }
+  .band-latte {
+    background: var(--color-latte);
+  }
+  .band-cream {
+    background: var(--color-cream);
+  }
+
+  /* 編輯誌標題層級 */
+  .eyebrow {
+    font-family: var(--font-handwriting);
+    font-size: clamp(1.4rem, 2.6vw, 1.85rem);
+    color: var(--color-espresso);
+    font-weight: 600;
+    line-height: 1;
+    display: inline-block;
+    margin-bottom: 0.7rem;
+  }
+  .section-head {
+    max-width: 760px;
+  }
+  .section-head h2 {
+    font-family: var(--font-serif-tc);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    margin-bottom: 16px;
+    max-width: 20ch;
+    color: var(--color-charcoal);
+  }
+  .section-head .lead {
+    color: rgba(31, 27, 22, 0.62);
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    max-width: 62ch;
+  }
+  .section-head-center {
+    max-width: none;
+    text-align: center;
+    margin: 0 auto;
+  }
+  .section-head-center h2 {
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* 章節大數字 */
+  .head-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .chapter-no {
+    font-family: var(--font-serif-en);
+    font-weight: 600;
+    font-size: clamp(3rem, 9vw, 7rem);
+    color: var(--color-espresso);
+    opacity: 0.12;
+    line-height: 0.8;
+    letter-spacing: -0.02em;
+  }
+
+  .more-row {
+    margin-top: clamp(28px, 4vw, 40px);
+    text-align: center;
+  }
+  .more-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-espresso);
+    font-weight: 600;
+    min-height: 44px;
+  }
+  .more-link:hover {
+    color: var(--color-caramel);
+  }
+
+  /* ===== 黑板 HERO ===== */
+  .hero {
+    background: var(--color-charcoal);
+    color: var(--color-chalk);
+    position: relative;
+    overflow: hidden;
+    padding: clamp(72px, 10vw, 128px) 0 0;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(250, 250, 247, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(250, 250, 247, 0.045) 1px, transparent 1px);
+    background-size: 46px 46px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 35%, #000 55%, transparent 100%);
+    mask-image: radial-gradient(ellipse 90% 80% at 50% 35%, #000 55%, transparent 100%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+  }
+  .hero-wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 64px);
+  }
+
+  .math-deco {
+    position: absolute;
+    z-index: 1;
+    font-family: var(--font-serif-en);
+    color: rgba(250, 250, 247, 0.1);
+    pointer-events: none;
+    user-select: none;
+    font-size: 7rem;
+  }
+  .math-deco.s1 {
+    top: 14%;
+    right: 6%;
+  }
+  .math-deco.s2 {
+    bottom: 24%;
+    left: 4%;
+    font-size: 5.5rem;
+    color: rgba(200, 161, 101, 0.14);
+  }
+  .math-deco.s3 {
+    top: 40%;
+    left: 13%;
+    font-size: 4rem;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-handwriting);
+    font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+    color: var(--color-caramel);
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: inline-block;
+    opacity: 0;
+    animation: hero-fade 0.5s var(--ease-brand) 0.05s forwards;
+  }
+
+  .hero h1 {
+    font-family: var(--font-serif-tc);
+    font-weight: 900;
+    font-size: clamp(2.35rem, 6.2vw, 4.4rem);
+    line-height: 1.18;
+    letter-spacing: 0.01em;
+    color: var(--color-chalk);
+    margin: 0 0 4px;
+    max-width: 16ch;
+  }
+  /* 逐行 clip-path wipe 揭露：結束為乾淨銳利實心字 */
+  .hero h1 .line {
+    display: block;
+    clip-path: inset(0 100% 0 0);
+    will-change: clip-path;
+    animation: line-wipe 0.6s var(--ease-brand) forwards;
+  }
+  .hero h1 .l1 {
+    animation-delay: 0.45s;
+  }
+  .hero h1 .l2 {
+    animation-delay: 0.77s;
+  }
+  .hero h1 .l3 {
+    animation-delay: 1.09s;
+  }
+  .hero h1 .accent {
+    position: relative;
+    color: var(--color-caramel);
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .hero h1 .accent .underline {
+    position: absolute;
+    left: -1%;
+    right: -1%;
+    bottom: -0.16em;
+    width: 102%;
+    height: 0.42em;
+    overflow: visible;
+  }
+  .hero h1 .accent .underline path {
+    fill: none;
+    stroke: var(--color-caramel);
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-dasharray: 620;
+    stroke-dashoffset: 620;
+    /* 底線在最後一行（l3 delay 1.09 + 0.6 = 1.69s）揭露後才畫 */
+    animation: underline-draw 0.6s var(--ease-brand) 1.7s forwards;
+  }
+
+  .hero-sub {
+    max-width: 54ch;
+    margin: 22px 0 34px;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    color: rgba(250, 250, 247, 0.82);
+    font-weight: 400;
+    opacity: 0;
+    animation: hero-fade 0.5s var(--ease-brand) 1.4s forwards;
+  }
+  .hero-sub b {
+    color: var(--color-caramel);
+    font-weight: 600;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: hero-fade 0.5s var(--ease-brand) 1.6s forwards;
+  }
+
+  @keyframes hero-fade {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes line-wipe {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+  @keyframes underline-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* 科目跑馬燈 */
+  .marquee {
+    margin-top: clamp(56px, 7vw, 84px);
+    border-top: 1px solid rgba(250, 250, 247, 0.12);
+    border-bottom: 1px solid rgba(250, 250, 247, 0.12);
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.12);
+  }
+  .marquee-track {
+    display: inline-flex;
+    will-change: transform;
+    animation: marq 42s linear infinite;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+  .marquee-track span {
+    font-family: var(--font-serif-en);
+    font-size: 1.2rem;
+    color: rgba(250, 250, 247, 0.5);
+    padding: 18px 38px;
+    display: inline-flex;
+    align-items: center;
+    letter-spacing: 0.04em;
+  }
+  .marquee-track span::after {
+    content: '·';
+    color: var(--color-caramel);
+    opacity: 0.6;
+    margin-left: 38px;
+  }
+  @keyframes marq {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ===== 三大優勢 ===== */
+  .adv-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(18px, 2.4vw, 30px);
+    margin-top: clamp(28px, 4vw, 48px);
+  }
+  .adv-card {
+    background: var(--color-chalk);
+    border-radius: 16px;
+    padding: clamp(24px, 2.6vw, 34px);
+    border: 1px solid rgba(139, 111, 71, 0.12);
+    box-shadow: 0 2px 14px rgba(31, 27, 22, 0.04);
+    transition:
+      transform 0.35s var(--ease-brand),
+      box-shadow 0.35s var(--ease-brand);
+  }
+  .adv-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 38px rgba(31, 27, 22, 0.1);
+  }
+  .adv-num {
+    font-family: var(--font-serif-en);
+    font-size: 1.5rem;
+    color: var(--color-caramel);
+    margin-bottom: 0.7rem;
+  }
+  .adv-card h3 {
+    font-family: var(--font-serif-tc);
+    font-weight: 700;
+    font-size: 1.3rem;
+    line-height: 1.35;
+    margin-bottom: 12px;
+    color: var(--color-charcoal);
+  }
+  .adv-card p {
+    color: rgba(31, 27, 22, 0.62);
+    font-size: 1rem;
+  }
+  .adv-card .tag {
+    display: inline-block;
+    margin-top: 14px;
+    font-family: var(--font-handwriting);
+    font-size: 1.25rem;
+    color: var(--color-espresso);
+  }
+
+  /* ===== 數據區 ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(24px, 4vw, 48px);
+    text-align: center;
+    margin-top: clamp(28px, 4vw, 48px);
+  }
+  .stat .num {
+    font-family: var(--font-serif-en);
+    font-size: clamp(3rem, 7vw, 4.6rem);
+    font-weight: 600;
+    color: var(--color-charcoal);
+    line-height: 1;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 2px;
+    letter-spacing: -0.01em;
+  }
+  .stat .num .suffix {
+    font-size: 0.45em;
+    color: var(--color-caramel);
+  }
+  .stat .label {
+    margin-top: 12px;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  .stat .sub {
+    color: rgba(31, 27, 22, 0.62);
+    font-size: 0.92rem;
+    margin-top: 4px;
+  }
+  @media (min-width: 861px) {
+    .stats-grid {
+      position: relative;
+    }
+    .stats-grid .stat:not(:first-child)::before {
+      content: '';
+      position: absolute;
+      top: 14%;
+      height: 72%;
+      width: 1px;
+      background: rgba(31, 27, 22, 0.12);
+      margin-left: -24px;
+    }
+  }
+
+  /* ===== 課程精選 ===== */
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    margin-top: clamp(24px, 3vw, 40px);
+  }
+  .course-card {
+    background: var(--color-chalk);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(139, 111, 71, 0.12);
+    transition:
+      transform 0.35s var(--ease-brand),
+      box-shadow 0.35s var(--ease-brand);
+    display: flex;
+    flex-direction: column;
+    color: var(--color-charcoal);
+  }
+  .course-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 38px rgba(31, 27, 22, 0.1);
+  }
+  .course-top {
+    background: var(--color-charcoal);
+    color: var(--color-chalk);
+    padding: 22px 24px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .course-top::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(250, 250, 247, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(250, 250, 247, 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.6;
+  }
+  .course-symbol {
+    position: relative;
+    font-family: var(--font-serif-en);
+    font-size: 1.9rem;
+    color: var(--color-caramel);
+  }
+  .course-top h3 {
+    position: relative;
+    font-family: var(--font-serif-tc);
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-top: 6px;
+    color: var(--color-chalk);
+  }
+  .course-body {
+    padding: 20px 24px 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .course-body p {
+    color: rgba(31, 27, 22, 0.62);
+    font-size: 0.96rem;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .course-stage {
+    margin-top: 14px;
+    font-family: var(--font-handwriting);
+    font-size: 1.2rem;
+    color: var(--color-espresso);
+  }
+
+  /* ===== 師資精選 ===== */
+  .teacher-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(18px, 2.4vw, 30px);
+    margin-top: clamp(24px, 3vw, 40px);
+  }
+  .teacher-card {
+    background: var(--color-chalk);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(139, 111, 71, 0.12);
+    box-shadow: 0 2px 14px rgba(31, 27, 22, 0.04);
+    transition:
+      transform 0.4s var(--ease-brand),
+      box-shadow 0.4s var(--ease-brand);
+    display: block;
+    color: var(--color-charcoal);
+  }
+  .teacher-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 38px rgba(31, 27, 22, 0.1);
+  }
+  .teacher-photo {
+    aspect-ratio: 5 / 4;
+    background: var(--color-charcoal);
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .teacher-photo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(250, 250, 247, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(250, 250, 247, 0.05) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: 0.7;
+  }
+  .teacher-photo .initial {
+    position: relative;
+    font-family: var(--font-serif-en);
+    font-size: 3rem;
+    color: var(--color-caramel);
+  }
+  .teacher-body {
+    padding: 22px 24px 26px;
+  }
+  .teacher-body h3 {
+    font-family: var(--font-serif-tc);
+    font-weight: 700;
+    font-size: 1.28rem;
+    color: var(--color-charcoal);
+  }
+  .teacher-body .role {
+    color: var(--color-espresso);
+    font-weight: 600;
+    font-size: 0.93rem;
+    margin: 6px 0 10px;
+  }
+  .teacher-body p {
+    color: rgba(31, 27, 22, 0.62);
+    font-size: 0.95rem;
+  }
+  .teacher-body .exp {
+    display: inline-block;
+    margin-top: 12px;
+    font-family: var(--font-handwriting);
+    font-size: 1.2rem;
+    color: var(--color-charcoal);
+  }
+
+  /* ===== 學生見證 ===== */
+  .voice-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(18px, 2.4vw, 30px);
+    margin-top: clamp(24px, 3vw, 40px);
+  }
+  .voice-card {
+    background: var(--color-chalk);
+    border-radius: 16px;
+    padding: 30px 28px;
+    position: relative;
+    border: 1px solid rgba(139, 111, 71, 0.12);
+    box-shadow: 0 2px 14px rgba(31, 27, 22, 0.04);
+    margin: 0;
+  }
+  .voice-card .q {
+    font-family: var(--font-serif-en);
+    font-size: 3rem;
+    color: var(--color-caramel);
+    line-height: 0.6;
+    opacity: 0.55;
+  }
+  .voice-card blockquote {
+    font-size: 1.02rem;
+    line-height: 1.8;
+    color: #3c352c;
+    margin: 10px 0 18px;
+  }
+  .voice-who {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px dashed rgba(139, 111, 71, 0.3);
+    padding-top: 14px;
+  }
+  .voice-who .dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-espresso);
+    color: var(--color-chalk);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-serif-en);
+    flex-shrink: 0;
+  }
+  .voice-who b {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--color-charcoal);
+  }
+  .voice-who small {
+    color: var(--color-espresso);
+  }
+
+  /* ===== 最新文章 ===== */
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(18px, 2.4vw, 30px);
+    margin-top: clamp(24px, 3vw, 40px);
+  }
+  .post-card {
+    background: var(--color-chalk);
+    border-radius: 16px;
+    padding: 26px 26px 28px;
+    border: 1px solid rgba(139, 111, 71, 0.12);
+    box-shadow: 0 2px 14px rgba(31, 27, 22, 0.04);
+    display: flex;
+    flex-direction: column;
+    color: var(--color-charcoal);
+    transition:
+      transform 0.35s var(--ease-brand),
+      box-shadow 0.35s var(--ease-brand);
+  }
+  .post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 38px rgba(31, 27, 22, 0.1);
+  }
+  .post-card h3 {
+    font-family: var(--font-serif-tc);
+    font-weight: 700;
+    font-size: 1.2rem;
+    line-height: 1.4;
+    color: var(--color-charcoal);
+  }
+  .post-card p {
+    margin-top: 10px;
+    color: rgba(31, 27, 22, 0.62);
+    font-size: 0.95rem;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .post-card .post-meta {
+    margin-top: 16px;
+    font-family: var(--font-handwriting);
+    font-size: 1.1rem;
+    color: var(--color-espresso);
+  }
+
+  /* ===== 試聽 CTA ===== */
+  .cta-final {
+    background: var(--color-charcoal);
+    color: var(--color-chalk);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: clamp(64px, 8vw, 112px) 0;
+  }
+  .cta-final::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(250, 250, 247, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(250, 250, 247, 0.045) 1px, transparent 1px);
+    background-size: 46px 46px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 90% at 50% 50%, #000 50%, transparent 100%);
+    mask-image: radial-gradient(ellipse 80% 90% at 50% 50%, #000 50%, transparent 100%);
+    pointer-events: none;
+  }
+  .cta-wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 64px);
+  }
+  .cta-final .eyebrow {
+    color: var(--color-caramel);
+  }
+  .cta-final h2 {
+    font-family: var(--font-serif-tc);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 4.5vw, 3rem);
+    color: var(--color-chalk);
+    margin: 8px auto 18px;
+    max-width: 20ch;
+    line-height: 1.2;
+  }
+  .cta-points {
+    display: flex;
+    justify-content: center;
+    gap: 10px 26px;
+    flex-wrap: wrap;
+    color: rgba(250, 250, 247, 0.78);
+    margin-bottom: 30px;
+    font-size: 1.02rem;
+  }
+  .cta-points span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cta-points span::before {
+    content: '✓';
+    color: var(--color-caramel);
+    font-weight: 700;
+  }
+  .cta-deco {
+    position: absolute;
+    font-family: var(--font-serif-en);
+    color: rgba(200, 161, 101, 0.13);
+    font-size: 8rem;
+    z-index: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+  .cta-deco.a {
+    top: 10%;
+    left: 6%;
+  }
+  .cta-deco.b {
+    bottom: 8%;
+    right: 7%;
+    color: rgba(250, 250, 247, 0.08);
+  }
+
+  /* ===== 響應式 ===== */
+  @media (max-width: 860px) {
+    .adv-grid,
+    .stats-grid,
+    .course-grid,
+    .teacher-grid,
+    .voice-grid,
+    .post-grid {
+      grid-template-columns: 1fr;
+    }
+    .math-deco.s1 {
+      font-size: 4rem;
+    }
+    .math-deco.s2 {
+      font-size: 3rem;
+    }
+    .math-deco.s3 {
+      display: none;
+    }
+    .hero h1 {
+      max-width: none;
+    }
+    .hero-cta :global(a) {
+      flex: 1;
+      min-width: 140px;
+    }
+    .cta-deco {
+      font-size: 4.5rem;
+    }
+  }
+  @media (min-width: 561px) and (max-width: 860px) {
+    .course-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ===== prefers-reduced-motion：直接顯示最終實心字與已畫底線 ===== */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-eyebrow,
+    .hero-sub,
+    .hero-cta {
+      opacity: 1;
+      animation: none;
+    }
+    .hero h1 .line {
+      clip-path: none;
+      animation: none;
+    }
+    .hero h1 .accent .underline path {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+    .marquee-track {
+      animation: none;
+    }
+  }
+</style>

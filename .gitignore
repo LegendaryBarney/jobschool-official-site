@@ -58,3 +58,9 @@ _archive/
 !.claude/scripts/
 .claude/settings.local.json
 .claude/logs/
+prototypes/
+
+# Playwright 截圖暫存
+.playwright-mcp/
+home-*-desktop.jpeg
+home-*-mobile.jpeg
