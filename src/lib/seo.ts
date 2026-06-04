@@ -100,8 +100,21 @@ export const SITE = {
   openingHoursDisplay: '週一至週六 14:00–22:00（週日休）',
   founded: 2014,
   socials: {
-    line: '',
-    facebook: '',
     instagram: '',
+    facebook: '',
+    youtube: '',
+    googleBusiness: '',
   },
 } as const;
+
+export type SocialKey = keyof typeof SITE.socials;
+
+/**
+ * 回傳 SITE.socials 中所有非空（去除前後空白後仍有值）的社群連結。
+ * 用於 Footer 渲染與 JSON-LD sameAs 串接。
+ */
+export function getActiveSocials(): Array<{ key: SocialKey; url: string }> {
+  return (Object.entries(SITE.socials) as Array<[SocialKey, string]>)
+    .map(([key, url]) => ({ key, url: url.trim() }))
+    .filter((s) => s.url.length > 0);
+}
