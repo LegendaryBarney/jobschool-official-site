@@ -1,40 +1,89 @@
-# PROGRESS — 工作進度
+# PROGRESS — 工作進度與斷點（接手 session 先讀這裡）
 
-> 跨 session 斷點檔。每次工作完更新「做了什麼 / 卡在哪 / 下一步 / 待決策」。
-> 最高指導原則見 CLAUDE.md。
+> 跨 session 的權威斷點檔。**任何新 session 啟動時，讀完 CLAUDE.md 後立刻讀本檔**，
+> 即可知道：做到哪、有哪些設置、業主拍板了什麼、下一步、待決策。
+> 記憶另存於 `~/.claude/projects/<本專案>/memory/`（索引 MEMORY.md，每 session 自動載入）。
+
+最後更新：2026-06-05（夜跑編排 dry-run 驗證通過、揪出 2 問題）
 
 ---
 
-## 2026-06-04 — 自動化地基（Autonomy Infrastructure）
+## 0. 業主工作模式（最高層）
 
-目標：讓 headless 夜跑與 subagent 能「跑順跑通、半夜不發問、也不會誤觸 production」。
+- **我是「代理業主 / orchestrator」**：規劃、切割、實作、測試都**派 subagent 做**；我只定義工作、發包（因 subagent 不能再生 subagent，fan-out 由我代發）、驗收、回報。把 context 留給決策。
+- 業主只做決策，不做苦工。需要決策時一次彙整（選項＋量化代價＋推薦）。繁體中文、直接、不 hedge。
+- 紅線：永遠 feature branch；push main / `vercel --prod` / 改 DNS = 正式上線級，**夜間/headless 絕對禁止**，要業主白天親自確認。
 
-### 已完成
+---
 
-- **權限設定** `.claude/settings.json`（已進版控）
-  - allow：git 安全子集、npm/npx/node、gh、vercel、pagefind、檔案讀寫、Web、三個 MCP（playwright / chrome-devtools / context7）→ 夜跑常用工具不再跳權限詢問。
-  - deny：force push、push main、reset --hard、clean -f、刪遠端分支、`vercel --prod`/promote/rollback/alias/dns/domains/remove、`rm -rf`、寫 `.env`。
-- **守門 hook** `.claude/hooks/guard.mjs`（PreToolUse，攔 Bash|PowerShell）
-  - 靜態樣式抓不到的變體由它以實際邏輯攔下：force push、reset --hard、clean -f、刪遠端分支、Vercel production、push 到 main、**以及目前站在 main 分支時禁止任何 push**。
-  - 已實測：force push / `vercel --prod` / 在 main 上 push 三案皆正確阻擋（exit 2）。
-- **夜跑執行器** `.claude/scripts/night-run.ps1`：讀 KICKOFF.md → headless `claude -p` 執行 → log 寫 `.claude/logs/`。無任務時只記一行就結束。
-- **.gitignore**：改成讓 `.claude/settings.json`、`hooks/`、`scripts/` 進版控；個人 `settings.local.json` 與 `logs/` 不進。
-- **Vercel CLI** 已全域安裝（v54.9.1，user-level prefix，免管理員）。
-- **環境**：Node v22.20、npm 11.6、claude CLI 2.1.138、node_modules 已就緒。
-- **Windows 排程**：已建立排程任務 `JobschoolNightRun`（每日 02:00 跑 night-run.ps1），**目前停用中**，待登入完成後再啟用。
+## 1. 已拍板決策（locked）
 
-### 卡在哪 / 待業主處理（一次性，我做不了）
+| 項目 | 決定 |
+|---|---|
+| 首頁設計方向 | **D**＝C 黑板手感 × A 編輯誌字體 × B 師資卡/常駐試聽鈕。hero 標題須**實心**（非中空描邊） |
+| 夜跑分支策略 | **常駐滾動分支 `feat/night`**：只從 main 開一次，之後每晚在它上面續做、累積 PROGRESS → 跨晚 resume 成立；業主隨時 review、準備好才 PR 進 main |
+| 夜跑 token 上限 | **1,500,000 / 晚**（用完即收工） |
+| 夜跑並行度 | 3 |
+| 夜跑 model | 混搭：規劃/切割/測試 haiku·sonnet，實作/收斂 opus |
+| 夜跑停止時點 | **早上 07:00**（02:00 起跑）；未完成**自動隔晚續做、不重做已完成項** |
+| commit 粒度 | 每工作項一 commit，訊息帶 task ID：`night(Tn): …`（= 完成的持久標記） |
+| 失敗策略 | 實作/測試各重試 1 次，仍失敗即記錄跳過、隔晚續做 |
+| 自動 preview deploy | 預設關，由 KICKOFF `allow_preview_deploy` 控制 |
+| 登入狀態 | gh ✓（LegendaryBarney）、vercel ✓ 已登入 |
 
-1. **`gh auth login`** — GitHub 認證。沒有它連 feature branch 都 push 不上去（HTTPS 需憑證）。
-2. **`vercel login`** — 沒有它無法 `vercel link` 與 preview deploy（Phase 1）。
+待業主決策（擱置）：DNS 切換時點、Decap CMS 登入後端、Resend/Turnstile/Sentry/GA4 正式金鑰（見 CLAUDE.md §5）。
 
-### 待決策（擱置，留白天）
+---
 
-- 排程啟用時點：登入完成後啟用 `JobschoolNightRun`（或改時間）。
-- 以下沿用 CLAUDE.md §5：DNS 切換、Decap CMS 登入後端、Resend/Turnstile/Sentry/GA4 正式金鑰。
+## 2. 已完成（commit 都在 `feat/home-d-redesign`，**尚未 push、尚未 merge main**）
 
-### 下一步（地基完成後，依 Roadmap）
+- **自動化地基** `c843774`
+  - `.claude/settings.json`：夜跑 allow 白名單 + production/破壞性操作 deny。
+  - `.claude/hooks/guard.mjs`：PreToolUse 守門（擋 force push / push main / 在 main 上 push / reset --hard / clean -f / 刪遠端分支 / vercel prod 類）。實測通過。
+  - `.claude/scripts/night-run.ps1`：夜跑啟動器。
+  - Windows 排程 `JobschoolNightRun`（每日 02:00，**目前停用中**）。
+  - `.gitignore` 放行 `.claude/{settings.json,hooks,scripts,workflows}` 進版控。
+- **首頁改版 D** `5694286`
+  - `src/pages/index.astro` 重寫為 D 版型，資料綁 content collections（課程/師資/見證/文章）。
+  - 黑板 hero（純 CSS 實心 clip-reveal 標題 + 焦糖金手繪底線 + 科目跑馬燈）、編輯誌章節號、數學符號粉筆課程卡、B 式深色塊師資卡、黑板感試聽 CTA。
+  - `Fonts.astro` 補 Noto Serif TC 900；`Button.astro` 加深底 `outline-chalk` variant。
+  - 測試 subagent 驗收 **7/7 PASS**（標題實心無描邊、check/build 全綠、RWD 正常）。
+- **夜跑編排系統** `542284d`
+  - `.claude/workflows/night-orchestrate.mjs`：Workflow 編排（PLANNER→SPLITTER→pipeline 實作測試→INTEGRATOR 收斂→REPORTER）。
+  - `KICKOFF.template.md`、`docs/NIGHT_RUN_DESIGN.md`。
+  - 07:00 停 + 跨晚 resume（task ID + commit 標記）。
 
-- Phase 0 收尾：`npm run dev` / `check` / `build` 三綠 + 首頁桌機/手機截圖基準。
-- Phase 1：`vercel link` → 第一次 preview deploy（需上面兩個登入先完成）。
-- 之後內容/視覺修正可寫進 KICKOFF.md 交夜跑（known_errors.md 已列一票事實與排版錯誤）。
+prototypes（home-a/b/c/d.html）與截圖在 `prototypes/`、根目錄 `*.jpeg`（皆 gitignored）。
+
+---
+
+## 3. 夜跑編排 dry-run 結果（2026-06-05）
+
+以單一小任務（新增試聽 FAQ）跨完整鏈，**機制驗證成功**：PLANNER→SPLITTER→實作(opus,worktree)→測試(sonnet)→INTEGRATOR→push→REPORTER 全通；build 綠；326K tokens；queue-empty 收工。
+
+**揪出 2 個待修問題：**
+1. **Workflow 不能用 name 叫**（只有 built-in 可）。`night-run.ps1` 的 prompt 要改成用 **scriptPath** `.claude/workflows/night-orchestrate.mjs`，否則真夜跑會失敗。
+2. **分支策略缺陷** → 已拍板改為常駐 `feat/night`（見 §1）。原本每晚從 main 切 per-date 分支會讓跨晚 resume 失效、PROGRESS 分岔。需改：night-orchestrate.mjs 與 night-run.ps1 改用/續用 `feat/night`（不存在才從 main 建）、REPORTER **commit** PROGRESS 更新、PROGRESS 追加不覆寫、收尾不把共用工作樹遺留在別的分支（或至少明確記錄）。
+
+dry-run 殘留物（待清理/併入）：分支 `feat/night-2026-06-05`（本地+遠端，含 FAQ commit `dbd5770`）、根目錄 `KICKOFF.md`（dry-run 任務書，**應刪掉**避免誤觸發）、`PROGRESS.dryrun-reporter.txt`（REPORTER 當時寫的報告，可參考後刪）。FAQ 內容（試聽免費/不逼當天決定）本身可用，之後可在 feat/night 重做或 cherry-pick。
+
+---
+
+## 4. 下一步（依序）
+
+1. **派 fix subagent** 修 §3 的 2 問題（scriptPath + feat/night 滾動分支 + REPORTER commit PROGRESS）。
+2. 修好後**再跑一次 dry-run** 驗證 feat/night 滾動分支 + 跨晚 resume（連續兩任務或兩次跑驗證去重）。
+3. 通過後：清理 dry-run 殘留、push `feat/home-d-redesign`、（業主白天）決定是否 PR 首頁改版進 main。
+4. 啟用排程 `JobschoolNightRun`（業主說 go 才啟用）。
+5. 低優先：數據區 CountUp 啟動延遲微調（`src/components/CountUp.tsx` threshold）。
+6. 後續內容工：known_errors.md 一票事實/排版錯誤（價格 9300/12 節、科目對師、開業最多 12 年、班級人數、課程頁排版、導覽列底線跟頁籤）——可寫進 KICKOFF 交夜跑。
+
+---
+
+## 5. 重要檔案地圖（接手者按圖索驥）
+
+- 協定/紅線：`CLAUDE.md`｜品牌驗收：`BRAND_GUIDELINES.md`｜規格：`WEBSITE_RFP.md`｜內容地雷與事實更正：`known_errors.md`
+- 權限/安全：`.claude/settings.json`、`.claude/hooks/guard.mjs`
+- 夜跑：`.claude/scripts/night-run.ps1`（啟動器）、`.claude/workflows/night-orchestrate.mjs`（編排）、`KICKOFF.template.md`（任務書範本）、`docs/NIGHT_RUN_DESIGN.md`（架構）
+- 設計定案：本檔 §1 + 記憶 `project_home_design`；prototype `prototypes/home-d.html`
+- 記憶：`~/.claude/projects/<本專案>/memory/MEMORY.md`（索引）

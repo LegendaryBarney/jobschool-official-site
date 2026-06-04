@@ -11,7 +11,9 @@
 2. `BRAND_GUIDELINES.md` — 品牌 VI 與 Tone of Voice（**所有視覺與文案的驗收標準**）
 3. `WEBSITE_RFP.md` — 完整規格
 4. `known_errors.md` — 已知地雷，動工前必看
-5. `PROGRESS.md`（若存在）— 上次工作進度，從斷點接續
+5. **`PROGRESS.md` — 權威斷點檔，最優先**：上次做到哪、已拍板決策、已完成 commit/分支、下一步、待決策、重要檔案地圖。接手就從這裡撿回狀態。
+6. 記憶 `~/.claude/projects/<本專案>/memory/MEMORY.md`（每 session 自動載入索引；含「代理業主」「首頁定案 D」等）。
+7. 關鍵設置位置：權限 `.claude/settings.json`、守門 hook `.claude/hooks/guard.mjs`、夜跑 `.claude/scripts/night-run.ps1` + `.claude/workflows/night-orchestrate.mjs` + `docs/NIGHT_RUN_DESIGN.md`。
 
 ## 1. 業主工作模式（最重要）
 
@@ -48,9 +50,14 @@
 
 ## 3. 夜間自動化機制
 
-業主會用 Windows 工作排程器在凌晨以 headless 模式（`claude -p`）執行本專案的批次工作：
+業主會用 Windows 工作排程器在凌晨以 headless 模式（`claude -p`）執行本專案的批次工作。
+**此機制已實作**（細節見 `docs/NIGHT_RUN_DESIGN.md` 與 PROGRESS.md §1/§3）：排程 02:00 →
+`.claude/scripts/night-run.ps1` 起 headless claude 當「代理業主」→ 透過 Workflow 工具
+（用 scriptPath）跑 `.claude/workflows/night-orchestrate.mjs` 編排腳本，由它 fan-out
+PLANNER→SPLITTER→實作/測試→收斂→匯總 多個 subagent。做到**早上 07:00 停**、未完成
+**隔晚自動續做**（以常駐分支 `feat/night` + `night(Tn):` commit 追蹤）。token 上限 1.5M/晚。
 
-- **任務書 = `KICKOFF.md`**（專案根目錄）：當晚要完成的具體任務清單，由業主或白天 session 寫好。
+- **任務書 = `KICKOFF.md`**（專案根目錄；範本 `KICKOFF.template.md`）：當晚任務清單，由業主或白天 session 寫好。
 - **進度檔 = `PROGRESS.md`**：每完成一個階段就更新（做了什麼、卡在哪、下一步）。中斷後重跑要能從斷點接續，不重做已完成的步驟。
 - 夜間模式只允許：寫 code、commit、push feature branch、preview deploy、截圖驗證、跑檢查。
 - 夜間模式禁止:任何 production 操作、任何需要業主決策的不可逆動作。遇到就寫進 PROGRESS.md 的「待決策」清單，留給白天。
