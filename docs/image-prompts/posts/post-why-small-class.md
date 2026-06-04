@@ -1,0 +1,9 @@
+Side-angle composition, foreground is part of a wooden classroom desk (an open notebook and a hand writing, only wrist and pen visible, no face), only a blurred silhouette in the background, no recognizable face, no detailed features, gives the teacher walking to student's side atmosphere, natural light, warm tones, shallow depth of field, cream beige background, documentary feel, warm.
+
+Style: cafe-inspired aesthetic, warm beige and cream palette, natural soft daylight, matte paper texture, editorial magazine layout, generous whitespace, hand-drawn nuance, calm and understated, subtle film grain, color temperature around 5000K, Lightroom warm preset, VSCO A6 / KK1 finish, analog meets digital, cozy academic warmth, photo-realistic.
+
+Color palette: dominant latte foam beige (#F5EFE6) and cream beige (#EAE0D0); espresso tan brown (#8B6F47) for accent and text-landing areas; charcoal bean (#1F1B16) as the deep neutral; chalk white (#FAFAF7) for highlights; caramel gold (#C8A165) for warm accent light; burnt sienna (#A14A3A) used sparingly only when warning emphasis is needed. Stay within these tones — do not exceed 5 colors in the final composition.
+
+Composition: 16:9 horizontal composition (1600 × 900 px target). Leave the upper section relatively empty for headline overlay.
+
+Negative prompt — strictly avoid: neon colors, oversaturation, pure red, pure blue, pure green, rainbow gradient, purple tones, pink tones, HDR over-exposure, plastic skin retouching, cold blue tones, harsh fluorescent lighting, cartoon style, 3D plastic render, anime, comic book style, low resolution, text watermark, signature, logo overlay, deformed hands, distorted faces, crowded composition with all four corners filled, more than 5 colors, glass reflection, heavy metal sheen, leather texture, heavy wood-grain pattern, fisheye lens distortion, smartphone beauty filter, Comic Sans / Papyrus / Impact fonts, any visible Chinese or English text that could be misspelled.

@@ -1,37 +1,88 @@
 ---
-import PageLayout from '~/layouts/PageLayout.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+const isDev = import.meta.env.DEV;
+
+const jsonLd = [
+  webPageJsonLd({ name: '全站搜尋', description: '搜尋本站所有課程、文章、師資', url: SITE.url + '/search' }),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '搜尋', href: SITE.url + '/search' },
+  ]),
+];
 ---
 
-<PageLayout
+<BaseLayout
   title="全站搜尋"
-  description="使用 Pagefind 搜尋全站文章、課程、師資。"
-  heading="全站搜尋"
+  description="搜尋賈伯斯數理教室全站文章、課程、師資資訊。支援快捷鍵 Cmd / Ctrl + K 開啟搜尋。"
+  jsonLd={jsonLd}
+  hideExitIntent
 >
-  <div id="search" class="max-w-2xl"></div>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '全站搜尋' }]} />
+  </div>
 
-  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
-  <script is:inline src="/pagefind/pagefind-ui.js"></script>
-  <script is:inline>
-    window.addEventListener('DOMContentLoaded', () => {
-      if (window.PagefindUI) {
-        new window.PagefindUI({
-          element: '#search',
-          showSubResults: true,
-          translations: {
-            placeholder: '搜尋文章、課程、師資…',
-            clear_search: '清除',
-            load_more: '載入更多',
-            search_label: '搜尋',
-            filters_label: '篩選',
-            zero_results: '沒有找到 [SEARCH_TERM] 的結果',
-            many_results: '找到 [COUNT] 筆關於 [SEARCH_TERM] 的結果',
-            one_result: '找到 1 筆關於 [SEARCH_TERM] 的結果',
-            alt_search: '沒有 [SEARCH_TERM] 的結果。改用 [DIFFERENT_TERM] 搜尋',
-            search_suggestion: '沒有找到 [SEARCH_TERM] 的結果。試試以下搜尋：',
-            searching: '搜尋中…',
-          },
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      <p class="font-handwriting text-2xl text-espresso">全站搜尋</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-5xl font-bold text-charcoal leading-tight">
+        找你需要的學習資源
+      </h1>
+      <p class="mt-4 max-w-2xl text-charcoal/80">
+        快捷鍵：按下 <kbd class="rounded bg-cream px-1.5 py-0.5 text-charcoal text-sm">Cmd</kbd>
+        或 <kbd class="rounded bg-cream px-1.5 py-0.5 text-charcoal text-sm">Ctrl</kbd>
+        + <kbd class="rounded bg-cream px-1.5 py-0.5 text-charcoal text-sm">K</kbd>
+        在任何頁面快速開啟搜尋。
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-3xl px-4 py-12 lg:px-8 lg:py-16">
+    {isDev ? (
+      <div class="rounded-xl border border-cream bg-chalk p-6 text-center">
+        <p class="font-serif text-xl text-charcoal">搜尋功能於正式環境啟用</p>
+        <p class="mt-2 text-sm text-charcoal/70">
+          本站搜尋使用 <strong>Pagefind</strong> 在 build 時建立索引，dev 模式下無索引可查詢。
+          執行 <code class="rounded bg-cream px-1.5 py-0.5 text-espresso">npm run build</code>
+          後再用 <code class="rounded bg-cream px-1.5 py-0.5 text-espresso">npm run preview</code> 查看正式索引。
+        </p>
+      </div>
+    ) : (
+      <div id="search" class="pagefind-ui-wrapper"></div>
+    )}
+  </section>
+
+  {!isDev && (
+    <>
+      <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+      <script is:inline src="/pagefind/pagefind-ui.js"></script>
+      <script is:inline define:vars={{ }}>
+        window.addEventListener('DOMContentLoaded', () => {
+          if (window.PagefindUI) {
+            new window.PagefindUI({
+              element: '#search',
+              showSubResults: true,
+              showImages: false,
+              translations: {
+                placeholder: '搜尋文章、課程、師資…',
+                clear_search: '清除',
+                load_more: '載入更多',
+                search_label: '搜尋',
+                filters_label: '篩選',
+                zero_results: '沒有找到 [SEARCH_TERM] 的結果',
+                many_results: '找到 [COUNT] 筆關於 [SEARCH_TERM] 的結果',
+                one_result: '找到 1 筆關於 [SEARCH_TERM] 的結果',
+                alt_search: '沒有 [SEARCH_TERM] 的結果。改用 [DIFFERENT_TERM] 搜尋',
+                search_suggestion: '沒有找到 [SEARCH_TERM] 的結果。試試其他關鍵字：',
+                searching: '搜尋中…',
+              },
+            });
+          }
         });
-      }
-    });
-  </script>
-</PageLayout>
+      </script>
+    </>
+  )}
+</BaseLayout>

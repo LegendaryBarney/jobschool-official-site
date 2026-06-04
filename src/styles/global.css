@@ -98,3 +98,185 @@
       12px 12px;
   }
 }
+
+/*
+ * brand-prose
+ * markdown body 套用的品牌排版規則。
+ * 比照 BRAND_GUIDELINES.md §4.3 字級／行距，並補上業主要的：
+ *   - 標題層級加大、加粗、加足留白
+ *   - 條列預設 disc / decimal marker，marker 用 caramel
+ *   - 行距放鬆到 1.85（leading-loose 等級）
+ * 用法：在 markdown 外層容器加 class="brand-prose"
+ */
+.brand-prose {
+  color: var(--color-charcoal);
+  font-size: 1.0625rem; /* 17px */
+  line-height: 1.85;
+}
+
+.brand-prose > * + * {
+  margin-top: 1.1em;
+}
+
+.brand-prose h1,
+.brand-prose h2,
+.brand-prose h3,
+.brand-prose h4 {
+  color: var(--color-charcoal);
+}
+
+.brand-prose h2 {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.75rem; /* 28px */
+  line-height: 1.25;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 6rem;
+}
+
+@media (min-width: 1024px) {
+  .brand-prose h2 {
+    font-size: 2rem; /* 32px */
+  }
+}
+
+.brand-prose h3 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 1.375rem; /* 22px */
+  line-height: 1.3;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  scroll-margin-top: 6rem;
+}
+
+.brand-prose h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1.125rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.brand-prose p {
+  line-height: 1.85;
+  color: rgba(31, 27, 22, 0.92);
+}
+
+.brand-prose strong {
+  color: var(--color-charcoal);
+  font-weight: 600;
+}
+
+.brand-prose ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.brand-prose ol {
+  list-style: decimal;
+  padding-left: 1.75rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.brand-prose li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.8;
+}
+
+.brand-prose li::marker {
+  color: var(--color-caramel);
+}
+
+.brand-prose ul ul,
+.brand-prose ol ol,
+.brand-prose ul ol,
+.brand-prose ol ul {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.brand-prose a {
+  color: var(--color-espresso);
+  text-decoration: underline;
+  text-decoration-color: rgba(200, 161, 101, 0.45);
+  text-underline-offset: 3px;
+}
+
+.brand-prose a:hover {
+  color: var(--color-caramel);
+}
+
+.brand-prose blockquote {
+  border-left: 3px solid var(--color-caramel);
+  background-color: var(--color-chalk);
+  padding: 0.75rem 1.25rem;
+  margin: 1.5rem 0;
+  font-style: normal;
+  color: rgba(31, 27, 22, 0.85);
+}
+
+.brand-prose blockquote > * + * {
+  margin-top: 0.5rem;
+}
+
+.brand-prose code {
+  background-color: var(--color-cream);
+  color: var(--color-charcoal);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.brand-prose pre {
+  background-color: var(--color-charcoal);
+  color: var(--color-chalk);
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+.brand-prose pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.brand-prose img,
+.brand-prose figure {
+  border-radius: 0.75rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.brand-prose hr {
+  border: 0;
+  border-top: 1px solid var(--color-cream);
+  margin: 2.5rem 0;
+}
+
+.brand-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95em;
+}
+
+.brand-prose th,
+.brand-prose td {
+  border-bottom: 1px solid var(--color-cream);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.brand-prose th {
+  background-color: var(--color-cream);
+  font-weight: 600;
+}

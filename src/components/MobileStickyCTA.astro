@@ -3,22 +3,55 @@ const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
 ---
 
 <div
-  class="lg:hidden fixed bottom-0 inset-x-0 z-30 p-3 bg-latte/95 backdrop-blur-md border-t border-cream shadow-lg"
+  id="mobile-sticky-cta"
+  data-visible="true"
+  class="lg:hidden fixed inset-x-0 bottom-0 z-30 bg-latte/95 backdrop-blur-md border-t border-cream shadow-[0_-2px_8px_rgba(31,27,22,0.06)] transition-[transform,opacity] duration-300 ease-[var(--ease-brand)]"
+  style="padding-bottom: env(safe-area-inset-bottom);"
 >
-  <div class="flex gap-2">
-    <a
-      href="/contact"
-      class="flex-1 inline-flex items-center justify-center h-12 rounded-lg bg-caramel text-charcoal font-medium text-base"
-    >
-      立即試聽
-    </a>
+  <div class="flex items-stretch gap-2 px-3 py-2" style="min-height: 56px;">
     <a
       href={lineUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="inline-flex items-center justify-center h-12 px-4 rounded-lg bg-chalk border border-espresso text-espresso font-medium text-base"
+      target={lineUrl !== '#' ? '_blank' : undefined}
+      rel={lineUrl !== '#' ? 'noopener noreferrer' : undefined}
+      class="flex-1 inline-flex items-center justify-center rounded-lg bg-chalk border border-espresso text-espresso font-medium text-[15px]"
     >
       加 LINE
     </a>
+    <a
+      href="/contact"
+      class="flex-[1.2] inline-flex items-center justify-center rounded-lg bg-caramel text-charcoal font-medium text-[15px] shadow-sm"
+    >
+      立即試聽
+    </a>
   </div>
 </div>
+
+<style>
+  #mobile-sticky-cta[data-visible='false'] {
+    transform: translateY(110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  function initMobileCta() {
+    const cta = document.getElementById('mobile-sticky-cta');
+    const footer = document.getElementById('site-footer');
+    if (!cta || !footer) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          cta.dataset.visible = entry.isIntersecting ? 'false' : 'true';
+        }
+      },
+      { rootMargin: '0px 0px 0px 0px', threshold: 0 },
+    );
+
+    io.observe(footer);
+  }
+
+  initMobileCta();
+  document.addEventListener('astro:page-load', initMobileCta);
+</script>

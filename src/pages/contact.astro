@@ -1,38 +1,221 @@
 ---
-import PageLayout from '~/layouts/PageLayout.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import IconChalk from '~/components/IconChalk.astro';
 import TrialForm from '~/components/TrialForm';
+import { localBusinessJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+import { LOCATIONS } from '~/lib/locations';
 
 const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
+
+const jobs = LOCATIONS.jobs;
+const shinobi = LOCATIONS.shinobi;
+const mapEmbedSrc = jobs.mapEmbedSrc;
+const mapLink = jobs.mapLink;
+
+const jsonLd = [
+  localBusinessJsonLd(),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '聯絡我們', href: SITE.url + '/contact' },
+  ]),
+];
 ---
 
-<PageLayout
+<BaseLayout
   title="聯絡我們 / 試聽預約"
-  description="嘉義市東區康樂街 10 號 · (05)223-0303。歡迎填表預約免費試聽。"
-  heading="聯絡我們"
-  subheading="試聽是免費的，沒有壓力。"
+  description="嘉義市東區康樂街 10 號 · (05)223-0303 · 賈伯斯數理教室。歡迎填表預約免費試聽，或加 LINE 詢問課程。試聽免費，沒有任何壓力。"
+  jsonLd={jsonLd}
 >
-  <div class="grid gap-10 lg:grid-cols-3">
-    <aside class="space-y-6 text-sm text-charcoal/85">
-      <div>
-        <h3 class="font-semibold text-espresso">教室地址</h3>
-        <p class="mt-2">嘉義市東區康樂街 10 號</p>
-      </div>
-      <div>
-        <h3 class="font-semibold text-espresso">電話</h3>
-        <p class="mt-2">(05)223-0303</p>
-      </div>
-      <div>
-        <h3 class="font-semibold text-espresso">LINE 官方帳號</h3>
-        <p class="mt-2">
-          <a href={lineUrl} target="_blank" rel="noopener noreferrer" class="underline">
-            點此加入
-          </a>
-        </p>
-      </div>
-    </aside>
-
-    <div class="lg:col-span-2">
-      <TrialForm client:load />
-    </div>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '聯絡我們' }]} />
   </div>
-</PageLayout>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      <p class="font-handwriting text-2xl text-espresso">聯絡我們</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-5xl font-bold text-charcoal leading-tight">
+        試聽是免費的，<br class="md:hidden" />沒有任何壓力。
+      </h1>
+      <p class="mt-5 max-w-2xl text-lg text-charcoal/80 leading-relaxed">
+        填寫右側表單，我們會在 1 個工作日內以電話或 LINE 聯絡您，安排試聽時段。
+        或直接加 LINE / 撥電話與我們聊聊。
+      </p>
+    </div>
+  </section>
+
+  <SectionFadeUp>
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      <div class="grid gap-10 lg:grid-cols-5">
+        {/* 左側：地圖 + 聯絡資訊 */}
+        <aside class="lg:col-span-2 space-y-6">
+          <div class="rounded-xl overflow-hidden border border-cream bg-cream/60">
+            <div class="aspect-[4/3] bg-cream">
+              <iframe
+                src={mapEmbedSrc}
+                title="賈伯斯數理教室位置地圖"
+                width="100%"
+                height="100%"
+                style="border: 0;"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                allowfullscreen
+              ></iframe>
+            </div>
+            <div class="p-4 text-sm">
+              <a
+                href={mapLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-espresso hover:text-caramel font-medium"
+              >
+                在 Google 地圖打開 →
+              </a>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-cream bg-chalk p-5 space-y-4">
+            <div class="flex gap-3">
+              <span class="text-espresso shrink-0 mt-0.5">
+                <IconChalk name="flag" size={20} />
+              </span>
+              <div>
+                <p class="text-xs font-semibold tracking-wider text-espresso uppercase">教室地址</p>
+                <p class="mt-1 text-charcoal">{SITE.address.full}</p>
+                <p class="mt-1 text-xs text-charcoal/60">距嘉中、嘉女步行約 8-12 分鐘</p>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <span class="text-espresso shrink-0 mt-0.5">
+                <IconChalk name="compass" size={20} />
+              </span>
+              <div>
+                <p class="text-xs font-semibold tracking-wider text-espresso uppercase">電話</p>
+                <a href={`tel:${SITE.phone}`} class="mt-1 block text-charcoal hover:text-espresso">
+                  {SITE.phoneDisplay}
+                </a>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <span class="text-espresso shrink-0 mt-0.5">
+                <IconChalk name="cup" size={20} />
+              </span>
+              <div>
+                <p class="text-xs font-semibold tracking-wider text-espresso uppercase">營業時間</p>
+                <p class="mt-1 text-charcoal">{SITE.openingHoursDisplay}</p>
+              </div>
+            </div>
+            <div class="flex gap-3 pt-3 border-t border-cream/80">
+              <span class="text-espresso shrink-0 mt-0.5">
+                <IconChalk name="spark" size={20} />
+              </span>
+              <div class="flex-1">
+                <p class="text-xs font-semibold tracking-wider text-espresso uppercase">LINE 官方帳號</p>
+                <p class="mt-1 text-sm text-charcoal/70">
+                  最快的詢問方式
+                </p>
+                <a
+                  href={lineUrl}
+                  target={lineUrl !== '#' ? '_blank' : undefined}
+                  rel={lineUrl !== '#' ? 'noopener noreferrer' : undefined}
+                  class="mt-3 inline-flex h-10 items-center rounded-lg bg-caramel px-4 text-sm font-medium text-charcoal hover:-translate-y-px transition-transform"
+                >
+                  加 LINE 詢問課程
+                </a>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* 右側：試聽表單 */}
+        <div class="lg:col-span-3">
+          <div class="rounded-xl bg-chalk border border-cream p-5 lg:p-7">
+            <h2 class="font-serif text-2xl font-bold text-charcoal">試聽預約表單</h2>
+            <p class="mt-2 text-sm text-charcoal/70">
+              填寫後我們會主動聯絡您。表單僅用於安排試聽，不會用於行銷推播。
+            </p>
+            <div class="mt-6">
+              <TrialForm client:visible />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </SectionFadeUp>
+
+  {/* 姊妹品牌：忍文理教室 */}
+  <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      <p class="font-handwriting text-2xl text-espresso">另一個校區</p>
+      <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        姊妹品牌 · {shinobi.name}
+      </h2>
+      <p class="mt-3 max-w-2xl text-charcoal/80 leading-relaxed">
+        2023 年我們在嘉義市西區新增了 {shinobi.name}，
+        延續同樣的精緻小班理念，服務嘉義西區的學生與家長。
+      </p>
+
+      <div class="mt-8 grid gap-6 lg:grid-cols-5">
+        <div class="lg:col-span-3 rounded-xl overflow-hidden border border-cream bg-cream/60">
+          <div class="aspect-[16/9] bg-cream">
+            <iframe
+              src={shinobi.mapEmbedSrc}
+              title={`${shinobi.name} 位置地圖`}
+              width="100%"
+              height="100%"
+              style="border: 0;"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="p-4 text-sm">
+            <a
+              href={shinobi.mapLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-espresso hover:text-caramel font-medium"
+            >
+              在 Google 地圖打開 →
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2 rounded-xl border border-cream bg-chalk p-5 space-y-4">
+          <div class="flex gap-3">
+            <span class="text-espresso shrink-0 mt-0.5">
+              <IconChalk name="flag" size={20} />
+            </span>
+            <div>
+              <p class="text-xs font-semibold tracking-wider text-espresso uppercase">地址</p>
+              <p class="mt-1 text-charcoal">{shinobi.address}</p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-espresso shrink-0 mt-0.5">
+              <IconChalk name="compass" size={20} />
+            </span>
+            <div>
+              <p class="text-xs font-semibold tracking-wider text-espresso uppercase">電話</p>
+              <a href={`tel:${shinobi.phoneTel}`} class="mt-1 block text-charcoal hover:text-espresso">
+                {shinobi.phone}
+              </a>
+              <p class="mt-1 text-xs text-charcoal/55">與賈伯斯共用客服電話</p>
+            </div>
+          </div>
+          <div class="flex gap-3 pt-3 border-t border-cream/80">
+            <span class="text-espresso shrink-0 mt-0.5">
+              <IconChalk name="cup" size={20} />
+            </span>
+            <div>
+              <p class="text-xs font-semibold tracking-wider text-espresso uppercase">開設年份</p>
+              <p class="mt-1 text-charcoal">EST. {shinobi.foundedYear}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

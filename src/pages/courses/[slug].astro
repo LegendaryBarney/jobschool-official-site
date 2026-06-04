@@ -1,6 +1,19 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
-import PageLayout from '~/layouts/PageLayout.astro';
+import { Image } from 'astro:assets';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import Button from '~/components/Button.astro';
+import Tag from '~/components/Tag.astro';
+import IconChalk from '~/components/IconChalk.astro';
+import TrialForm from '~/components/TrialForm';
+import {
+  courseJsonLd,
+  courseInstanceJsonLd,
+  breadcrumbJsonLd,
+} from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
 
 export async function getStaticPaths() {
   const courses = await getCollection('courses');
@@ -12,36 +25,217 @@ export async function getStaticPaths() {
 
 const { entry: course } = Astro.props as { entry: CollectionEntry<'courses'> };
 const { Content } = await render(course);
-const { name, summary, schedule, priceRange, grade, subject } = course.data;
+const {
+  name,
+  summary,
+  schedule,
+  priceRange,
+  pricePerPack,
+  classType,
+  trialLessons,
+  lessonHours,
+  grade,
+  gradeLevel,
+  subject,
+  teacher,
+  cover,
+  seoDescription,
+} = course.data;
+const priceDisplay = pricePerPack ?? priceRange;
+const slug = course.id.replace(/\.(md|mdx)$/, '');
+
+let teacherEntry: CollectionEntry<'teachers'> | undefined;
+if (teacher) {
+  const allTeachers = await getCollection('teachers');
+  teacherEntry = allTeachers.find(
+    (t) => t.id.replace(/\.(md|mdx)$/, '') === teacher,
+  );
+}
+
+const description =
+  seoDescription ?? `${grade}${subject}小班 — ${name}｜${summary.slice(0, 80)}`;
+
+const jsonLd = [
+  courseJsonLd({ name, summary, subject, grade, gradeLevel, schedule, priceRange, slug }),
+  courseInstanceJsonLd({ name, summary, subject, grade, gradeLevel, schedule, priceRange, slug }),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '課程總覽', href: SITE.url + '/courses' },
+    { label: name, href: `${SITE.url}/courses/${slug}` },
+  ]),
+];
 ---
 
-<PageLayout
-  title={name}
-  description={course.data.seoDescription ?? summary}
-  heading={name}
-  subheading={`${grade} ${subject}`}
->
-  <div class="grid gap-8 lg:grid-cols-3">
-    <aside class="space-y-4 text-sm">
-      <div>
-        <h3 class="font-semibold text-espresso">上課時段</h3>
-        <ul class="mt-2 space-y-1 text-charcoal/80">
-          {schedule.map((s) => <li>{s}</li>)}
-        </ul>
-      </div>
-      {
-        priceRange && (
-          <div>
-            <h3 class="font-semibold text-espresso">價格</h3>
-            <p class="mt-2 text-charcoal/80">{priceRange}</p>
-          </div>
-        )
-      }
-    </aside>
-
-    <article class="lg:col-span-2 prose prose-stone max-w-none">
-      <p class="lead text-charcoal/85">{summary}</p>
-      <Content />
-    </article>
+<BaseLayout title={name} description={description} jsonLd={jsonLd}>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs
+      items={[
+        { label: '課程總覽', href: '/courses' },
+        { label: `${grade}${subject}`, href: `/courses#grade-${grade}` },
+        { label: name },
+      ]}
+    />
   </div>
-</PageLayout>
+
+  {/* Hero */}
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      <div class="flex flex-wrap items-center gap-2 text-sm">
+        <span class="inline-flex items-center rounded-md bg-espresso/10 px-2.5 py-1 text-espresso font-medium">
+          {grade}
+        </span>
+        <Tag size="sm">{subject}</Tag>
+        {gradeLevel.map((g) => <Tag size="sm">{g}</Tag>)}
+      </div>
+      <h1 class="mt-5 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        {name}
+      </h1>
+      <p class="mt-5 max-w-3xl text-lg text-charcoal/85 leading-relaxed">{summary}</p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <Button href={`/contact?course=${slug}`} variant="primary" size="lg">
+          預約試聽
+        </Button>
+        <Button href="/courses" variant="secondary" size="lg">看其他課程</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+    <div class="grid gap-10 lg:grid-cols-3">
+      {/* 主要內容 */}
+      <article class="brand-prose lg:col-span-2 max-w-none">
+        {cover && (
+          <Image
+            src={cover}
+            alt={name}
+            widths={[640, 1024]}
+            sizes="(max-width: 1024px) 100vw, 640px"
+            class="rounded-xl border border-cream mb-6"
+          />
+        )}
+        <Content />
+      </article>
+
+      {/* 側欄 */}
+      <aside class="space-y-6">
+        {teacherEntry && (
+          <a
+            href={`/teachers/${teacherEntry.id.replace(/\.(md|mdx)$/, '')}`}
+            class="group block rounded-xl border border-cream bg-chalk p-5 hover:shadow-md transition-shadow"
+          >
+            <p class="text-xs font-semibold tracking-wider text-espresso uppercase">授課老師</p>
+            <div class="mt-3 flex items-center gap-4">
+              <div class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-cream flex items-center justify-center">
+                {teacherEntry.data.photo ? (
+                  <Image
+                    src={teacherEntry.data.photo}
+                    alt={teacherEntry.data.name}
+                    widths={[96, 192]}
+                    class="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span class="font-serif text-2xl text-espresso/60">
+                    {teacherEntry.data.name.slice(0, 1)}
+                  </span>
+                )}
+              </div>
+              <div>
+                <p class="font-serif text-xl font-bold text-charcoal group-hover:text-espresso transition-colors">
+                  {teacherEntry.data.name}
+                </p>
+                <p class="text-sm text-espresso">{teacherEntry.data.title}</p>
+                {teacherEntry.data.yearsOfExperience > 0 && (
+                  <p class="text-xs text-charcoal/60">教學年資 {teacherEntry.data.yearsOfExperience} 年</p>
+                )}
+              </div>
+            </div>
+            <p class="mt-3 text-xs text-espresso group-hover:text-caramel transition-colors">
+              查看老師介紹 →
+            </p>
+          </a>
+        )}
+
+        {schedule && schedule.length > 0 && (
+          <div class="rounded-xl border border-cream bg-chalk p-5">
+            <p class="text-xs font-semibold tracking-wider text-espresso uppercase flex items-center gap-2">
+              <IconChalk name="flag" size={16} />
+              上課時段
+            </p>
+            <ul class="mt-3 space-y-2 text-charcoal/85">
+              {schedule.map((s) => (
+                <li class="flex items-start gap-2 text-sm">
+                  <span class="mt-2 inline-block h-1.5 w-1.5 rounded-full bg-caramel" aria-hidden="true"></span>
+                  <span>{s}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {(classType || lessonHours) && (
+          <div class="rounded-xl border border-cream bg-chalk p-5">
+            <p class="text-xs font-semibold tracking-wider text-espresso uppercase">班級資訊</p>
+            <ul class="mt-3 space-y-2 text-sm text-charcoal/85">
+              {classType && (
+                <li class="flex items-start gap-2">
+                  <span class="mt-2 inline-block h-1.5 w-1.5 rounded-full bg-caramel" aria-hidden="true"></span>
+                  <span>班級規模：<strong class="text-charcoal">{classType}</strong></span>
+                </li>
+              )}
+              {lessonHours && (
+                <li class="flex items-start gap-2">
+                  <span class="mt-2 inline-block h-1.5 w-1.5 rounded-full bg-caramel" aria-hidden="true"></span>
+                  <span>每堂時數：{lessonHours} 小時</span>
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
+
+        {priceDisplay && (
+          <div class="rounded-xl border border-cream bg-chalk p-5">
+            <p class="text-xs font-semibold tracking-wider text-espresso uppercase">學費</p>
+            <p class="mt-2 font-serif text-2xl font-bold text-charcoal">{priceDisplay}</p>
+            <p class="mt-1 text-xs text-charcoal/60">教材費另計</p>
+          </div>
+        )}
+
+        <div class="rounded-xl border-l-4 border-caramel bg-cream/40 p-5">
+          <p class="font-serif text-lg font-bold text-charcoal">提供 {trialLessons} 節試聽</p>
+          <p class="mt-2 text-sm text-charcoal/80 leading-relaxed">
+            試聽後若不適合，沒有任何壓力或費用。
+            我們不會在試聽當天就要求做決定。
+          </p>
+          <a
+            href={`/contact?course=${slug}`}
+            class="mt-3 inline-flex items-center gap-1 text-sm font-medium text-espresso hover:text-caramel transition-colors"
+          >
+            立即預約 →
+          </a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {/* 試聽 CTA */}
+  <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-20">
+      <div class="grid gap-8 lg:grid-cols-2 lg:items-start">
+        <div>
+          <p class="font-handwriting text-2xl text-espresso">下一步</p>
+          <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+            預約 {name} 試聽
+          </h2>
+          <p class="mt-4 text-charcoal/80 leading-relaxed">
+            填寫右側表單，並在「想諮詢的科目」勾選 <strong>{subject}</strong>。
+            我們會在 1 個工作日內聯絡您，安排試聽時段。
+          </p>
+        </div>
+        <div class="rounded-xl bg-chalk border border-cream p-5 lg:p-7">
+          <TrialForm client:visible />
+        </div>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

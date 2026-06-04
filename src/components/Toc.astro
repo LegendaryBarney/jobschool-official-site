@@ -1,0 +1,98 @@
+---
+/**
+ * 文章目錄（TOC）— 由 Astro `render()` 提供的 headings 渲染。
+ * 桌機 lg+ 使用 sticky；手機自動隱藏。
+ */
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+  class?: string;
+  minDepth?: number;
+  maxDepth?: number;
+}
+
+const { headings, class: className = '', minDepth = 2, maxDepth = 3 } = Astro.props;
+const filtered = headings.filter((h) => h.depth >= minDepth && h.depth <= maxDepth);
+---
+
+{filtered.length > 0 && (
+  <nav
+    aria-label="文章目錄"
+    class={`toc rounded-xl border border-cream bg-chalk/80 p-4 text-sm ${className}`}
+  >
+    <p class="font-sans text-xs font-semibold tracking-wider text-espresso uppercase mb-3">
+      本文目錄
+    </p>
+    <ol class="space-y-1.5">
+      {filtered.map((h) => (
+        <li class={h.depth === 3 ? 'pl-3' : ''}>
+          <a
+            href={`#${h.slug}`}
+            class="toc-link block text-charcoal/80 hover:text-espresso transition-colors leading-snug"
+            data-toc-link={h.slug}
+          >
+            {h.text}
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<script>
+  function initToc() {
+    const links = document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]');
+    if (!links.length) return;
+    const map = new Map<string, HTMLAnchorElement>();
+    links.forEach((a) => {
+      const id = a.dataset.tocLink;
+      if (id) map.set(id, a);
+    });
+
+    const targets: HTMLElement[] = [];
+    map.forEach((_a, id) => {
+      const el = document.getElementById(id);
+      if (el) targets.push(el);
+    });
+    if (!targets.length) return;
+
+    const setActive = (id: string | null) => {
+      links.forEach((a) => {
+        const isActive = id !== null && a.dataset.tocLink === id;
+        a.dataset.active = isActive ? 'true' : 'false';
+      });
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (visible?.target.id) {
+          setActive(visible.target.id);
+        }
+      },
+      { rootMargin: '-20% 0px -65% 0px', threshold: 0 },
+    );
+    targets.forEach((t) => io.observe(t));
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => io.disconnect(),
+      { once: true },
+    );
+  }
+
+  initToc();
+  document.addEventListener('astro:page-load', initToc);
+</script>
+
+<style>
+  .toc-link[data-active='true'] {
+    color: var(--color-espresso);
+    background-image: linear-gradient(transparent 88%, var(--color-caramel) 88%);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+</style>

@@ -2,6 +2,7 @@
 /**
  * 主按鈕（BRAND §7.1）：Caramel Gold 背景 + Charcoal Bean 文字
  * 次按鈕：Chalk White 背景 + Espresso Tan 邊框
+ * Ghost：透明 + Espresso 文字
  */
 type Variant = 'primary' | 'secondary' | 'ghost';
 type Size = 'sm' | 'md' | 'lg';
@@ -14,6 +15,8 @@ interface Props {
   class?: string;
   external?: boolean;
   ariaLabel?: string;
+  magnetic?: boolean;
+  id?: string;
 }
 
 const {
@@ -24,10 +27,12 @@ const {
   class: className = '',
   external = false,
   ariaLabel,
+  magnetic = false,
+  id,
 } = Astro.props;
 
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 ease-[var(--ease-brand)] hover:-translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-caramel disabled:opacity-50 disabled:pointer-events-none';
+  'relative inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-[transform,box-shadow,background-color,color] duration-200 ease-[var(--ease-brand)] hover:-translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-caramel disabled:opacity-50 disabled:pointer-events-none will-change-transform';
 
 const variants: Record<Variant, string> = {
   primary:
@@ -46,15 +51,30 @@ const sizes: Record<Size, string> = {
 const classes = [base, variants[variant], sizes[size], className].join(' ');
 const target = external ? '_blank' : undefined;
 const rel = external ? 'noopener noreferrer' : undefined;
+const dataMagnetic = magnetic ? '' : undefined;
 ---
 
 {
   href ? (
-    <a href={href} class={classes} target={target} rel={rel} aria-label={ariaLabel}>
+    <a
+      id={id}
+      href={href}
+      class={classes}
+      target={target}
+      rel={rel}
+      aria-label={ariaLabel}
+      data-magnetic={dataMagnetic}
+    >
       <slot />
     </a>
   ) : (
-    <button type={type} class={classes} aria-label={ariaLabel}>
+    <button
+      id={id}
+      type={type}
+      class={classes}
+      aria-label={ariaLabel}
+      data-magnetic={dataMagnetic}
+    >
       <slot />
     </button>
   )

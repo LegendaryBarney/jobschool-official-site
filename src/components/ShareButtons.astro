@@ -1,0 +1,76 @@
+---
+/**
+ * ShareButtons — 文章社群分享：FB / LINE / 複製連結。
+ * 純 client JS，不需要 island。
+ */
+interface Props {
+  title: string;
+  url?: string;
+  class?: string;
+}
+
+const { title, url, class: className = '' } = Astro.props;
+const siteOrigin = Astro.site ?? new URL('https://jobsedu.com.tw');
+const fullUrl = url ?? new URL(Astro.url.pathname, siteOrigin).toString();
+
+const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`;
+const line = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(fullUrl)}&text=${encodeURIComponent(title)}`;
+---
+
+<div
+  class={`share-buttons inline-flex flex-wrap items-center gap-2 ${className}`}
+  data-share-url={fullUrl}
+  data-share-title={title}
+>
+  <span class="text-sm text-charcoal/70 mr-1">分享：</span>
+  <a
+    href={fb}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="分享至 Facebook"
+    class="inline-flex h-9 items-center gap-1 rounded-full border border-cream bg-chalk px-3 text-sm text-espresso hover:bg-cream transition-colors"
+  >
+    Facebook
+  </a>
+  <a
+    href={line}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="分享至 LINE"
+    class="inline-flex h-9 items-center gap-1 rounded-full border border-cream bg-chalk px-3 text-sm text-espresso hover:bg-cream transition-colors"
+  >
+    LINE
+  </a>
+  <button
+    type="button"
+    data-share-copy
+    class="inline-flex h-9 items-center gap-1 rounded-full border border-cream bg-chalk px-3 text-sm text-espresso hover:bg-cream transition-colors"
+    aria-label="複製連結"
+  >
+    <span data-copy-label>複製連結</span>
+  </button>
+</div>
+
+<script>
+  function initShare() {
+    const wraps = document.querySelectorAll<HTMLElement>('.share-buttons');
+    wraps.forEach((wrap) => {
+      const btn = wrap.querySelector<HTMLButtonElement>('[data-share-copy]');
+      const label = wrap.querySelector<HTMLElement>('[data-copy-label]');
+      if (!btn || !label) return;
+      const url = wrap.dataset.shareUrl ?? location.href;
+      btn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(url);
+          const original = label.textContent;
+          label.textContent = '已複製 ✓';
+          setTimeout(() => (label.textContent = original), 1800);
+        } catch {
+          window.prompt('複製此連結：', url);
+        }
+      });
+    });
+  }
+  initShare();
+  document.addEventListener('astro:page-load', initShare);
+</script>

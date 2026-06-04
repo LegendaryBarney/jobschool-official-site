@@ -1,0 +1,55 @@
+---
+/**
+ * RelatedPosts — 依共同 tag 推薦相關文章。
+ * 演算法：對每篇候選文章，計算與當前文章 tag 集合的交集大小（Jaccard 相似度），
+ * 取 topN（預設 3）；不足時補最新文章。
+ */
+import { getCollection, type CollectionEntry } from 'astro:content';
+import PostCard from './PostCard.astro';
+
+interface Props {
+  current: CollectionEntry<'posts'>;
+  limit?: number;
+  class?: string;
+}
+
+const { current, limit = 3, class: className = '' } = Astro.props;
+
+const all = await getCollection('posts', ({ data }) => !data.draft);
+
+const currentTags = new Set(current.data.tags ?? []);
+const candidates = all.filter((p) => p.id !== current.id);
+
+const scored = candidates
+  .map((p) => {
+    const tags = new Set(p.data.tags ?? []);
+    const intersect = [...currentTags].filter((t) => tags.has(t)).length;
+    const union = new Set([...currentTags, ...tags]).size || 1;
+    return { post: p, score: intersect / union, intersect };
+  })
+  .sort((a, b) => {
+    if (b.intersect !== a.intersect) return b.intersect - a.intersect;
+    if (b.score !== a.score) return b.score - a.score;
+    return b.post.data.published.getTime() - a.post.data.published.getTime();
+  });
+
+const top = scored.slice(0, limit).map((s) => s.post);
+
+if (top.length < limit) {
+  const remaining = candidates
+    .filter((p) => !top.some((t) => t.id === p.id))
+    .sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
+    .slice(0, limit - top.length);
+  top.push(...remaining);
+}
+---
+
+{top.length > 0 && (
+  <section class={`related-posts ${className}`}>
+    <h2 class="font-serif text-2xl font-bold text-charcoal">延伸閱讀</h2>
+    <p class="mt-2 text-sm text-charcoal/70">依主題挑選的相關文章</p>
+    <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {top.map((p) => <PostCard post={p} />)}
+    </div>
+  </section>
+)}

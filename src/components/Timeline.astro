@@ -1,0 +1,39 @@
+---
+/**
+ * Timeline — 大事紀垂直時間軸（咖啡館調性）
+ */
+interface Item {
+  year: string;
+  title: string;
+  desc?: string;
+}
+
+interface Props {
+  items: Item[];
+  class?: string;
+}
+
+const { items, class: className = '' } = Astro.props;
+---
+
+<ol class={`timeline relative space-y-8 ${className}`}>
+  {items.map((it, idx) => (
+    <li class="relative pl-12">
+      <span
+        class="absolute left-0 top-1 flex h-9 w-9 items-center justify-center rounded-full border border-caramel bg-chalk text-xs font-semibold text-espresso"
+        aria-hidden="true"
+      >
+        {idx + 1}
+      </span>
+      {idx < items.length - 1 && (
+        <span
+          class="absolute left-[18px] top-10 bottom-[-2rem] w-px bg-cream"
+          aria-hidden="true"
+        ></span>
+      )}
+      <p class="font-handwriting text-2xl text-espresso leading-none">{it.year}</p>
+      <h3 class="mt-1 font-serif text-xl font-bold text-charcoal">{it.title}</h3>
+      {it.desc && <p class="mt-2 text-charcoal/80 leading-relaxed">{it.desc}</p>}
+    </li>
+  ))}
+</ol>

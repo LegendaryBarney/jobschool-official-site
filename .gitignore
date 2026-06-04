@@ -48,3 +48,6 @@ desktop.ini
 
 # TypeScript
 *.tsbuildinfo
+
+# Internal archive of removed content (not part of site build)
+_archive/

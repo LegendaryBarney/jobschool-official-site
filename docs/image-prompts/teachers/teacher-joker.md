@@ -1,0 +1,11 @@
+PORTRAIT PHOTOGRAPHY. Single Taiwanese (East Asian) subject only. Realistic photo, NOT illustration. NO mask. NO group shots. NO duplicated faces.
+
+Portrait of a young Taiwanese male teacher around 19-21 years old, East Asian features, short neat black hair, optional thin-rimmed glasses, white shirt sleeves rolled up under a dark grey vest, energetic but composed smile, gives the feel of a senior who just graduated from Chiayi Senior High, gaze slightly off to the left, chest-up composition, background is a classroom entrance with a wooden desk and an English grammar book, slanted natural window light, warm tones, young teacher documentary feel. No mask covering the face.
+
+Style: cafe-inspired aesthetic, warm beige and cream palette, natural soft daylight, matte paper texture, editorial magazine layout, generous whitespace, hand-drawn nuance, calm and understated, subtle film grain, color temperature around 5000K, Lightroom warm preset, VSCO A6 / KK1 finish, analog meets digital, cozy academic warmth, photo-realistic.
+
+Color palette: dominant latte foam beige (#F5EFE6) and cream beige (#EAE0D0); espresso tan brown (#8B6F47) for accent and text-landing areas; charcoal bean (#1F1B16) as the deep neutral; chalk white (#FAFAF7) for highlights; caramel gold (#C8A165) for warm accent light; burnt sienna (#A14A3A) used sparingly only when warning emphasis is needed. Stay within these tones — do not exceed 5 colors in the final composition.
+
+Composition: 4:5 portrait composition (1200 × 1500 px target). Subject framed chest-up to waist, slight three-quarter turn, gaze 15-30° off-camera to avoid an ID-photo feel.
+
+Negative prompt — strictly avoid: neon colors, oversaturation, pure red, pure blue, pure green, rainbow gradient, purple tones, pink tones, HDR over-exposure, plastic skin retouching, cold blue tones, harsh fluorescent lighting, cartoon style, 3D plastic render, anime, comic book style, low resolution, text watermark, signature, logo overlay, deformed hands, distorted faces, crowded composition with all four corners filled, more than 5 colors, glass reflection, heavy metal sheen, leather texture, heavy wood-grain pattern, fisheye lens distortion, smartphone beauty filter, Comic Sans / Papyrus / Impact fonts, any visible Chinese or English text that could be misspelled.

@@ -1,12 +1,107 @@
 ---
-import PageLayout from '~/layouts/PageLayout.astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import PostCard from '~/components/PostCard.astro';
+import { blogJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+const PAGE_SIZE = 9;
+
+const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+const sorted = allPosts.sort(
+  (a, b) => b.data.published.getTime() - a.data.published.getTime(),
+);
+const firstPage = sorted.slice(0, PAGE_SIZE);
+const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+
+const allTags = Array.from(
+  new Set(allPosts.flatMap((p) => p.data.tags ?? [])),
+).sort();
+const allCategories = Array.from(
+  new Set(allPosts.map((p) => p.data.category).filter(Boolean) as string[]),
+).sort();
+
+const jsonLd = [
+  blogJsonLd(),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '學習筆記', href: SITE.url + '/posts' },
+  ]),
+];
 ---
 
-<PageLayout
+<BaseLayout
   title="學習筆記"
-  description="教學現場觀察、學科解題技巧、學測與分科測驗策略。"
-  heading="學習筆記"
-  subheading="教學現場觀察與學科技巧"
+  description="嘉義在地補習班教學現場觀察、學科解題技巧、學測與分科測驗策略。賈伯斯數理教室過去 12 年累積的教學經驗筆記分享。"
+  jsonLd={jsonLd}
 >
-  <p class="text-charcoal/80">（此頁將於 Phase 3 開發）</p>
-</PageLayout>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '學習筆記' }]} />
+  </div>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
+      <p class="font-handwriting text-2xl text-espresso">學習筆記</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        12 年教學現場的觀察與技巧
+      </h1>
+      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+        我們在這裡分享教學現場的真實觀察、學科解題技巧、學測與分科測驗策略，
+        以及給家長的選擇參考。
+      </p>
+    </div>
+  </section>
+
+  {/* 篩選區（按分類 / 標籤） */}
+  <SectionFadeUp class="bg-latte border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-6 lg:px-8 space-y-3">
+      {allCategories.length > 0 && (
+        <div class="flex flex-wrap items-center gap-2 text-sm">
+          <span class="text-charcoal/60 mr-1">分類：</span>
+          {allCategories.map((c) => (
+            <span class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso">
+              {c}
+            </span>
+          ))}
+        </div>
+      )}
+      {allTags.length > 0 && (
+        <div class="flex flex-wrap items-center gap-2 text-sm">
+          <span class="text-charcoal/60 mr-1">標籤：</span>
+          {allTags.map((t) => (
+            <a
+              href={`/posts/tag/${encodeURIComponent(t)}`}
+              class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
+            >
+              #{t}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </SectionFadeUp>
+
+  <SectionFadeUp>
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      {firstPage.length > 0 ? (
+        <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
+          {firstPage.map((p) => (
+            <li>
+              <PostCard post={p} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="text-charcoal/70">目前尚未有文章。</p>
+      )}
+
+      {totalPages > 1 && (
+        <p class="mt-10 text-center text-sm text-charcoal/60">
+          顯示最新 {firstPage.length} 篇 / 共 {sorted.length} 篇 — 完整分頁將於後續上線
+        </p>
+      )}
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

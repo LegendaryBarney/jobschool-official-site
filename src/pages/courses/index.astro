@@ -1,12 +1,144 @@
 ---
-import PageLayout from '~/layouts/PageLayout.astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import CourseCard from '~/components/CourseCard.astro';
+import Tag from '~/components/Tag.astro';
+import Button from '~/components/Button.astro';
+import { breadcrumbJsonLd, educationalOrgJsonLd, itemListJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+const all = await getCollection('courses');
+const sorted = all.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
+
+const groups: Array<{ grade: '國中' | '高中'; subjects: Map<string, typeof sorted> }> = [
+  { grade: '國中', subjects: new Map() },
+  { grade: '高中', subjects: new Map() },
+];
+
+for (const c of sorted) {
+  const g = groups.find((x) => x.grade === c.data.grade);
+  if (!g) continue;
+  const list = g.subjects.get(c.data.subject) ?? [];
+  list.push(c);
+  g.subjects.set(c.data.subject, list);
+}
+
+const allSubjects = Array.from(new Set(sorted.map((c) => c.data.subject))).sort();
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '課程總覽', href: SITE.url + '/courses' },
+  ]),
+  educationalOrgJsonLd(),
+  itemListJsonLd(
+    sorted.map((c) => ({
+      name: c.data.name,
+      url: `${SITE.url}/courses/${c.id.replace(/\.(md|mdx)$/, '')}`,
+      description: c.data.summary,
+    })),
+    '賈伯斯數理教室課程列表',
+  ),
+];
 ---
 
-<PageLayout
+<BaseLayout
   title="課程總覽"
-  description="高中數學、物理、化學、英文；國中生物、理化。6-10 人精英小班。"
-  heading="課程總覽"
-  subheading="按年級與科目分類的精英小班課程"
+  description="嘉義東區國中、高中數學物理化學英文補習課程一覽：極小班 / 精緻班 / 小班三種規模、由臺、清、交、嘉義大學、高師大資歷的師資親自帶班，依年級與科目分區，從銜接到衝刺都有對應課程。"
+  jsonLd={jsonLd}
 >
-  <p class="text-charcoal/80">（此頁將於 Phase 3 開發）</p>
-</PageLayout>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '課程總覽' }]} />
+  </div>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
+      <p class="font-handwriting text-2xl text-espresso">課程總覽</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        從銜接到衝刺，<br />每階段都有對應的小班課
+      </h1>
+      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+        我們依年級分區（國中 / 高中），按科目分群。每門課都由臺、清、交、嘉義大學、高師大資歷的師資親自帶，依科目與年級彈性配置「極小班 2-5 人 / 精緻班 6-10 人 / 小班 10-14 人」三種規模。
+      </p>
+    </div>
+  </section>
+
+  {/* 篩選列（純錨點導覽） */}
+  <SectionFadeUp class="bg-latte border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-6 lg:px-8">
+      <div class="flex flex-wrap items-center gap-2 text-sm">
+        <span class="text-charcoal/60 mr-1">快速跳轉：</span>
+        <a
+          href="#grade-國中"
+          class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
+        >
+          國中課程
+        </a>
+        <a
+          href="#grade-高中"
+          class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
+        >
+          高中課程
+        </a>
+        <span class="text-charcoal/40 mx-2">|</span>
+        <span class="text-charcoal/60 mr-1">科目：</span>
+        {allSubjects.map((s) => <Tag size="sm">{s}</Tag>)}
+      </div>
+    </div>
+  </SectionFadeUp>
+
+  {groups.map((g) => g.subjects.size > 0 && (
+    <SectionFadeUp class={g.grade === '國中' ? 'bg-latte' : 'bg-cream/40 paper-grain'}>
+      <div id={`grade-${g.grade}`} class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24 scroll-mt-24">
+        <div class="flex items-end justify-between flex-wrap gap-4 mb-10">
+          <div>
+            <p class="font-handwriting text-2xl text-espresso">
+              {g.grade === '國中' ? '國中部' : '高中部'}
+            </p>
+            <h2 class="mt-1 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+              {g.grade}課程
+            </h2>
+          </div>
+          <p class="text-sm text-charcoal/60">
+            共 {Array.from(g.subjects.values()).reduce((sum, l) => sum + l.length, 0)} 門課
+          </p>
+        </div>
+
+        <div class="space-y-12">
+          {Array.from(g.subjects.entries()).map(([subject, list]) => (
+            <div>
+              <h3 class="font-serif text-2xl font-bold text-charcoal flex items-center gap-3">
+                <span
+                  class="inline-block h-2 w-8 rounded-full bg-caramel"
+                  aria-hidden="true"
+                ></span>
+                {subject}
+                <span class="text-sm font-normal text-charcoal/55">{list.length} 門</span>
+              </h3>
+              <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {list.map((c) => <CourseCard course={c} />)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </SectionFadeUp>
+  ))}
+
+  <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        不確定哪門課最適合？
+      </h2>
+      <p class="mt-4 text-charcoal/80">
+        告訴我們孩子目前的狀況，我們會推薦最合適的科目與時段。
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href="/contact" variant="primary" size="lg">免費諮詢</Button>
+        <Button href="/teachers" variant="secondary" size="lg">看師資</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

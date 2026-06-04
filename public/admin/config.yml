@@ -21,11 +21,20 @@ collections:
     format: frontmatter
     fields:
       - { name: name, label: 姓名, widget: string }
+      - { name: englishName, label: 英文名／品牌名, widget: string, required: false, hint: '如：Barney / Seba / Joker / Sandra / Chili' }
       - { name: title, label: 職稱, widget: string }
       - { name: photo, label: 照片, widget: image, required: false }
       - { name: education, label: 學歷, widget: list, required: false }
       - { name: yearsOfExperience, label: 教學年資, widget: number, default: 0, value_type: int, min: 0 }
       - { name: subjects, label: 教學科目, widget: list, required: false }
+      - name: roles
+        label: 講師身份
+        widget: select
+        multiple: true
+        default: ['小班']
+        options: ['小班', '1v1家教']
+        hint: 'Joker 等兩個都掛'
+      - { name: localTie, label: 在地連結, widget: string, required: false, hint: '如：嘉義高中畢業' }
       - { name: philosophy, label: 教學理念, widget: text, required: false }
       - { name: featured, label: 精選, widget: boolean, default: false }
       - { name: order, label: 排序, widget: number, default: 0, value_type: int }
@@ -50,7 +59,41 @@ collections:
       - { name: teacher, label: 講師（slug）, widget: string, required: false }
       - { name: summary, label: 課程簡介, widget: text }
       - { name: schedule, label: 上課時段, widget: list, required: false }
-      - { name: priceRange, label: 價格區間, widget: string, required: false }
+      - name: classType
+        label: 班級規模
+        widget: select
+        required: false
+        options: ['極小班', '精緻班', '小班']
+        hint: '極小班 2-5 / 精緻班 6-10 / 小班 10-14'
+      - { name: trialLessons, label: 試聽節數, widget: number, default: 2, value_type: int, min: 0, hint: '升高搶救／Python／社會／手作 = 11；其餘 = 2' }
+      - { name: lessonHours, label: 每堂時數（小時）, widget: number, default: 3, value_type: float, hint: '國中生物 = 1.5；其餘 = 3' }
+      - { name: pricePerPack, label: 完整價格描述, widget: string, required: false, hint: '如「9,300 元 / 12 節」；新欄位優先於 priceRange' }
+      - { name: priceRange, label: 價格區間（舊欄位）, widget: string, required: false }
+      - { name: cover, label: 封面圖, widget: image, required: false }
+      - { name: featured, label: 精選, widget: boolean, default: false }
+      - { name: order, label: 排序, widget: number, default: 0, value_type: int }
+      - { name: seoDescription, label: SEO 描述, widget: text, required: false }
+      - { name: body, label: 內文, widget: markdown }
+
+  - name: tutoring
+    label: 1對1家教課程
+    folder: src/content/tutoring
+    create: true
+    slug: '{{slug}}'
+    extension: md
+    format: frontmatter
+    fields:
+      - { name: name, label: 課程名稱, widget: string }
+      - { name: subject, label: 科目, widget: string }
+      - { name: teacher, label: 講師（slug）, widget: string, required: false }
+      - { name: summary, label: 課程簡介, widget: text }
+      - name: format
+        label: 授課形式
+        widget: select
+        default: 實體
+        options: ['遠端', '實體', '皆可']
+      - { name: trialDuration, label: 試聽說明, widget: string, default: '1 小時試聽' }
+      - { name: pricing, label: 報價說明, widget: string, default: '依個案需求單獨報價' }
       - { name: cover, label: 封面圖, widget: image, required: false }
       - { name: featured, label: 精選, widget: boolean, default: false }
       - { name: order, label: 排序, widget: number, default: 0, value_type: int }

@@ -1,0 +1,91 @@
+---
+/**
+ * Countdown — 結束日倒數（用 client JS）。LP 結束日的緊迫感呈現。
+ */
+interface Props {
+  endDate: Date;
+  class?: string;
+  label?: string;
+}
+
+const { endDate, class: className = '', label = '優惠倒數' } = Astro.props;
+const iso = endDate.toISOString();
+---
+
+<div
+  class={`countdown rounded-xl border border-cream bg-chalk px-5 py-4 ${className}`}
+  data-countdown
+  data-end={iso}
+  role="timer"
+  aria-live="polite"
+>
+  <p class="text-xs font-semibold tracking-wider text-espresso uppercase">{label}</p>
+  <div class="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1 font-serif text-charcoal">
+    <span class="flex items-baseline gap-1">
+      <span class="text-3xl font-bold" data-d>0</span>
+      <span class="text-sm text-charcoal/60">天</span>
+    </span>
+    <span class="flex items-baseline gap-1">
+      <span class="text-3xl font-bold" data-h>0</span>
+      <span class="text-sm text-charcoal/60">時</span>
+    </span>
+    <span class="flex items-baseline gap-1">
+      <span class="text-3xl font-bold" data-m>0</span>
+      <span class="text-sm text-charcoal/60">分</span>
+    </span>
+    <span class="flex items-baseline gap-1">
+      <span class="text-3xl font-bold" data-s>0</span>
+      <span class="text-sm text-charcoal/60">秒</span>
+    </span>
+  </div>
+</div>
+
+<script>
+  function initCountdown() {
+    const els = document.querySelectorAll<HTMLElement>('[data-countdown]');
+    els.forEach((el) => {
+      const end = new Date(el.dataset.end || '').getTime();
+      if (Number.isNaN(end)) return;
+      const dEl = el.querySelector<HTMLElement>('[data-d]');
+      const hEl = el.querySelector<HTMLElement>('[data-h]');
+      const mEl = el.querySelector<HTMLElement>('[data-m]');
+      const sEl = el.querySelector<HTMLElement>('[data-s]');
+      if (!dEl || !hEl || !mEl || !sEl) return;
+
+      const tick = () => {
+        const diff = end - Date.now();
+        if (diff <= 0) {
+          dEl.textContent = '0';
+          hEl.textContent = '0';
+          mEl.textContent = '0';
+          sEl.textContent = '0';
+          el.dataset.expired = 'true';
+          return false;
+        }
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        dEl.textContent = String(days);
+        hEl.textContent = String(hours);
+        mEl.textContent = String(minutes);
+        sEl.textContent = String(seconds);
+        return true;
+      };
+
+      if (!tick()) return;
+      const id = setInterval(() => {
+        if (!tick()) clearInterval(id);
+      }, 1000);
+
+      document.addEventListener(
+        'astro:before-swap',
+        () => clearInterval(id),
+        { once: true },
+      );
+    });
+  }
+
+  initCountdown();
+  document.addEventListener('astro:page-load', initCountdown);
+</script>

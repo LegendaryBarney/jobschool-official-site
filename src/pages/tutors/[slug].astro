@@ -1,0 +1,196 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import Button from '~/components/Button.astro';
+import Tag from '~/components/Tag.astro';
+import IconChalk from '~/components/IconChalk.astro';
+import { courseJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+export async function getStaticPaths() {
+  const tutors = await getCollection('tutoring');
+  return tutors.map((t) => ({
+    params: { slug: t.id.replace(/\.(md|mdx)$/, '') },
+    props: { entry: t },
+  }));
+}
+
+const { entry: tutor } = Astro.props as { entry: CollectionEntry<'tutoring'> };
+const { Content } = await render(tutor);
+const {
+  name,
+  subject,
+  summary,
+  teacher,
+  format,
+  trialDuration,
+  pricing,
+  cover,
+  seoDescription,
+} = tutor.data;
+const slug = tutor.id.replace(/\.(md|mdx)$/, '');
+
+let teacherEntry: CollectionEntry<'teachers'> | undefined;
+if (teacher) {
+  const allTeachers = await getCollection('teachers');
+  teacherEntry = allTeachers.find(
+    (t) => t.id.replace(/\.(md|mdx)$/, '') === teacher,
+  );
+}
+
+const description = seoDescription ?? `1 對 1 家教 — ${name}｜${summary.slice(0, 80)}`;
+const formatLabel = format === '遠端' ? '遠端授課' : format === '皆可' ? '遠端 / 實體皆可' : '實體授課';
+
+const jsonLd = [
+  courseJsonLd({
+    name,
+    summary,
+    subject,
+    grade: '高中',
+    slug: `tutors/${slug}`,
+  }),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '1對1家教', href: SITE.url + '/tutors' },
+    { label: name, href: `${SITE.url}/tutors/${slug}` },
+  ]),
+];
+---
+
+<BaseLayout title={name} description={description} jsonLd={jsonLd}>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs
+      items={[
+        { label: '1對1家教', href: '/tutors' },
+        { label: name },
+      ]}
+    />
+  </div>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      <div class="flex flex-wrap items-center gap-2 text-sm">
+        <span class="inline-flex items-center rounded-md bg-caramel/25 px-2.5 py-1 text-espresso font-semibold">
+          1v1 家教
+        </span>
+        <Tag size="sm">{subject}</Tag>
+        <span class="inline-flex items-center rounded-md bg-cream px-2.5 py-1 text-charcoal/75">
+          {formatLabel}
+        </span>
+      </div>
+      <h1 class="mt-5 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        {name}
+      </h1>
+      <p class="mt-5 max-w-3xl text-lg text-charcoal/85 leading-relaxed">{summary}</p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <Button href={`/contact?tutor=${slug}`} variant="primary" size="lg">預約諮詢</Button>
+        <Button href="/tutors" variant="secondary" size="lg">看其他家教課程</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+    <div class="grid gap-10 lg:grid-cols-3">
+      <article class="brand-prose lg:col-span-2 max-w-none">
+        {cover && (
+          <Image
+            src={cover}
+            alt={name}
+            widths={[640, 1024]}
+            sizes="(max-width: 1024px) 100vw, 640px"
+            class="rounded-xl border border-cream mb-6"
+          />
+        )}
+        <Content />
+      </article>
+
+      <aside class="space-y-6">
+        {teacherEntry && (
+          <a
+            href={`/teachers/${teacherEntry.id.replace(/\.(md|mdx)$/, '')}`}
+            class="group block rounded-xl border border-cream bg-chalk p-5 hover:shadow-md transition-shadow"
+          >
+            <p class="text-xs font-semibold tracking-wider text-espresso uppercase">授課老師</p>
+            <div class="mt-3 flex items-center gap-4">
+              <div class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-cream flex items-center justify-center">
+                {teacherEntry.data.photo ? (
+                  <Image
+                    src={teacherEntry.data.photo}
+                    alt={teacherEntry.data.name}
+                    widths={[96, 192]}
+                    class="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span class="font-serif text-2xl text-espresso/60">
+                    {teacherEntry.data.name.slice(0, 1)}
+                  </span>
+                )}
+              </div>
+              <div>
+                <p class="font-serif text-xl font-bold text-charcoal group-hover:text-espresso transition-colors">
+                  {teacherEntry.data.name}
+                </p>
+                <p class="text-sm text-espresso">{teacherEntry.data.title}</p>
+                {teacherEntry.data.yearsOfExperience > 0 && (
+                  <p class="text-xs text-charcoal/60">教學年資 {teacherEntry.data.yearsOfExperience} 年</p>
+                )}
+              </div>
+            </div>
+            <p class="mt-3 text-xs text-espresso group-hover:text-caramel transition-colors">
+              查看老師介紹 →
+            </p>
+          </a>
+        )}
+
+        <div class="rounded-xl border border-cream bg-chalk p-5">
+          <p class="text-xs font-semibold tracking-wider text-espresso uppercase flex items-center gap-2">
+            <IconChalk name="flag" size={16} />
+            試聽
+          </p>
+          <p class="mt-2 font-serif text-xl font-bold text-charcoal">{trialDuration}</p>
+          <p class="mt-2 text-sm text-charcoal/70 leading-relaxed">
+            先確認師生節奏與教學風格再決定，沒有任何壓力。
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-cream bg-chalk p-5">
+          <p class="text-xs font-semibold tracking-wider text-espresso uppercase">收費方式</p>
+          <p class="mt-2 text-charcoal leading-relaxed">{pricing}</p>
+          <p class="mt-2 text-xs text-charcoal/60">會在諮詢時依年級、科目、頻率討論合理價位。</p>
+        </div>
+
+        <div class="rounded-xl border-l-4 border-caramel bg-cream/40 p-5">
+          <p class="font-serif text-lg font-bold text-charcoal">預約諮詢</p>
+          <p class="mt-2 text-sm text-charcoal/80 leading-relaxed">
+            告訴我們學生年級、目標與時段，我們會回覆合適的安排。
+          </p>
+          <a
+            href={`/contact?tutor=${slug}`}
+            class="mt-3 inline-flex items-center gap-1 text-sm font-medium text-espresso hover:text-caramel transition-colors"
+          >
+            立即聯絡 →
+          </a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        試聽看看 {name}
+      </h2>
+      <p class="mt-4 text-charcoal/80">
+        先聊聊需求，我們會回覆合適的師資與報價。
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href={`/contact?tutor=${slug}`} variant="primary" size="lg">預約諮詢</Button>
+        <Button href="/tutors" variant="secondary" size="lg">看其他家教</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

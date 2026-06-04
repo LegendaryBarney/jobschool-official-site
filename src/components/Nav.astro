@@ -4,30 +4,43 @@ import Button from './Button.astro';
 const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
 
 const links = [
-  { href: '/about', label: '關於我們' },
-  { href: '/teachers', label: '師資' },
+  { href: '/', label: '首頁' },
+  { href: '/about', label: '關於' },
   { href: '/courses', label: '課程' },
-  { href: '/posts', label: '文章' },
-  { href: '/testimonials', label: '學生見證' },
-  { href: '/faq', label: '常見問題' },
-  { href: '/contact', label: '聯絡我們' },
+  { href: '/tutors', label: '家教' },
+  { href: '/teachers', label: '師資' },
+  { href: '/posts', label: '部落格' },
+  { href: '/testimonials', label: '見證' },
+  { href: '/faq', label: 'FAQ' },
+  { href: '/contact', label: '聯絡' },
 ];
 ---
 
 <header
   id="site-nav"
-  class="sticky top-0 z-40 w-full bg-latte/85 backdrop-blur-md border-b border-transparent transition-shadow duration-200 ease-[var(--ease-brand)]"
+  data-scrolled="false"
+  transition:persist
+  class="sticky top-0 z-40 w-full bg-latte/85 backdrop-blur-md transition-[box-shadow,background-color] duration-200 ease-[var(--ease-brand)]"
 >
   <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
-    <a href="/" class="font-serif text-xl font-bold text-charcoal hover:text-espresso">
+    <a
+      href="/"
+      class="font-serif text-xl font-bold text-charcoal hover:text-espresso transition-colors"
+      aria-label="賈伯斯數理教室 首頁"
+    >
       賈伯斯數理教室
     </a>
 
-    <ul class="hidden lg:flex items-center gap-7 text-sm font-medium text-charcoal">
+    <ul class="hidden lg:flex items-center gap-6 text-[15px] font-medium text-charcoal">
       {
         links.map((l) => (
           <li>
-            <a href={l.href} class="hover:text-espresso transition-colors">
+            <a
+              href={l.href}
+              data-href={l.href}
+              data-active="false"
+              class="nav-link relative py-1 transition-colors hover:text-espresso"
+            >
               {l.label}
             </a>
           </li>
@@ -35,23 +48,58 @@ const links = [
       }
     </ul>
 
-    <div class="hidden lg:block">
-      <Button href={lineUrl} variant="primary" size="sm" external={lineUrl !== '#'}>
-        加 LINE 試聽
+    <div class="hidden lg:flex items-center gap-3">
+      <Button
+        href={lineUrl}
+        variant="ghost"
+        size="sm"
+        external={lineUrl !== '#'}
+        ariaLabel="加入 LINE 官方帳號"
+      >
+        加 LINE
+      </Button>
+      <Button href="/contact" variant="primary" size="sm" magnetic>
+        立即試聽
       </Button>
     </div>
 
     <button
       id="mobile-menu-toggle"
+      type="button"
       class="lg:hidden p-2 text-charcoal"
       aria-label="開啟選單"
       aria-expanded="false"
       aria-controls="mobile-menu"
     >
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg
+        id="icon-burger"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
         <line x1="3" y1="6" x2="21" y2="6" />
         <line x1="3" y1="12" x2="21" y2="12" />
         <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+      <svg
+        id="icon-close"
+        class="hidden"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <line x1="6" y1="6" x2="18" y2="18" />
+        <line x1="18" y1="6" x2="6" y2="18" />
       </svg>
     </button>
   </nav>
@@ -60,46 +108,132 @@ const links = [
     id="mobile-menu"
     class="lg:hidden hidden border-t border-cream bg-latte"
   >
-    <ul class="flex flex-col px-4 py-3 text-base">
+    <ul class="flex flex-col px-4 py-2 text-base">
       {
         links.map((l) => (
           <li>
             <a
               href={l.href}
-              class="block py-3 border-b border-cream/60 text-charcoal hover:text-espresso"
+              data-href={l.href}
+              data-active="false"
+              class="mobile-link block py-3 border-b border-cream/60 text-charcoal hover:text-espresso transition-colors"
             >
               {l.label}
             </a>
           </li>
         ))
       }
-      <li class="pt-4">
-        <Button href={lineUrl} variant="primary" size="md" external={lineUrl !== '#'}>
-          加 LINE 試聽
-        </Button>
-      </li>
     </ul>
+    <div class="px-4 pt-3 pb-5 grid grid-cols-2 gap-2">
+      <Button
+        href={lineUrl}
+        variant="secondary"
+        size="md"
+        external={lineUrl !== '#'}
+      >
+        加 LINE
+      </Button>
+      <Button href="/contact" variant="primary" size="md">立即試聽</Button>
+    </div>
   </div>
 </header>
 
-<script>
-  const nav = document.getElementById('site-nav');
-  const onScroll = () => {
-    if (!nav) return;
-    if (window.scrollY > 8) {
-      nav.classList.add('shadow-md', 'border-cream');
-    } else {
-      nav.classList.remove('shadow-md', 'border-cream');
-    }
-  };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+<style>
+  #site-nav[data-scrolled='true'] {
+    background-color: rgba(245, 239, 236, 0.85);
+    box-shadow: 0 1px 0 rgba(31, 27, 22, 0.08);
+  }
+  .nav-link[data-active='true'] {
+    color: var(--color-espresso);
+  }
+  .nav-link[data-active='true']::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 3px;
+    background-image: linear-gradient(transparent 50%, var(--color-caramel) 50%);
+    background-size: 100% 100%;
+    border-radius: 2px;
+  }
+  .mobile-link[data-active='true'] {
+    color: var(--color-espresso);
+    background-image: linear-gradient(transparent 92%, var(--color-caramel) 92%);
+    background-repeat: no-repeat;
+    background-size: 60px 100%;
+    background-position: 0 0;
+  }
+</style>
 
-  const toggle = document.getElementById('mobile-menu-toggle');
-  const menu = document.getElementById('mobile-menu');
-  toggle?.addEventListener('click', () => {
-    if (!menu) return;
-    const isOpen = menu.classList.toggle('hidden') === false;
-    toggle.setAttribute('aria-expanded', String(isOpen));
-  });
+<script>
+  // Nav 因 transition:persist 不會在 View Transitions 後重新渲染，
+  // 因此 active state 必須在 client 端依 location.pathname 重算。
+  function syncNavActive() {
+    const path = location.pathname;
+    const isActive = (href: string) => {
+      if (href === '/') return path === '/' || path === '';
+      return path === href || path.startsWith(href + '/');
+    };
+
+    const links = document.querySelectorAll<HTMLAnchorElement>(
+      '#site-nav .nav-link, #site-nav .mobile-link',
+    );
+    links.forEach((a) => {
+      const href = a.dataset.href ?? a.getAttribute('href') ?? '';
+      const active = isActive(href);
+      a.dataset.active = active ? 'true' : 'false';
+      if (active) {
+        a.setAttribute('aria-current', 'page');
+      } else {
+        a.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  function initNav() {
+    const nav = document.getElementById('site-nav');
+    if (!nav) return;
+
+    syncNavActive();
+
+    if (!nav.dataset.bound) {
+      nav.dataset.bound = '1';
+
+      const onScroll = () => {
+        nav.dataset.scrolled = window.scrollY > 100 ? 'true' : 'false';
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      const toggle = document.getElementById('mobile-menu-toggle');
+      const menu = document.getElementById('mobile-menu');
+      const burger = document.getElementById('icon-burger');
+      const close = document.getElementById('icon-close');
+      if (!toggle || !menu) return;
+
+      const setOpen = (open: boolean) => {
+        menu.classList.toggle('hidden', !open);
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? '關閉選單' : '開啟選單');
+        burger?.classList.toggle('hidden', open);
+        close?.classList.toggle('hidden', !open);
+      };
+
+      toggle.addEventListener('click', () => {
+        const isHidden = menu.classList.contains('hidden');
+        setOpen(isHidden);
+      });
+
+      menu.querySelectorAll('a').forEach((a) => {
+        a.addEventListener('click', () => setOpen(false));
+      });
+    }
+  }
+
+  initNav();
+  // View Transitions 完成後重算 active；transition:persist 會保留 DOM，
+  // 因此這裡只需要重新計算 dataset，而不重新綁定事件。
+  document.addEventListener('astro:page-load', syncNavActive);
+  document.addEventListener('astro:after-swap', syncNavActive);
 </script>

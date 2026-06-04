@@ -1,0 +1,52 @@
+---
+import { breadcrumbJsonLd } from '~/lib/jsonld';
+
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+  class?: string;
+}
+
+const { items, class: className = '' } = Astro.props;
+
+const fullItems: BreadcrumbItem[] = items[0]?.label === '首頁'
+  ? items
+  : [{ label: '首頁', href: '/' }, ...items];
+
+const ldItems = fullItems.map((it) => ({
+  label: it.label,
+  href: it.href ? new URL(it.href, Astro.site ?? Astro.url.origin).toString() : undefined,
+}));
+
+const jsonLd = breadcrumbJsonLd(ldItems);
+---
+
+<nav aria-label="麵包屑" class={`text-sm text-charcoal/70 ${className}`}>
+  <ol class="flex flex-wrap items-center gap-1.5">
+    {
+      fullItems.map((it, idx) => {
+        const isLast = idx === fullItems.length - 1;
+        return (
+          <li class="flex items-center gap-1.5">
+            {idx > 0 && <span aria-hidden="true" class="text-charcoal/40">/</span>}
+            {isLast || !it.href ? (
+              <span aria-current={isLast ? 'page' : undefined} class="text-charcoal">
+                {it.label}
+              </span>
+            ) : (
+              <a href={it.href} class="text-espresso hover:text-caramel transition-colors">
+                {it.label}
+              </a>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />

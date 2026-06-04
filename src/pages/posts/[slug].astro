@@ -1,6 +1,17 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
-import PageLayout from '~/layouts/PageLayout.astro';
+import { Image } from 'astro:assets';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import Button from '~/components/Button.astro';
+import Tag from '~/components/Tag.astro';
+import Toc from '~/components/Toc.astro';
+import ReadingProgress from '~/components/ReadingProgress.astro';
+import ShareButtons from '~/components/ShareButtons.astro';
+import RelatedPosts from '~/components/RelatedPosts.astro';
+import { articleJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
@@ -11,35 +22,145 @@ export async function getStaticPaths() {
 }
 
 const { entry: post } = Astro.props as { entry: CollectionEntry<'posts'> };
-const { Content } = await render(post);
-const { title, summary, published, updated, author, tags } = post.data;
+const { Content, headings } = await render(post);
+const { title, summary, published, updated, author, tags, cover, category } = post.data;
+const slug = post.id.replace(/\.(md|mdx)$/, '');
 
 const fmtDate = (d: Date) =>
   new Intl.DateTimeFormat('zh-Hant-TW', { dateStyle: 'long' }).format(d);
+
+const jsonLd = [
+  articleJsonLd({
+    title,
+    summary,
+    published,
+    updated,
+    author,
+    slug,
+    tags,
+  }),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '學習筆記', href: SITE.url + '/posts' },
+    { label: title, href: `${SITE.url}/posts/${slug}` },
+  ]),
+];
 ---
 
-<PageLayout title={title} description={summary} heading={title}>
-  <article class="prose prose-stone max-w-none">
-    <p class="text-sm text-charcoal/60">
-      {fmtDate(published)} · {author}
-      {updated && <> · 最後更新 {fmtDate(updated)}</>}
-    </p>
+<BaseLayout title={title} description={summary} jsonLd={jsonLd}>
+  <ReadingProgress target="article#post-body" />
 
-    <aside class="not-prose mt-6 mb-8 rounded-xl border-l-4 border-caramel bg-chalk px-5 py-4">
-      <p class="font-semibold text-espresso text-sm tracking-wide">TL;DR</p>
-      <p class="mt-1 text-charcoal/85 leading-relaxed">{summary}</p>
-    </aside>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs
+      items={[
+        { label: '學習筆記', href: '/posts' },
+        { label: title },
+      ]}
+    />
+  </div>
 
-    <Content />
+  {/* Hero 標題區 */}
+  <section class="mx-auto max-w-4xl px-4 pt-8 pb-6 lg:px-8 lg:pt-12">
+    {category && (
+      <p class="text-xs font-semibold tracking-wider text-espresso uppercase">
+        {category}
+      </p>
+    )}
+    <h1 class="mt-2 font-serif text-3xl lg:text-5xl font-bold text-charcoal leading-tight">
+      {title}
+    </h1>
 
-    {
-      tags.length > 0 && (
-        <ul class="not-prose mt-8 flex flex-wrap gap-2">
-          {tags.map((t) => (
-            <li class="rounded-full bg-cream text-espresso px-3 py-1 text-xs">#{t}</li>
-          ))}
-        </ul>
-      )
-    }
-  </article>
-</PageLayout>
+    <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-charcoal/70">
+      <span class="inline-flex items-center gap-1.5">
+        <span class="h-1.5 w-1.5 rounded-full bg-caramel" aria-hidden="true"></span>
+        {author}
+      </span>
+      <span>
+        發佈於 <time datetime={published.toISOString()}>{fmtDate(published)}</time>
+      </span>
+      {updated && (
+        <span class="inline-flex items-center gap-1 rounded-md bg-caramel/15 px-2 py-0.5 text-espresso font-medium">
+          最後更新：<time datetime={updated.toISOString()}>{fmtDate(updated)}</time>
+        </span>
+      )}
+    </div>
+
+    {tags.length > 0 && (
+      <ul class="mt-4 flex flex-wrap gap-2">
+        {tags.map((t) => (
+          <li>
+            <Tag href={`/posts/tag/${encodeURIComponent(t)}`} size="sm">
+              #{t}
+            </Tag>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  {cover && (
+    <div class="mx-auto max-w-4xl px-4 lg:px-8">
+      <Image
+        src={cover}
+        alt={title}
+        widths={[640, 1024, 1280]}
+        sizes="(max-width: 1024px) 100vw, 1024px"
+        class="rounded-xl border border-cream"
+      />
+    </div>
+  )}
+
+  {/* 主內容 + TOC */}
+  <div class="mx-auto max-w-6xl px-4 lg:px-8 py-10 lg:py-14">
+    <div class="grid gap-8 lg:grid-cols-[1fr_260px]">
+      <div>
+        {/* TL;DR */}
+        <aside
+          aria-label="文章重點摘要"
+          class="rounded-xl border-l-4 border-caramel bg-cream/50 px-5 py-4 mb-8"
+        >
+          <p class="text-xs font-semibold tracking-wider text-espresso uppercase">TL;DR</p>
+          <p class="mt-2 text-charcoal/85 leading-relaxed">{summary}</p>
+        </aside>
+
+        <article id="post-body" class="brand-prose max-w-none">
+          <Content />
+        </article>
+
+        <div class="mt-10 pt-6 border-t border-cream">
+          <ShareButtons title={title} />
+        </div>
+      </div>
+
+      {/* TOC（lg+ sticky） */}
+      <aside class="hidden lg:block">
+        <div class="sticky top-24 space-y-4">
+          <Toc headings={headings} />
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  {/* 相關文章 */}
+  <SectionFadeUp class="bg-cream/40 paper-grain border-y border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      <RelatedPosts current={post} limit={3} />
+    </div>
+  </SectionFadeUp>
+
+  {/* 試聽 CTA */}
+  <SectionFadeUp>
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <h2 class="font-serif text-3xl font-bold text-charcoal">
+        喜歡這篇？歡迎來教室坐坐
+      </h2>
+      <p class="mt-4 text-charcoal/80">
+        試聽 1 堂課，感受小班的差別。試聽免費，沒有任何壓力。
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href="/contact" variant="primary" size="lg">立即試聽</Button>
+        <Button href="/posts" variant="secondary" size="lg">看更多文章</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

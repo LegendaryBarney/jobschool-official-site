@@ -1,12 +1,214 @@
 ---
-import PageLayout from '~/layouts/PageLayout.astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import Button from '~/components/Button.astro';
+import Timeline from '~/components/Timeline.astro';
+import IconChalk from '~/components/IconChalk.astro';
+import { educationalOrgJsonLd } from '~/lib/jsonld';
+
+const principles = [
+  {
+    icon: 'users' as const,
+    title: '個別化關注勝過大班灌輸',
+    desc: '我們堅持小班（極小班 2-5、精緻班 6-10、小班 10-14）。老師有時間走到每位學生桌邊，看他寫錯的那一步、立刻指出。',
+  },
+  {
+    icon: 'note' as const,
+    title: '寫得清楚，比講得多重要',
+    desc: 'Barney 老師的板書不跳步、不省略，每一個等號都有理由。觀念是被「看著推導」出來的。',
+  },
+  {
+    icon: 'target' as const,
+    title: '盲點筆記，比題海有用',
+    desc: '與其無止盡刷題，不如把錯題分類、找出真正卡住的觀念。我們的學生人手一本盲點筆記。',
+  },
+  {
+    icon: 'compass' as const,
+    title: '誠實，比承諾重要',
+    desc: '我們不說「保證上 X 大」「100% 進步」。我們只承諾陪孩子把每個觀念踏實累積。',
+  },
+];
+
+const milestones = [
+  { year: '2014', title: '創立於嘉義東區', desc: 'Barney 老師（黃韋誌）取得臺大資工碩士後選擇回到家鄉嘉義，從一間租借的小教室開始。' },
+  { year: '2017', title: '裝潢現址、立穩基地', desc: '裝潢嘉義市東區康樂街 10 號現址，成為教室至今的家。' },
+  { year: '2023', title: '新增姊妹品牌「忍文理教室」', desc: '為了服務嘉義西區家庭，新增姊妹品牌「忍文理教室」，位於嘉義市西區杭州一街 38 號。' },
+  { year: '2026', title: '啟用全新官方網站', desc: '替換舊有 Weebly 站，整合課程資訊、學生見證與線上試聽預約，把溝通做到更貼心。' },
+];
+
+const jsonLd = [educationalOrgJsonLd()];
 ---
 
-<PageLayout
+<BaseLayout
   title="關於我們"
-  description="認識賈伯斯數理教室：嘉義在地精英小班補習機構，台清交資歷師資、13 年以上教學經驗。"
-  heading="關於我們"
-  subheading="認識賈伯斯數理教室與我們的教學理念"
+  description="認識賈伯斯數理教室：嘉義東區的精英小班補習機構，由臺大資工碩士 Barney 老師（黃韋誌）於 2014 年返鄉創立，過去 12 年陪伴上千位嘉中、嘉女、協同、輔仁學生踏實累積。"
+  jsonLd={jsonLd}
 >
-  <p class="text-charcoal/80">（此頁將於 Phase 3 開發）</p>
-</PageLayout>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '關於我們' }]} />
+  </div>
+
+  {/* Hero */}
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
+      <p class="font-handwriting text-2xl text-espresso">關於我們</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        像咖啡館老闆一樣，<br />認真對待每一位學生
+      </h1>
+      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+        賈伯斯數理教室是嘉義東區的地方型精英小班補習機構，由臺大資工碩士 Barney 老師（黃韋誌）領軍，
+        2014 年返鄉創立至今已邁入第 12 年。我們不浮誇、不催促，相信教學是「陪伴」而不是「包裝」。
+      </p>
+    </div>
+  </section>
+
+  {/* 創辦故事 */}
+  <SectionFadeUp>
+    <div class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24">
+      <div class="grid gap-10 lg:grid-cols-5">
+        <div class="lg:col-span-3">
+          <p class="font-handwriting text-2xl text-espresso">創辦故事</p>
+          <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+            一杯咖啡的時間，<br />可以陪一個學生看懂一個觀念
+          </h2>
+          <div class="mt-6 space-y-4 text-charcoal/85 leading-[1.85]">
+            <p>
+              Barney 老師（黃韋誌）畢業於臺大數學系，後取得臺大資工碩士。在臺北求學期間，
+              他長期擔任數學家教與系上輔導員，看過太多被「大班灌輸」逼退的孩子，
+              也看過 1 對 1 過度依賴老師的反效果。
+            </p>
+            <p>
+              2014 年，Barney 老師選擇回到家鄉嘉義，從一間租借的小教室開始。
+              2017 年裝潢嘉義市東區康樂街 10 號現址，成為教室至今的家。
+              2023 年，為了服務嘉義西區家庭，新增姊妹品牌「忍文理教室」（嘉義市西區杭州一街 38 號）。
+            </p>
+            <p>
+              他想做的事很簡單：<strong>無論是極小班（2-5 人）、精緻班（6-10 人）或小班（10-14 人），老師都走得到每位學生桌邊</strong>。
+              這個堅持從第一天到今天從沒有改變過。
+            </p>
+            <p>
+              過去 12 年來，上千位嘉中、嘉女、協同、輔仁、嘉工、嘉商、嘉華、興華的學生在這裡上過課。
+              我們不開大班、不衝招生人數、不找加盟。我們只想把眼前這幾位學生，
+              帶到他原本到不了的地方。
+            </p>
+            <p>
+              如果你問為什麼叫「賈伯斯」？因為 Barney 老師相信：
+              <em>「Stay hungry, stay foolish」</em>是學數學最好的態度——
+              對知識保持好奇，對自己保持謙虛。
+            </p>
+          </div>
+        </div>
+
+        <aside class="lg:col-span-2">
+          <div
+            class="aspect-[4/5] rounded-xl border border-cream bg-cream/60 paper-grain flex items-center justify-center"
+            aria-label="教室空間照片佔位"
+          >
+            <div class="text-center px-6">
+              <IconChalk name="cup" size={56} class="mx-auto opacity-60" />
+              <p class="mt-3 font-handwriting text-2xl text-espresso/70">
+                嘉義 · 東區 · 康樂街
+              </p>
+              <p class="mt-1 text-xs text-charcoal/50">教室空間照片</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </SectionFadeUp>
+
+  {/* 教學理念 */}
+  <SectionFadeUp class="bg-cream/40 paper-grain border-y border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24">
+      <div class="max-w-2xl">
+        <p class="font-handwriting text-2xl text-espresso">教學理念</p>
+        <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+          我們相信的四件事
+        </h2>
+      </div>
+
+      <div class="mt-10 grid gap-5 md:grid-cols-2">
+        {principles.map((p, idx) => (
+          <article class="rounded-xl bg-chalk border border-cream p-6 lg:p-7 flex gap-4">
+            <div class="text-espresso shrink-0 pt-0.5">
+              <IconChalk name={p.icon} size={36} />
+            </div>
+            <div>
+              <p class="text-xs font-semibold tracking-wider text-espresso uppercase">
+                理念 {String(idx + 1).padStart(2, '0')}
+              </p>
+              <h3 class="mt-1 font-serif text-xl font-bold text-charcoal">{p.title}</h3>
+              <p class="mt-2 text-charcoal/80 leading-relaxed">{p.desc}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </SectionFadeUp>
+
+  {/* 教室空間 */}
+  <SectionFadeUp>
+    <div class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24">
+      <div class="max-w-2xl">
+        <p class="font-handwriting text-2xl text-espresso">教室空間</p>
+        <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+          像咖啡館一樣，能讓人坐下來思考
+        </h2>
+        <p class="mt-3 text-charcoal/75 leading-relaxed">
+          自然光、木質桌椅、暖色燈、足夠的個人空間。
+          我們相信好的學習環境，是觀念能進到腦袋裡的第一步。
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {[
+          { label: '主教室', sub: '8 人座配置' },
+          { label: '小組討論區', sub: '錯題複習用' },
+          { label: '老師辦公室', sub: '個別輔導' },
+          { label: '茶水區', sub: '休息與閒聊' },
+          { label: '自習區', sub: '免費開放' },
+          { label: '入口走道', sub: '溫暖採光' },
+        ].map((item) => (
+          <div
+            class="aspect-[4/3] rounded-xl border border-cream bg-cream/60 paper-grain flex flex-col items-center justify-center text-center px-4"
+            aria-label={`${item.label} 照片佔位`}
+          >
+            <IconChalk name="cup" size={32} class="opacity-50" />
+            <p class="mt-2 font-serif text-lg text-charcoal/80">{item.label}</p>
+            <p class="text-xs text-charcoal/50">{item.sub}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </SectionFadeUp>
+
+  {/* 大事紀 */}
+  <SectionFadeUp class="bg-cream/40 paper-grain border-y border-cream">
+    <div class="mx-auto max-w-4xl px-4 py-16 lg:px-8 lg:py-24">
+      <div class="max-w-2xl">
+        <p class="font-handwriting text-2xl text-espresso">大事紀</p>
+        <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+          12 年來的腳步
+        </h2>
+      </div>
+      <div class="mt-10">
+        <Timeline items={milestones} />
+      </div>
+    </div>
+  </SectionFadeUp>
+
+  {/* CTA */}
+  <SectionFadeUp>
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        想實際感受小班的差別？
+      </h2>
+      <p class="mt-4 text-charcoal/80">坐在教室裡 2 個小時感受到的，比任何網路評論都真實。</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href="/contact" variant="primary" size="lg">預約免費試聽</Button>
+        <Button href="/teachers" variant="secondary" size="lg">認識師資</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

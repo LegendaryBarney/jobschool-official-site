@@ -1,12 +1,171 @@
 ---
-import PageLayout from '~/layouts/PageLayout.astro';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import Button from '~/components/Button.astro';
+import {
+  aggregateRatingJsonLd,
+  reviewJsonLd,
+  breadcrumbJsonLd,
+} from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+const all = await getCollection('testimonials');
+const sorted = all.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
+
+interface Rendered {
+  entry: CollectionEntry<'testimonials'>;
+  Body: Awaited<ReturnType<typeof render>>['Content'];
+  hasBody: boolean;
+}
+
+const rendered: Rendered[] = await Promise.all(
+  sorted.map(async (entry) => {
+    const r = await render(entry);
+    return {
+      entry,
+      Body: r.Content,
+      hasBody: !!entry.body && entry.body.trim().length > 0,
+    };
+  }),
+);
+
+const reviewItems = sorted.map((t) => ({
+  studentName: t.data.studentName,
+  rating: t.data.rating,
+  quote: t.data.quote,
+  grade: t.data.grade,
+  school: t.data.school,
+}));
+
+const aggregate = aggregateRatingJsonLd(reviewItems);
+const reviews = reviewItems.map((r) => reviewJsonLd(r));
+
+const jsonLd: Record<string, unknown>[] = [
+  ...(aggregate ? [aggregate] : []),
+  ...reviews,
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '學生見證', href: SITE.url + '/testimonials' },
+  ]),
+];
+
+const ratings = sorted.map((t) => t.data.rating);
+const avgRating = ratings.length
+  ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+  : 0;
 ---
 
-<PageLayout
+<BaseLayout
   title="學生見證"
-  description="嘉中、嘉女、興華、協同等校學生的真實心得。"
-  heading="學生見證"
-  subheading="來自嘉中、嘉女、興華、協同等校學生的真實回饋"
+  description="來自嘉中、嘉女、協同、輔仁等校學生與家長的真實心得。賈伯斯數理教室嘉義東區精英小班過去 12 年累積的學習回饋。"
+  jsonLd={jsonLd}
 >
-  <p class="text-charcoal/80">（此頁將於 Phase 3 開發）</p>
-</PageLayout>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '學生見證' }]} />
+  </div>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
+      <p class="font-handwriting text-2xl text-espresso">學生見證</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        12 年來的真實回饋
+      </h1>
+      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+        來自嘉中、嘉女、協同、輔仁等校學生與家長的心得。
+        我們不為了好看而修飾，只把他們真正寫下的話放在這裡。
+      </p>
+
+      {sorted.length > 0 && (
+        <div class="mt-8 inline-flex items-center gap-4 rounded-xl border border-cream bg-chalk px-5 py-3">
+          <div class="flex items-center gap-1 text-caramel">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span aria-hidden="true" class={i < Math.round(avgRating) ? 'text-caramel' : 'text-caramel/25'}>
+                ★
+              </span>
+            ))}
+          </div>
+          <span class="text-charcoal font-serif text-lg font-bold">{avgRating.toFixed(1)}</span>
+          <span class="text-sm text-charcoal/60">/ 5.0 · 共 {sorted.length} 則回饋</span>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <SectionFadeUp>
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {rendered.map(({ entry, Body, hasBody }) => {
+          const { studentName, school, grade, rating, quote, videoUrl } = entry.data;
+          const isVideo = Boolean(videoUrl);
+          return (
+            <article
+              class="rounded-xl bg-chalk border border-cream p-6 flex flex-col"
+              data-kind={isVideo ? 'video' : 'text'}
+            >
+              {isVideo && (
+                <div class="mb-4 aspect-video overflow-hidden rounded-lg bg-cream flex items-center justify-center">
+                  <a
+                    href={videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center gap-2 text-espresso font-medium"
+                    aria-label={`觀看 ${studentName} 影片心得`}
+                  >
+                    <span aria-hidden="true" class="text-3xl">▶</span>
+                    觀看影片心得
+                  </a>
+                </div>
+              )}
+
+              <div class="flex items-center gap-1 text-caramel" aria-label={`評分 ${rating} / 5`}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <span aria-hidden="true" class={i < rating ? 'text-caramel' : 'text-caramel/25'}>
+                    ★
+                  </span>
+                ))}
+              </div>
+
+              <blockquote class="mt-3 text-charcoal/85 leading-relaxed">
+                「{quote}」
+              </blockquote>
+
+              {hasBody && (
+                <details class="mt-4 group">
+                  <summary class="cursor-pointer text-sm text-espresso hover:text-caramel transition-colors list-none flex items-center gap-1">
+                    <span class="group-open:hidden">展開完整心得</span>
+                    <span class="hidden group-open:inline">收起</span>
+                    <span aria-hidden="true" class="transition-transform group-open:rotate-180">▾</span>
+                  </summary>
+                  <div class="prose prose-stone prose-sm max-w-none mt-3 text-charcoal/85">
+                    <Body />
+                  </div>
+                </details>
+              )}
+
+              <div class="mt-5 pt-4 border-t border-cream/80 text-sm text-charcoal/70">
+                <span class="font-medium text-charcoal">{studentName}</span>
+                {school ? <> · {school}</> : null}
+                {grade ? <> · {grade}</> : null}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </SectionFadeUp>
+
+  <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        想成為下一個放心的家長？
+      </h2>
+      <p class="mt-4 text-charcoal/80">試聽 1 堂課，親自感受課堂氛圍與教學節奏。</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href="/contact" variant="primary" size="lg">預約試聽</Button>
+        <Button href="/courses" variant="secondary" size="lg">查看課程</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

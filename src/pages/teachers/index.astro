@@ -1,12 +1,78 @@
 ---
-import PageLayout from '~/layouts/PageLayout.astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import TeacherCard from '~/components/TeacherCard.astro';
+import Button from '~/components/Button.astro';
+import { educationalOrgJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+const teachersAll = await getCollection('teachers');
+const teachers = teachersAll.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
+
+const jsonLd = [
+  educationalOrgJsonLd(),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '師資介紹', href: SITE.url + '/teachers' },
+  ]),
+];
 ---
 
-<PageLayout
+<BaseLayout
   title="師資介紹"
-  description="台清交資歷師資、13 年以上教學經驗。"
-  heading="師資介紹"
-  subheading="由台大資工碩士領軍的小班教學團隊"
+  description="認識賈伯斯數理教室的師資團隊：由臺大資工碩士 Barney 老師（黃韋誌）領軍，師資來自臺、清、交、嘉義大學、高師大等不同背景，個人最高 15 年嘉義在地教學經驗，親自帶極小班 / 精緻班 / 小班課程。"
+  jsonLd={jsonLd}
 >
-  <p class="text-charcoal/80">（此頁將於 Phase 3 開發）</p>
-</PageLayout>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '師資介紹' }]} />
+  </div>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
+      <p class="font-handwriting text-2xl text-espresso">師資介紹</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        臺、清、交、嘉大、<br />高師大資歷的老師，親自帶班
+      </h1>
+      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+        每位老師都對自己帶的學生負起整個學期的責任，把每個觀念講到學生真的聽得懂。
+        這也是為什麼我們堅持小班——因為「責任」需要時間才能兌現。
+      </p>
+    </div>
+  </section>
+
+  <SectionFadeUp>
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      {teachers.length > 0 ? (
+        <ul
+          class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          role="list"
+        >
+          {teachers.map((t) => (
+            <li>
+              <TeacherCard teacher={t} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="text-charcoal/70">目前尚未有師資資料，請稍後再回來。</p>
+      )}
+    </div>
+  </SectionFadeUp>
+
+  <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        想知道哪位老師最適合你的孩子？
+      </h2>
+      <p class="mt-4 text-charcoal/80">
+        試聽是免費的，我們會根據孩子的狀況推薦最合適的科目老師。
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href="/contact" variant="primary" size="lg">預約試聽</Button>
+        <Button href="/courses" variant="secondary" size="lg">查看課程</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

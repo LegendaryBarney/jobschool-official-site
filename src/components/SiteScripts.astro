@@ -1,0 +1,26 @@
+---
+/**
+ * 全站 client-side 動效入口。掛載一次，內含：
+ * - magnetic CTA 初始化
+ * - 在 astro:page-load 後重啟
+ * SmoothScroll 與 ExitIntent 為各自獨立元件，由 BaseLayout 各別載入。
+ */
+---
+
+<script>
+  import { initMagneticButtons } from '~/lib/animations';
+
+  let cleanup: (() => void) | null = null;
+
+  function boot() {
+    cleanup?.();
+    cleanup = initMagneticButtons(document);
+  }
+
+  boot();
+  document.addEventListener('astro:page-load', boot);
+  document.addEventListener('astro:before-swap', () => {
+    cleanup?.();
+    cleanup = null;
+  });
+</script>

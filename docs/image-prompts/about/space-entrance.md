@@ -1,0 +1,9 @@
+Entrance corridor of a tutoring center seen from outside looking in, wooden floor, beige walls, a small wooden signboard on the left wall (illegible text), a small table with fresh flowers at the end of the corridor, warm recessed ceiling lights, abundant natural light from a window on the left, generous foreground whitespace, gives a cafe entrance feel rather than standard tutoring center, no people present, no human figures, no faces in frame.
+
+Style: cafe-inspired aesthetic, warm beige and cream palette, natural soft daylight, matte paper texture, editorial magazine layout, generous whitespace, hand-drawn nuance, calm and understated, subtle film grain, color temperature around 5000K, Lightroom warm preset, VSCO A6 / KK1 finish, analog meets digital, cozy academic warmth, photo-realistic.
+
+Color palette: dominant latte foam beige (#F5EFE6) and cream beige (#EAE0D0); espresso tan brown (#8B6F47) for accent and text-landing areas; charcoal bean (#1F1B16) as the deep neutral; chalk white (#FAFAF7) for highlights; caramel gold (#C8A165) for warm accent light; burnt sienna (#A14A3A) used sparingly only when warning emphasis is needed. Stay within these tones — do not exceed 5 colors in the final composition.
+
+Composition: 4:3 horizontal composition (1200 × 900 px target).
+
+Negative prompt — strictly avoid: neon colors, oversaturation, pure red, pure blue, pure green, rainbow gradient, purple tones, pink tones, HDR over-exposure, plastic skin retouching, cold blue tones, harsh fluorescent lighting, cartoon style, 3D plastic render, anime, comic book style, low resolution, text watermark, signature, logo overlay, deformed hands, distorted faces, crowded composition with all four corners filled, more than 5 colors, glass reflection, heavy metal sheen, leather texture, heavy wood-grain pattern, fisheye lens distortion, smartphone beauty filter, Comic Sans / Papyrus / Impact fonts, any visible Chinese or English text that could be misspelled.

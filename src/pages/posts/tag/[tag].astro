@@ -1,0 +1,80 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import PostCard from '~/components/PostCard.astro';
+import Button from '~/components/Button.astro';
+import { blogJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+export async function getStaticPaths() {
+  const all = await getCollection('posts', ({ data }) => !data.draft);
+  const tagSet = new Set<string>();
+  all.forEach((p) => (p.data.tags ?? []).forEach((t) => tagSet.add(t)));
+
+  return Array.from(tagSet).map((tag) => {
+    const posts = all
+      .filter((p) => (p.data.tags ?? []).includes(tag))
+      .sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
+    return {
+      params: { tag },
+      props: { tag, posts },
+    };
+  });
+}
+
+const { tag, posts } = Astro.props as { tag: string; posts: Awaited<ReturnType<typeof getCollection<'posts'>>> };
+
+const jsonLd = [
+  blogJsonLd(),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '學習筆記', href: SITE.url + '/posts' },
+    { label: `#${tag}`, href: `${SITE.url}/posts/tag/${encodeURIComponent(tag)}` },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`#${tag} — 學習筆記`}
+  description={`賈伯斯數理教室「${tag}」相關文章彙整。嘉義在地補習班過去 12 年教學經驗筆記分享。`}
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs
+      items={[
+        { label: '學習筆記', href: '/posts' },
+        { label: `#${tag}` },
+      ]}
+    />
+  </div>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      <p class="font-handwriting text-2xl text-espresso">標籤</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-5xl font-bold text-charcoal">
+        #{tag}
+      </h1>
+      <p class="mt-4 text-charcoal/75">
+        共 {posts.length} 篇文章
+      </p>
+    </div>
+  </section>
+
+  <SectionFadeUp>
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      {posts.length > 0 ? (
+        <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
+          {posts.map((p) => <li><PostCard post={p} /></li>)}
+        </ul>
+      ) : (
+        <p class="text-charcoal/70">這個標籤目前沒有文章。</p>
+      )}
+
+      <div class="mt-10">
+        <Button href="/posts" variant="secondary" size="md">← 回到所有文章</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

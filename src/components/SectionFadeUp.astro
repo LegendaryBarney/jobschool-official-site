@@ -1,0 +1,72 @@
+---
+interface Props {
+  as?: 'section' | 'div' | 'article' | 'aside';
+  class?: string;
+  delay?: number;
+  threshold?: number;
+}
+
+const {
+  as: Tag = 'section',
+  class: className = '',
+  delay = 0,
+  threshold = 0.12,
+} = Astro.props;
+---
+
+<Tag
+  class={`fade-up ${className}`}
+  data-fade-up
+  data-fade-threshold={threshold}
+  style={delay ? `--fade-delay: ${delay}ms` : undefined}
+>
+  <slot />
+</Tag>
+
+<style>
+  .fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 600ms var(--ease-brand) var(--fade-delay, 0ms),
+      transform 600ms var(--ease-brand) var(--fade-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .fade-up.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fade-up {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initFadeUp() {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const targets = document.querySelectorAll<HTMLElement>('[data-fade-up]:not(.is-visible)');
+    if (reduced) {
+      targets.forEach((el) => el.classList.add('is-visible'));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        }
+      },
+      { rootMargin: '0px 0px -10% 0px', threshold: 0.12 },
+    );
+    targets.forEach((el) => io.observe(el));
+  }
+
+  initFadeUp();
+  document.addEventListener('astro:page-load', initFadeUp);
+</script>

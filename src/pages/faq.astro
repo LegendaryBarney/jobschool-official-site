@@ -1,11 +1,162 @@
 ---
-import PageLayout from '~/layouts/PageLayout.astro';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import Button from '~/components/Button.astro';
+import { faqPageJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+const all = await getCollection('faq');
+const sorted = all.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
+
+interface RenderedFaq {
+  entry: CollectionEntry<'faq'>;
+  Body: Awaited<ReturnType<typeof render>>['Content'];
+  plainAnswer: string;
+}
+
+const rendered: RenderedFaq[] = await Promise.all(
+  sorted.map(async (entry) => {
+    const r = await render(entry);
+    const plain = (entry.body ?? '')
+      .replace(/^---[\s\S]*?---/m, '')
+      .replace(/[#*_`>\[\]]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return { entry, Body: r.Content, plainAnswer: plain };
+  }),
+);
+
+const grouped = new Map<string, RenderedFaq[]>();
+for (const item of rendered) {
+  const cat = item.entry.data.category ?? '一般';
+  const list = grouped.get(cat) ?? [];
+  list.push(item);
+  grouped.set(cat, list);
+}
+
+const categoryOrder = ['試聽流程', '收費與發票', '課程與教材', '退費與請假', '位置與交通', '一般'];
+const sortedCategories = Array.from(grouped.keys()).sort((a, b) => {
+  const ai = categoryOrder.indexOf(a);
+  const bi = categoryOrder.indexOf(b);
+  if (ai === -1 && bi === -1) return a.localeCompare(b, 'zh-Hant');
+  if (ai === -1) return 1;
+  if (bi === -1) return -1;
+  return ai - bi;
+});
+
+const jsonLd = [
+  faqPageJsonLd(
+    rendered.map((r) => ({
+      question: r.entry.data.question,
+      answer: r.plainAnswer,
+    })),
+  ),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '常見問題', href: SITE.url + '/faq' },
+  ]),
+];
 ---
 
-<PageLayout
+<BaseLayout
   title="常見問題"
-  description="關於試聽、收費、課程安排與成效追蹤的常見問題。"
-  heading="常見問題"
+  description="關於試聽流程、收費、課程安排、退費請假、位置交通的常見問題。賈伯斯數理教室嘉義東區精英小班補習常見疑問彙整。"
+  jsonLd={jsonLd}
 >
-  <p class="text-charcoal/80">（此頁將於 Phase 3 開發）</p>
-</PageLayout>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '常見問題' }]} />
+  </div>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
+      <p class="font-handwriting text-2xl text-espresso">常見問題</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        家長與學生常問的事
+      </h1>
+      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+        如果你的疑問沒有出現在下方，歡迎透過 <a href="/contact" class="text-espresso underline hover:text-caramel">聯絡表單</a>
+        或 LINE 直接詢問，我們會在 1 個工作日內回覆。
+      </p>
+
+      {sortedCategories.length > 0 && (
+        <nav aria-label="FAQ 分類快速跳轉" class="mt-6 flex flex-wrap gap-2 text-sm">
+          {sortedCategories.map((c) => (
+            <a
+              href={`#cat-${encodeURIComponent(c)}`}
+              class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
+            >
+              {c}
+            </a>
+          ))}
+        </nav>
+      )}
+    </div>
+  </section>
+
+  <SectionFadeUp>
+    <div class="mx-auto max-w-4xl px-4 py-12 lg:px-8 lg:py-16 space-y-12">
+      {sortedCategories.map((cat) => {
+        const list = grouped.get(cat) ?? [];
+        return (
+          <section
+            id={`cat-${encodeURIComponent(cat)}`}
+            class="scroll-mt-24"
+            aria-labelledby={`heading-${encodeURIComponent(cat)}`}
+          >
+            <h2
+              id={`heading-${encodeURIComponent(cat)}`}
+              class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3"
+            >
+              <span
+                class="inline-block h-2 w-8 rounded-full bg-caramel"
+                aria-hidden="true"
+              ></span>
+              {cat}
+              <span class="text-sm font-normal text-charcoal/55">{list.length} 題</span>
+            </h2>
+
+            <ul class="mt-6 space-y-3" role="list">
+              {list.map(({ entry, Body }) => (
+                <li>
+                  <details class="group rounded-xl border border-cream bg-chalk transition-shadow hover:shadow-sm open:shadow-sm">
+                    <summary
+                      class="flex cursor-pointer items-start justify-between gap-4 px-5 py-4 list-none"
+                    >
+                      <span class="font-serif text-lg text-charcoal flex-1">
+                        {entry.data.question}
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        class="mt-1 shrink-0 text-espresso transition-transform group-open:rotate-180"
+                      >
+                        ▾
+                      </span>
+                    </summary>
+                    <div class="px-5 pb-5 pt-1 text-charcoal/85 leading-relaxed prose prose-stone max-w-none prose-a:text-espresso hover:prose-a:text-caramel prose-strong:text-charcoal">
+                      <Body />
+                    </div>
+                  </details>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
+  </SectionFadeUp>
+
+  <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        還有其他問題？
+      </h2>
+      <p class="mt-4 text-charcoal/80">直接聯絡我們，我們會在 1 個工作日內回覆。</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href="/contact" variant="primary" size="lg">聯絡我們</Button>
+        <Button href="/courses" variant="secondary" size="lg">看課程</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

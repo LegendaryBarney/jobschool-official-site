@@ -1,0 +1,58 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import Tag from './Tag.astro';
+
+interface Props {
+  course: CollectionEntry<'courses'>;
+  class?: string;
+}
+
+const { course, class: className = '' } = Astro.props;
+const { name, grade, gradeLevel, subject, summary, priceRange, cover } = course.data;
+const href = `/courses/${course.slug}`;
+---
+
+<article
+  class={`course-card group flex flex-col overflow-hidden rounded-xl bg-chalk border border-cream transition-[transform,box-shadow] duration-300 ease-[var(--ease-brand)] hover:-translate-y-1 hover:shadow-md ${className}`}
+>
+  {cover && (
+    <a href={href} class="block aspect-[16/10] overflow-hidden bg-cream">
+      <Image
+        src={cover}
+        alt={name}
+        widths={[480, 768]}
+        sizes="(max-width: 768px) 100vw, 380px"
+        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+      />
+    </a>
+  )}
+
+  <div class="flex flex-1 flex-col p-5">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="inline-flex items-center rounded-md bg-espresso/10 px-2 py-0.5 text-xs font-medium text-espresso">
+        {grade}
+      </span>
+      <Tag size="sm">{subject}</Tag>
+      {gradeLevel.slice(0, 2).map((g) => <Tag size="sm">{g}</Tag>)}
+    </div>
+
+    <h3 class="mt-3 font-serif text-xl font-bold text-charcoal">
+      <a href={href} class="hover:text-espresso transition-colors">{name}</a>
+    </h3>
+    <p class="mt-2 text-sm text-charcoal/80 leading-relaxed line-clamp-3">{summary}</p>
+
+    <div class="mt-4 flex items-center justify-between border-t border-cream/80 pt-4">
+      {priceRange ? (
+        <span class="text-sm text-charcoal/70">{priceRange}</span>
+      ) : <span class="text-sm text-charcoal/50">價格洽詢</span>}
+      <a
+        href={href}
+        class="inline-flex items-center gap-1 text-sm font-medium text-espresso hover:text-caramel transition-colors"
+      >
+        了解詳情
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</article>

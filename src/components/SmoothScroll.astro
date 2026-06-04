@@ -1,0 +1,52 @@
+---
+// Lenis 全站 smooth scroll；尊重 prefers-reduced-motion；與 Astro View Transitions 相容。
+---
+
+<script>
+  import Lenis from 'lenis';
+
+  type LenisInstance = {
+    raf: (time: number) => void;
+    destroy: () => void;
+  };
+
+  let lenis: LenisInstance | null = null;
+  let rafId = 0;
+
+  function startLenis() {
+    if (typeof window === 'undefined') return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+    if (lenis) return;
+
+    lenis = new Lenis({
+      duration: 1.05,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      touchMultiplier: 1.4,
+    }) as unknown as LenisInstance;
+
+    const raf = (time: number) => {
+      lenis?.raf(time);
+      rafId = window.requestAnimationFrame(raf);
+    };
+    rafId = window.requestAnimationFrame(raf);
+  }
+
+  function stopLenis() {
+    if (rafId) window.cancelAnimationFrame(rafId);
+    rafId = 0;
+    lenis?.destroy();
+    lenis = null;
+  }
+
+  startLenis();
+
+  document.addEventListener('astro:before-swap', stopLenis);
+  document.addEventListener('astro:after-swap', startLenis);
+
+  window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
+    if (e.matches) stopLenis();
+    else startLenis();
+  });
+</script>

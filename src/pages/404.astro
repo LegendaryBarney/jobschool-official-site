@@ -1,20 +1,66 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Button from '~/components/Button.astro';
+import IconChalk from '~/components/IconChalk.astro';
+
+const popularLinks = [
+  { href: '/courses', label: '課程總覽', desc: '國中、高中各科小班' },
+  { href: '/teachers', label: '師資介紹', desc: '台清交資歷團隊' },
+  { href: '/posts', label: '學習筆記', desc: '教學現場觀察與技巧' },
+  { href: '/contact', label: '預約試聽', desc: '免費，沒有壓力' },
+];
 ---
 
-<BaseLayout title="找不到頁面" description="您要造訪的頁面不存在。" noindex>
-  <section class="mx-auto max-w-2xl px-4 py-24 lg:py-32 text-center">
-    <p class="font-handwriting text-4xl text-espresso">404</p>
-    <h1 class="mt-4 font-serif text-4xl lg:text-5xl font-bold text-charcoal">
-      頁面找不到了
-    </h1>
-    <p class="mt-4 text-charcoal/80">
-      您造訪的網址可能已搬移或不存在。回首頁看看，或從導覽列重新瀏覽。
-    </p>
-    <div class="mt-8 flex justify-center gap-4">
-      <Button href="/" variant="primary" size="md">回首頁</Button>
-      <Button href="/contact" variant="secondary" size="md">聯絡我們</Button>
+<BaseLayout
+  title="找不到頁面"
+  description="您要造訪的頁面不存在。回首頁看看，或瀏覽我們的課程、師資與學習筆記。"
+  noindex
+  hideMobileCta
+  hideExitIntent
+>
+  <section class="relative">
+    <div class="mx-auto max-w-3xl px-4 py-20 lg:py-32 text-center">
+      <p class="font-handwriting text-5xl text-espresso opacity-70">404</p>
+      <div class="mt-6 mx-auto inline-flex text-espresso/60">
+        <IconChalk name="compass" size={64} />
+      </div>
+      <h1 class="mt-4 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        找不到頁面
+      </h1>
+      <p class="mt-6 text-lg text-charcoal/80 leading-relaxed">
+        您造訪的網址可能已搬移或不存在。
+        回首頁看看，或從下方的熱門連結重新瀏覽。
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href="/" variant="primary" size="lg">回首頁</Button>
+        <Button href="/contact" variant="secondary" size="lg">聯絡我們</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-cream/40 paper-grain border-y border-cream">
+    <div class="mx-auto max-w-4xl px-4 py-12 lg:px-8 lg:py-16">
+      <h2 class="font-serif text-2xl font-bold text-charcoal text-center">
+        熱門連結
+      </h2>
+      <ul class="mt-8 grid gap-4 sm:grid-cols-2">
+        {popularLinks.map((l) => (
+          <li>
+            <a
+              href={l.href}
+              class="group flex items-center justify-between gap-3 rounded-xl border border-cream bg-chalk px-5 py-4 transition-shadow hover:shadow-md"
+            >
+              <div>
+                <p class="font-serif text-lg font-bold text-charcoal group-hover:text-espresso transition-colors">
+                  {l.label}
+                </p>
+                <p class="mt-0.5 text-sm text-charcoal/70">{l.desc}</p>
+              </div>
+              <span aria-hidden="true" class="text-espresso text-xl">→</span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 </BaseLayout>

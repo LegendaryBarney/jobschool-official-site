@@ -1,6 +1,15 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
-import PageLayout from '~/layouts/PageLayout.astro';
+import { Image } from 'astro:assets';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import Button from '~/components/Button.astro';
+import Tag from '~/components/Tag.astro';
+import IconChalk from '~/components/IconChalk.astro';
+import CourseCard from '~/components/CourseCard.astro';
+import { personJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
 
 export async function getStaticPaths() {
   const teachers = await getCollection('teachers');
@@ -12,43 +21,149 @@ export async function getStaticPaths() {
 
 const { entry: teacher } = Astro.props as { entry: CollectionEntry<'teachers'> };
 const { Content } = await render(teacher);
-const { name, title, education, yearsOfExperience, subjects, philosophy } = teacher.data;
+const { name, title, photo, education, yearsOfExperience, subjects, philosophy, seoDescription } =
+  teacher.data;
+const slug = teacher.id.replace(/\.(md|mdx)$/, '');
+
+const allCourses = await getCollection('courses');
+const taughtCourses = allCourses
+  .filter((c) => c.data.teacher === slug)
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
+
+const description =
+  seoDescription ??
+  (philosophy
+    ? `${name} ${title}｜${philosophy.slice(0, 90)}…｜嘉義東區賈伯斯數理教室`
+    : `認識 ${name}（${title}）— 賈伯斯數理教室嘉義東區精英小班師資。`);
+
+const jsonLd = [
+  personJsonLd({
+    name,
+    title,
+    education: education ?? [],
+    yearsOfExperience,
+    subjects: subjects ?? [],
+    philosophy,
+    slug,
+  }),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '師資介紹', href: SITE.url + '/teachers' },
+    { label: name, href: `${SITE.url}/teachers/${slug}` },
+  ]),
+];
 ---
 
-<PageLayout
-  title={`${name} — ${title}`}
-  description={teacher.data.seoDescription ?? philosophy}
-  heading={name}
-  subheading={title}
->
-  <div class="grid gap-8 lg:grid-cols-3">
-    <aside class="space-y-4 text-sm">
-      <div>
-        <h3 class="font-semibold text-espresso">學歷</h3>
-        <ul class="mt-2 space-y-1 text-charcoal/80">
-          {education.map((e) => <li>{e}</li>)}
-        </ul>
-      </div>
-      <div>
-        <h3 class="font-semibold text-espresso">教學年資</h3>
-        <p class="mt-2 text-charcoal/80">{yearsOfExperience} 年</p>
-      </div>
-      <div>
-        <h3 class="font-semibold text-espresso">教學科目</h3>
-        <ul class="mt-2 flex flex-wrap gap-2">
-          {
-            subjects.map((s) => (
-              <li class="rounded-full bg-cream text-espresso px-3 py-1 text-xs">
-                {s}
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-    </aside>
-
-    <article class="lg:col-span-2 prose prose-stone max-w-none">
-      <Content />
-    </article>
+<BaseLayout title={`${name} — ${title}`} description={description} jsonLd={jsonLd}>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs
+      items={[{ label: '師資介紹', href: '/teachers' }, { label: name }]}
+    />
   </div>
-</PageLayout>
+
+  <section class="mx-auto max-w-6xl px-4 pt-8 pb-12 lg:px-8 lg:pb-16">
+    <div class="grid gap-10 lg:grid-cols-5">
+      <aside class="lg:col-span-2">
+        <div class="aspect-[4/5] overflow-hidden rounded-xl border border-cream bg-cream/60 paper-grain flex items-center justify-center">
+          {photo ? (
+            <Image
+              src={photo}
+              alt={`${name} 老師`}
+              widths={[480, 768]}
+              sizes="(max-width: 1024px) 100vw, 420px"
+              class="h-full w-full object-cover"
+            />
+          ) : (
+            <div class="text-center px-6">
+              <span class="font-serif text-7xl text-espresso/40">{name.slice(0, 1)}</span>
+              <p class="mt-3 font-handwriting text-2xl text-espresso/60">{title}</p>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      <div class="lg:col-span-3 space-y-6">
+        <div>
+          <p class="font-handwriting text-xl text-espresso">{title}</p>
+          <h1 class="mt-1 font-serif text-4xl lg:text-5xl font-bold text-charcoal">
+            {name}
+          </h1>
+          {yearsOfExperience > 0 && (
+            <p class="mt-3 text-charcoal/70">教學年資 {yearsOfExperience} 年</p>
+          )}
+        </div>
+
+        {education && education.length > 0 && (
+          <div>
+            <h2 class="text-sm font-semibold tracking-wider text-espresso uppercase">學歷</h2>
+            <ul class="mt-3 space-y-1.5 text-charcoal/85">
+              {education.map((e) => (
+                <li class="flex items-start gap-2">
+                  <span class="text-caramel mt-2 inline-block h-1.5 w-1.5 rounded-full" aria-hidden="true"></span>
+                  <span>{e}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {subjects && subjects.length > 0 && (
+          <div>
+            <h2 class="text-sm font-semibold tracking-wider text-espresso uppercase">教學科目</h2>
+            <ul class="mt-3 flex flex-wrap gap-2">
+              {subjects.map((s) => (
+                <li><Tag>{s}</Tag></li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {philosophy && (
+          <blockquote class="relative rounded-xl border-l-4 border-caramel bg-chalk px-5 py-4">
+            <span
+              aria-hidden="true"
+              class="absolute -left-3 -top-3 h-7 w-7 rounded-full bg-caramel/30 flex items-center justify-center text-espresso text-lg"
+            >
+              <IconChalk name="pen" size={16} />
+            </span>
+            <p class="text-xs font-semibold tracking-wider text-espresso uppercase">教學理念</p>
+            <p class="mt-2 text-charcoal/90 leading-[1.85]">{philosophy}</p>
+          </blockquote>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <SectionFadeUp class="bg-cream/40 paper-grain border-y border-cream">
+    <div class="mx-auto max-w-4xl px-4 py-12 lg:px-8 lg:py-16">
+      <article class="brand-prose max-w-none">
+        <Content />
+      </article>
+    </div>
+  </SectionFadeUp>
+
+  {taughtCourses.length > 0 && (
+    <SectionFadeUp>
+      <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+        <p class="font-handwriting text-2xl text-espresso">{name} 帶的課程</p>
+        <h2 class="mt-2 font-serif text-3xl font-bold text-charcoal">教過的課程</h2>
+        <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {taughtCourses.map((c) => <CourseCard course={c} />)}
+        </div>
+      </div>
+    </SectionFadeUp>
+  )}
+
+  <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        想試聽 {name} 老師的課？
+      </h2>
+      <p class="mt-4 text-charcoal/80">填寫簡短表單，我們會在 1 個工作日內聯絡您。</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href="/contact" variant="primary" size="lg">立即試聽</Button>
+        <Button href="/teachers" variant="secondary" size="lg">看看其他師資</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

@@ -1,39 +1,90 @@
 ---
-const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
-const year = new Date().getFullYear();
+import { getCollection } from 'astro:content';
+import { LOCATIONS } from '~/lib/locations';
 
-const courseShortcuts = [
-  { href: '/courses', label: '所有課程' },
-  { href: '/courses?grade=高中', label: '高中數理' },
-  { href: '/courses?grade=國中', label: '國中理化' },
-  { href: '/teachers', label: '師資介紹' },
-  { href: '/posts', label: '學習筆記' },
+const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
+
+const siteMap = [
+  { href: '/', label: '首頁' },
+  { href: '/about', label: '關於我們' },
+  { href: '/courses', label: '課程' },
+  { href: '/tutors', label: '1對1家教' },
+  { href: '/teachers', label: '師資' },
+  { href: '/posts', label: '部落格' },
+  { href: '/testimonials', label: '學生見證' },
+  { href: '/faq', label: '常見問題' },
+  { href: '/contact', label: '聯絡我們' },
 ];
+
+const shinobi = LOCATIONS.shinobi;
+
+let testimonials: Array<{
+  studentName: string;
+  grade?: string;
+  school?: string;
+  quote: string;
+}> = [];
+
+try {
+  const all = await getCollection('testimonials');
+  testimonials = all
+    .filter((t) => t.data.featured)
+    .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+    .slice(0, 3)
+    .map((t) => ({
+      studentName: t.data.studentName,
+      grade: t.data.grade,
+      school: t.data.school,
+      quote: t.data.quote,
+    }));
+} catch {
+  testimonials = [];
+}
 ---
 
-<footer class="mt-24 bg-cream/60 paper-grain border-t border-cream">
+<footer id="site-footer" class="mt-24 bg-cream/60 paper-grain border-t border-cream">
   <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
     <div class="grid gap-10 md:grid-cols-3">
       <div>
         <h3 class="font-serif text-xl font-bold text-charcoal">賈伯斯數理教室</h3>
         <p class="mt-3 text-sm text-charcoal/80 leading-relaxed">
-          嘉義在地的精英小班補習機構，由台清交資歷師資領軍，專攻國中至高中數理科目。
+          嘉義在地的精緻小班補習機構，由臺、清、交、嘉義大學、高師大資歷師資組成，專攻國中至高中數理與英文科目。
         </p>
-        <p class="mt-4 text-sm text-charcoal/80">
+        <address class="mt-4 not-italic text-sm text-charcoal/80 leading-relaxed">
           <span class="block">嘉義市東區康樂街 10 號</span>
-          <span class="block">電話：(05)223-0303</span>
-        </p>
+          <span class="block">電話：<a href="tel:+88652230303" class="hover:text-espresso">(05) 223-0303</a></span>
+          <span class="block mt-1">營業時間：週一至週六 14:00–22:00</span>
+          <span class="block">週日休</span>
+        </address>
+        <a
+          href={lineUrl}
+          target={lineUrl !== '#' ? '_blank' : undefined}
+          rel={lineUrl !== '#' ? 'noopener noreferrer' : undefined}
+          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-espresso bg-chalk px-4 py-2 text-sm text-espresso transition-colors hover:bg-cream"
+        >
+          <span aria-hidden="true">→</span>
+          加 LINE 詢問課程
+        </a>
+
+        <div class="mt-6 pt-5 border-t border-cream/80">
+          <p class="text-xs font-semibold tracking-wider text-espresso uppercase">姊妹品牌</p>
+          <p class="mt-2 text-sm font-medium text-charcoal">{shinobi.name}</p>
+          <address class="not-italic text-xs text-charcoal/70 leading-relaxed">
+            {shinobi.address}
+            {shinobi.foundedYear && <span class="text-charcoal/50"> · EST. {shinobi.foundedYear}</span>}
+          </address>
+        </div>
       </div>
 
       <div>
         <h4 class="font-sans text-sm font-semibold tracking-wider text-espresso uppercase">
-          課程快捷
+          網站地圖
         </h4>
-        <ul class="mt-3 space-y-2 text-sm">
+        <ul class="mt-3 grid grid-cols-2 gap-2 text-sm">
           {
-            courseShortcuts.map((c) => (
+            siteMap.map((c) => (
               <li>
-                <a href={c.href} class="text-charcoal hover:text-espresso">
+                <a href={c.href} class="text-charcoal hover:text-espresso transition-colors">
                   {c.label}
                 </a>
               </li>
@@ -44,30 +95,42 @@ const courseShortcuts = [
 
       <div>
         <h4 class="font-sans text-sm font-semibold tracking-wider text-espresso uppercase">
-          聯絡與社群
+          學生回饋精選
         </h4>
-        <ul class="mt-3 space-y-2 text-sm">
-          <li>
-            <a href={lineUrl} target="_blank" rel="noopener noreferrer" class="text-charcoal hover:text-espresso">
-              LINE 官方帳號
+        {testimonials.length > 0 ? (
+          <ul class="mt-3 space-y-3 text-sm">
+            {
+              testimonials.map((t) => (
+                <li class="border-l-2 border-caramel pl-3">
+                  <p class="text-charcoal/80 leading-relaxed line-clamp-3">「{t.quote}」</p>
+                  <p class="mt-1 text-xs text-charcoal/60">
+                    — {t.studentName}
+                    {t.school ? ` · ${t.school}` : ''}
+                    {t.grade ? ` · ${t.grade}` : ''}
+                  </p>
+                </li>
+              ))
+            }
+          </ul>
+        ) : (
+          <p class="mt-3 text-sm text-charcoal/70 leading-relaxed">
+            過去 12 年來，累積上千位嘉義在地學生在這裡踏實累積。
+            <a href="/testimonials" class="block mt-2 text-espresso hover:underline">
+              查看所有學生見證 →
             </a>
-          </li>
-          <li>
-            <a href="#" class="text-charcoal hover:text-espresso">Facebook（待補）</a>
-          </li>
-          <li>
-            <a href="#" class="text-charcoal hover:text-espresso">Instagram（待補）</a>
-          </li>
-          <li>
-            <a href="/contact" class="text-charcoal hover:text-espresso">聯絡我們</a>
-          </li>
-        </ul>
+          </p>
+        )}
       </div>
     </div>
 
-    <div class="mt-12 pt-6 border-t border-cream/80 text-xs text-charcoal/60 flex flex-col md:flex-row md:justify-between gap-2">
-      <span>&copy; {year} 賈伯斯數理教室. All rights reserved.</span>
-      <span>嘉義 · 東區 · 康樂街</span>
+    <div class="mt-12 pt-6 border-t border-cream/80 flex flex-col gap-3 md:flex-row md:items-center md:justify-between text-xs text-charcoal/60">
+      <span>&copy; 2013–2026 賈伯斯數理教室</span>
+      <ul class="flex flex-wrap gap-x-4 gap-y-1">
+        <li><a href="#" class="hover:text-espresso">隱私權政策</a></li>
+        <li><a href="#" class="hover:text-espresso">Cookie 設定</a></li>
+        <li><a href="/contact" class="hover:text-espresso">聯絡我們</a></li>
+      </ul>
+      <span class="text-charcoal/50">網站由業主自行維護</span>
     </div>
   </div>
 </footer>

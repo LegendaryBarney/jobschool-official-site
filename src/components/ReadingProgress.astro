@@ -1,0 +1,61 @@
+---
+/**
+ * 文章閱讀進度條：頂部 fixed 1.5px 條，跟隨頁面滾動進度。
+ * 純 client JS，無 framework。
+ */
+interface Props {
+  target?: string;
+}
+const { target = 'article' } = Astro.props;
+---
+
+<div
+  id="reading-progress"
+  data-target={target}
+  aria-hidden="true"
+  class="fixed left-0 right-0 top-0 z-40 h-[2px] bg-transparent pointer-events-none"
+>
+  <div
+    id="reading-progress-bar"
+    class="h-full w-0 origin-left bg-caramel transition-[width] duration-100"
+  ></div>
+</div>
+
+<script>
+  function initReadingProgress() {
+    const wrap = document.getElementById('reading-progress');
+    const bar = document.getElementById('reading-progress-bar');
+    if (!wrap || !bar) return;
+    const targetSel = wrap.dataset.target || 'article';
+    const target = document.querySelector<HTMLElement>(targetSel);
+    if (!target) return;
+
+    let raf = 0;
+    const calc = () => {
+      const rect = target.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      const passed = Math.min(Math.max(-rect.top, 0), Math.max(total, 0));
+      const ratio = total > 0 ? passed / total : 0;
+      bar.style.width = `${(ratio * 100).toFixed(2)}%`;
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(calc);
+    };
+    calc();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onScroll);
+      },
+      { once: true },
+    );
+  }
+
+  initReadingProgress();
+  document.addEventListener('astro:page-load', initReadingProgress);
+</script>

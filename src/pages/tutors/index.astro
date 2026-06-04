@@ -1,0 +1,112 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import TutorCard from '~/components/TutorCard.astro';
+import Button from '~/components/Button.astro';
+import IconChalk from '~/components/IconChalk.astro';
+import { educationalOrgJsonLd, breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+const tutorsAll = await getCollection('tutoring');
+const tutors = tutorsAll.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
+
+const jsonLd = [
+  webPageJsonLd({
+    name: '1 對 1 家教課程',
+    description: '賈伯斯數理教室的 1 對 1 家教服務，依個案需求單獨報價，提供 1 小時免費試聽。',
+    url: `${SITE.url}/tutors`,
+  }),
+  educationalOrgJsonLd(),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '1對1家教', href: SITE.url + '/tutors' },
+  ]),
+];
+---
+
+<BaseLayout
+  title="1 對 1 家教"
+  description="賈伯斯數理教室的 1 對 1 家教服務：完全客製化、依個案需求單獨報價，提供 1 小時免費試聽。國／高中英文作文、數理科目可遠端或實體授課。"
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '1對1家教' }]} />
+  </div>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
+      <p class="font-handwriting text-2xl text-espresso">1 對 1 家教</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        為一位學生，<br />量身設計一套課
+      </h1>
+      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+        當小班的節奏仍然不夠貼合，1 對 1 是另一個選項。
+        我們依學生現況、家長期待與時段需求，安排合適的老師與進度規劃，
+        遠端或實體都可以。
+      </p>
+
+      <ul class="mt-8 grid gap-3 sm:grid-cols-3 max-w-3xl">
+        <li class="rounded-xl border border-cream bg-chalk p-4 flex gap-3">
+          <span class="text-espresso shrink-0 mt-0.5"><IconChalk name="users" size={22} /></span>
+          <div>
+            <p class="text-sm font-semibold text-charcoal">完全客製化</p>
+            <p class="mt-1 text-xs text-charcoal/70 leading-relaxed">依學生程度、目標與時段安排</p>
+          </div>
+        </li>
+        <li class="rounded-xl border border-cream bg-chalk p-4 flex gap-3">
+          <span class="text-espresso shrink-0 mt-0.5"><IconChalk name="note" size={22} /></span>
+          <div>
+            <p class="text-sm font-semibold text-charcoal">1 小時免費試聽</p>
+            <p class="mt-1 text-xs text-charcoal/70 leading-relaxed">先確認師生節奏再決定</p>
+          </div>
+        </li>
+        <li class="rounded-xl border border-cream bg-chalk p-4 flex gap-3">
+          <span class="text-espresso shrink-0 mt-0.5"><IconChalk name="cup" size={22} /></span>
+          <div>
+            <p class="text-sm font-semibold text-charcoal">依個案單獨報價</p>
+            <p class="mt-1 text-xs text-charcoal/70 leading-relaxed">先聊聊需求，再給合理價</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <SectionFadeUp>
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      {tutors.length > 0 ? (
+        <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
+          {tutors.map((t) => (
+            <li>
+              <TutorCard tutor={t} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="rounded-xl border border-dashed border-cream bg-chalk/60 p-10 text-center">
+          <p class="font-serif text-2xl text-charcoal">家教課程整理中</p>
+          <p class="mt-3 text-charcoal/70">
+            目前正在更新最新的家教師資與科目資料，
+            歡迎先<a href="/contact" class="text-espresso hover:text-caramel">與我們聯絡</a>，告訴我們需求。
+          </p>
+        </div>
+      )}
+    </div>
+  </SectionFadeUp>
+
+  <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        想聊聊家教需求？
+      </h2>
+      <p class="mt-4 text-charcoal/80">
+        告訴我們孩子的年級、科目與目標，我們會回覆合適的老師與報價。
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href="/contact" variant="primary" size="lg">預約諮詢</Button>
+        <Button href="/teachers" variant="secondary" size="lg">看師資</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>

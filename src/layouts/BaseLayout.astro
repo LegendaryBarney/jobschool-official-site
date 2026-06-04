@@ -4,32 +4,71 @@ import Fonts from '~/components/Fonts.astro';
 import Nav from '~/components/Nav.astro';
 import Footer from '~/components/Footer.astro';
 import MobileStickyCTA from '~/components/MobileStickyCTA.astro';
-import { buildMeta } from '~/lib/seo';
+import SmoothScroll from '~/components/SmoothScroll.astro';
+import SiteScripts from '~/components/SiteScripts.astro';
+import ExitIntentLine from '~/components/ExitIntentLine';
+import { buildMeta, buildOgImageUrl } from '~/lib/seo';
 import '~/styles/global.css';
+
+type JsonLdValue = Record<string, unknown> | Record<string, unknown>[];
 
 interface Props {
   title?: string;
   description?: string;
+  ogImage?: string;
+  /** 別名：image — 為了相容舊頁面 */
   image?: string;
   canonical?: string;
   noindex?: boolean;
   hideMobileCta?: boolean;
+  hideExitIntent?: boolean;
+  jsonLd?: JsonLdValue;
 }
 
 const {
   title,
   description,
+  ogImage,
   image,
   canonical: canonicalProp,
   noindex,
   hideMobileCta = false,
+  hideExitIntent = false,
+  jsonLd,
 } = Astro.props;
 
-const meta = buildMeta({ title, description, image, canonical: canonicalProp });
-const canonical = canonicalProp ?? new URL(Astro.url.pathname, Astro.site).toString();
-const ogImage = meta.image?.startsWith('http')
+// 若呼叫端沒指定 ogImage / image，且有 title，就自動用動態 OG 路由
+const explicitOg = ogImage ?? image;
+const autoOg = !explicitOg && title
+  ? buildOgImageUrl({
+      slug: Astro.url.pathname.replace(/^\/+|\/+$/g, '') || 'home',
+      title,
+      subtitle: description,
+    })
+  : undefined;
+
+const meta = buildMeta({
+  title,
+  description,
+  image: explicitOg ?? autoOg,
+  canonical: canonicalProp,
+});
+
+const siteOrigin = Astro.site ?? new URL('https://jobsedu.com.tw');
+const canonical = canonicalProp ?? new URL(Astro.url.pathname, siteOrigin).toString();
+const resolvedOg = meta.image?.startsWith('http')
   ? meta.image
-  : new URL(meta.image ?? '/og-default.png', Astro.site).toString();
+  : new URL(meta.image ?? '/og-default.png', siteOrigin).toString();
+
+const jsonLdArray: Record<string, unknown>[] = jsonLd
+  ? Array.isArray(jsonLd)
+    ? jsonLd
+    : [jsonLd]
+  : [];
+
+// Analytics IDs（缺值時不渲染）
+const GA_ID = (import.meta.env.PUBLIC_GA_ID as string | undefined) ?? '';
+const CLARITY_ID = (import.meta.env.PUBLIC_CLARITY_ID as string | undefined) ?? '';
 ---
 
 <!doctype html>
@@ -46,31 +85,91 @@ const ogImage = meta.image?.startsWith('http')
     <meta name="description" content={meta.description} />
     {(noindex || meta.noindex) && <meta name="robots" content="noindex, nofollow" />}
 
-    {/* Open Graph */}
     <meta property="og:type" content={meta.type} />
     <meta property="og:site_name" content="賈伯斯數理教室" />
     <meta property="og:title" content={meta.title} />
     <meta property="og:description" content={meta.description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={ogImage} />
+    <meta property="og:image" content={resolvedOg} />
     <meta property="og:locale" content="zh_TW" />
 
-    {/* Twitter */}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={meta.title} />
     <meta name="twitter:description" content={meta.description} />
-    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image" content={resolvedOg} />
+
+    {/* RSS / sitemap discovery */}
+    <link rel="alternate" type="application/rss+xml" title="賈伯斯數理教室 部落格" href="/feed.xml" />
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+
+    {jsonLdArray.map((data) => (
+      <script
+        type="application/ld+json"
+        is:inline
+        set:html={JSON.stringify(data)}
+      />
+    ))}
 
     <Fonts />
     <ClientRouter />
+
+    {/* Google Analytics 4 — 條件渲染，尊重 DNT，搭配 View Transitions 重發 page_view */}
+    {GA_ID && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
+        <script is:inline define:vars={{ GA_ID }}>{`
+          (function () {
+            try {
+              if (typeof navigator !== 'undefined' && navigator.doNotTrack === '1') return;
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){ window.dataLayer.push(arguments); }
+              window.gtag = gtag;
+              gtag('js', new Date());
+              gtag('config', GA_ID, { send_page_view: true });
+              document.addEventListener('astro:after-swap', function () {
+                if (typeof window.gtag !== 'function') return;
+                window.gtag('event', 'page_view', {
+                  page_path: location.pathname + location.search,
+                  page_location: location.href,
+                  page_title: document.title,
+                });
+              });
+            } catch (e) { /* swallow */ }
+          })();
+        `}</script>
+      </>
+    )}
+
+    {/* Microsoft Clarity */}
+    {CLARITY_ID && (
+      <script is:inline define:vars={{ CLARITY_ID }}>{`
+        (function (c, l, a, r, i, t, y) {
+          if (typeof navigator !== 'undefined' && navigator.doNotTrack === '1') return;
+          c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+          t = l.createElement(r); t.async = 1;
+          t.src = 'https://www.clarity.ms/tag/' + i;
+          y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, 'clarity', 'script', CLARITY_ID);
+      `}</script>
+    )}
+
     <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col bg-latte text-charcoal">
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-caramel focus:px-3 focus:py-2 focus:text-charcoal">
+      跳至主要內容
+    </a>
     <Nav />
     <main id="main" class="flex-1">
       <slot />
     </main>
     <Footer />
     {!hideMobileCta && <MobileStickyCTA />}
+
+    <SmoothScroll />
+    <SiteScripts />
+    {!hideExitIntent && <ExitIntentLine client:idle />}
+
+    {/* Pagefind UI script 預留（build 後 /pagefind/ 才會生成） */}
   </body>
 </html>
