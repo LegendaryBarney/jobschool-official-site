@@ -8,6 +8,44 @@
 
 ---
 
+## 夜跑 2026-06-05 — N6：全站 JSON-LD 逐頁稽核（用既有工廠，補缺漏）
+
+工廠檔 `src/lib/jsonld.ts` 已具備完整工廠：localBusiness / educationalOrg / course / courseInstance / person / article / breadcrumb / faqPage / review / aggregateRating / itemList / blog / webPage。本晚只「逐頁稽核 + 用既有工廠補缺漏」，未新寫工廠。
+
+逐頁稽核表：
+
+| 頁面 | 應有 Schema | 稽核前現況 | 本晚補了什麼 |
+|---|---|---|---|
+| 首頁 `index.astro` | Organization + LocalBusiness + EducationalOrganization | localBusinessJsonLd（型別含 LocalBusiness+EducationalOrganization，@id #organization）+ educationalOrgJsonLd | 已齊全，無需補 |
+| 課程總覽 `courses/index.astro` | CollectionPage（清單） | breadcrumb + educationalOrg + itemList（課程列表） | 已齊全，無需補 |
+| 課程內頁 `courses/[slug].astro` | Course/Thing + BreadcrumbList | course + courseInstance + breadcrumb | 已齊全，無需補 |
+| 師資總覽 `teachers/index.astro` | CollectionPage（清單） | educationalOrg + breadcrumb（缺清單） | **補 itemListJsonLd（師資列表）** 與課程總覽對齊 |
+| 師資內頁 `teachers/[slug].astro` | Person + BreadcrumbList | person + breadcrumb | 已齊全，無需補 |
+| 家教總覽 `tutors/index.astro` | CollectionPage | webPage + educationalOrg + breadcrumb | 已齊全，無需補 |
+| 家教內頁 `tutors/[slug].astro` | Course/Thing + BreadcrumbList | course + breadcrumb | 已齊全，無需補 |
+| 文章總覽 `posts/index.astro` | Blog/CollectionPage | blog + breadcrumb | 已齊全，無需補 |
+| 文章內頁 `posts/[slug].astro` | BlogPosting/Article + BreadcrumbList | article + breadcrumb | 已齊全，無需補 |
+| 文章標籤 `posts/tag/[tag].astro` | Blog + BreadcrumbList | blog + breadcrumb | 已齊全，無需補 |
+| 見證 `testimonials.astro` | Review collection（可選） | aggregateRating + review[] + breadcrumb | 已齊全，無需補 |
+| FAQ `faq.astro` | FAQPage | faqPage + breadcrumb | 已齊全，無需補 |
+| 聯絡 `contact.astro` | ContactPage（若工廠存在） | localBusiness + breadcrumb | 工廠無 contactPageJsonLd（spec 註明「若工廠存在」），不新寫工廠，維持現況 |
+| 關於 `about.astro` | EducationalOrganization | educationalOrg（頁面層）+ BreadcrumbList（由 `Breadcrumbs.astro` 元件自動輸出） | 已齊全，無需補（breadcrumb 由元件涵蓋，避免重複） |
+| LP `lp/[campaign].astro` | WebPage + BreadcrumbList | webPage + breadcrumb | 已齊全，無需補 |
+| 搜尋 `search.astro` | WebPage + BreadcrumbList | webPage + breadcrumb | 已齊全，無需補 |
+
+關鍵稽核發現：`src/components/Breadcrumbs.astro` 元件本身會輸出一份 `BreadcrumbList` JSON-LD（component-level）。因此所有使用 `<Breadcrumbs>` 的頁面已自動帶 breadcrumb；部分頁面（如 courses/index、teachers/index）在頁面層 jsonLd 又各放一份 breadcrumbJsonLd，會與元件重複（既有狀況，本晚未擴大處理，列入待決策）。本晚不再為 about 等頁加頁面層 breadcrumb，以免新增重複。
+
+本晚實際改動：
+1. `src/pages/teachers/index.astro` — 新增 `itemListJsonLd` 師資列表（與 courses/index 對齊，補上「師資總覽頁缺清單型 schema」唯一缺口）。
+
+待決策（留白天）：
+- breadcrumb 重複：courses/index、teachers/index 頁面層 breadcrumbJsonLd 與 Breadcrumbs 元件輸出重複。建議擇一（保留元件版、移除頁面層），但屬既有狀況且 Google 容忍重複 @type，本晚依「補缺漏不改既有」原則未動。
+- 是否新增 `contactPageJsonLd` / `collectionPageJsonLd` 工廠，把 contact 頁升級為 ContactPage、把總覽頁的 ItemList 包進 CollectionPage。目前用既有 ItemList + LocalBusiness 已能被 Google 正確解析；新增工廠屬「錦上添花」，本晚依「只用既有工廠」指示未做。
+
+驗證：`npm run check` 綠、`npm run build` 綠；`dist/` 內 `application/ld+json` 命中涵蓋全部主要頁面類型；抽驗頁面 JSON.parse 無語法錯誤（見 commit）。
+
+---
+
 ## 0. 業主工作模式（最高層）
 
 - **我是「代理業主 / orchestrator」**：規劃、切割、實作、測試都**派 subagent 做**；我只定義工作、發包（因 subagent 不能再生 subagent，fan-out 由我代發）、驗收、回報。把 context 留給決策。

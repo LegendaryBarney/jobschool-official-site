@@ -5,7 +5,7 @@ import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import TeacherCard from '~/components/TeacherCard.astro';
 import Button from '~/components/Button.astro';
-import { educationalOrgJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { educationalOrgJsonLd, breadcrumbJsonLd, itemListJsonLd } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
 
 const teachersAll = await getCollection('teachers');
@@ -17,6 +17,14 @@ const jsonLd = [
     { label: '首頁', href: SITE.url + '/' },
     { label: '師資介紹', href: SITE.url + '/teachers' },
   ]),
+  itemListJsonLd(
+    teachers.map((t) => ({
+      name: t.data.name,
+      url: `${SITE.url}/teachers/${t.id.replace(/\.(md|mdx)$/, '')}`,
+      description: t.data.philosophy ?? t.data.title,
+    })),
+    '賈伯斯數理教室師資列表',
+  ),
 ];
 ---
 
