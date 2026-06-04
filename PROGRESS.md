@@ -46,6 +46,18 @@
 
 ---
 
+## 夜跑紀錄 — 2026-06-05｜N12 部落格分類/年份篩選維度補齊（RFP §5.3）
+
+- **新增路由**：`src/pages/posts/year/[year].astro`（動態年份頁，`getStaticPaths` 由 `published` 的 `getFullYear()` 推導年份，篩出該年文章；版型沿用 tag 頁）。
+- **index 入口**：`src/pages/posts/index.astro` 篩選區新增「年份」一列（連至 `/posts/year/<year>`），未動既有分類/標籤/列表結構。
+- **驗證**：
+  - `npm run build` 綠；產出 `.vercel/output/static/posts/year/2026/index.html`（adapter 為 vercel，故輸出在 `.vercel/output/static`，非 `dist/`）。
+  - 2026 頁顯示「共 4 篇文章」，與 `src/content/posts/` 4 個 .mdx（全為 2026 年）數量相符，4 篇 slug 連結皆正確。
+  - `npm run check` 0 errors（僅既有無關檔的 deprecation 警告/hints）。
+- 目前 posts 僅 2026 一個年份；多年份時頁面會自動分裂，邏輯已涵蓋。
+
+---
+
 ## 0. 業主工作模式（最高層）
 
 - **我是「代理業主 / orchestrator」**：規劃、切割、實作、測試都**派 subagent 做**；我只定義工作、發包（因 subagent 不能再生 subagent，fan-out 由我代發）、驗收、回報。把 context 留給決策。
