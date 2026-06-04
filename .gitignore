@@ -36,7 +36,6 @@ public/pagefind/
 !.vscode/launch.json
 !.vscode/settings.json
 .idea/
-.claude/
 *.swp
 *.swo
 *~
@@ -51,3 +50,18 @@ desktop.ini
 
 # Internal archive of removed content (not part of site build)
 _archive/
+
+# Claude Code：共用協定（settings.json / hooks / scripts）進版控，個人與暫存檔不進
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+!.claude/scripts/
+!.claude/workflows/
+.claude/settings.local.json
+.claude/logs/
+prototypes/
+
+# Playwright 截圖暫存
+.playwright-mcp/
+home-*.jpeg
+verify-*.jpeg
