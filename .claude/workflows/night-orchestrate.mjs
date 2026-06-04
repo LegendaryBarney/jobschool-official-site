@@ -4,30 +4,38 @@
 //
 // 用途
 //   賈伯斯數理教室官網夜跑的 fan-out 編排引擎。由頂層 ORCHESTRATOR claude
-//   （night-run.ps1 啟動的 headless session）以 Workflow 工具呼叫，名稱為
-//   `night-orchestrate`。流程：規劃(Plan)→切割(Split)→執行(Execute)→收斂
-//   (Integrate)→匯總(Report)。本腳本只做純 JS 編排，所有讀寫檔/git/測試
-//   都委派 ag() 內的 subagent 去做（Workflow runtime 無檔案系統 API）。
+//   （night-run.ps1 啟動的 headless session）以 Workflow 工具、用 scriptPath 呼叫
+//   （custom workflow 不能用 name 叫，只有 built-in 才行）。流程：規劃(Plan)→切割
+//   (Split)→執行(Execute)→收斂(Integrate)→匯總(Report)。本腳本只做純 JS 編排，
+//   所有讀寫檔/git/測試都委派 ag() 內的 subagent 去做（Workflow runtime 無檔案系統 API）。
 //
 // 呼叫方式（由頂層 claude 透過 Workflow 工具）
-//   執行 workflow `night-orchestrate`，傳入 args：
+//   以 scriptPath 執行 .claude/workflows/night-orchestrate.mjs，傳入 args：
 //     {
 //       kickoffPath:   'KICKOFF.md',          // 任務書路徑（預設 KICKOFF.md）
 //       budgetCap:     1500000,               // 單晚 output token 硬上限
 //       parallelism:   3,                     // 同時實作的最大併發
 //       autoDeploy:    false,                 // 是否允許收斂後 preview deploy
-//       night:         '2026-06-10',          // 可選；夜跑日期（給分支命名用）
-//       branch:        'feat/night-2026-06-10'// 可選；指定 feature branch
+//       night:         '2026-06-10',          // 可選；夜跑日期（給 PROGRESS 區塊標題用）
+//       branch:        'feat/night'           // 常駐滾動分支（預設 feat/night）
 //     }
 //   所有 args 皆有 fallback 預設，缺值不會 throw。
+//
+// 分支模型（常駐滾動分支 feat/night）
+//   夜跑固定在單一常駐滾動分支 `feat/night` 上累積（不每晚從 main 切 per-date 分支）：
+//   只從 main 開一次，之後每晚在它上面續做、累積 commit 與 PROGRESS，跨晚 resume 才成立。
+//   頂層 ORCHESTRATOR（night-run.ps1）在呼叫本 Workflow 前已確保工作樹切到 feat/night，
+//   所有 worktree 以 feat/night 為基底；INTEGRATOR 把成功變更合回 feat/night（每項一個
+//   `night(Tn): …` commit），REPORTER 在 feat/night 上「追加」並 commit PROGRESS。
 //
 // 跨晚 resume 模型（07:00 硬停 → 隔晚無痛接續）
 //   夜跑於 02:00 起跑、做到早上 07:00 就被 night-run.ps1 硬殺（或 token 預算耗盡
 //   而提前收尾）。被停下時沒做完的工作，隔天晚上要「接著做、不重做已完成的項目」。
+//   因為固定用同一條 feat/night，前一晚的 `night(Tn):` commit 隔晚仍在同一分支看得到。
 //   機制以「task ID + commit 標記」為持久真相，三段協作：
 //     1. 持久標記（ground truth = git）：每個工作項通過後，IMPLEMENT/INTEGRATOR 的
 //        commit message 必帶 task ID，格式 `night(T2): <摘要>`。即使 07:00 被硬殺、
-//        REPORTER 沒跑到、PROGRESS 沒寫完，commit 仍落在夜跑 feature branch 上。
+//        REPORTER 沒跑到、PROGRESS 沒寫完，commit 仍落在 feat/night 上。
 //     2. PLANNER 去重：每晚開工先讀 KICKOFF + CLAUDE.md + PROGRESS.md，再額外讀
 //        「夜跑 feature branch 的 git log」，把 commit 訊息中出現過的 task ID（或
 //        PROGRESS 標 ✅ done 的 id）視為「已完成」並排除；只把「未完成 / 失敗待重試 /
@@ -288,8 +296,8 @@ function plannerPrompt(kickoffPath, branchHint) {
     '',
     '4.【跨晚 resume 去重 — 最關鍵】判斷哪些 task ID 已完成並排除，只把未完成的放進本晚隊列。',
     '   完成判定有兩個來源，git 為 ground truth（因 07:00 可能硬殺，PROGRESS 可能落後於 commit）：',
-    `   (a) git log（ground truth）：先確定夜跑 feature branch（${branchHint ? '指定名 ' + branchHint : 'KICKOFF front-matter 的 branch，或 feat/night-<night>'}），`,
-    '       對它跑 `git log --format=%s <branch>`（或 `git log --format=%s` 在該分支上），',
+    `   (a) git log（ground truth）：夜跑常駐滾動分支固定為 ${branchHint || 'feat/night'}（不是 per-date 分支），`,
+    `       對它跑 \`git log --format=%s ${branchHint || 'feat/night'}\`（你此刻通常已在該分支上，亦可直接 \`git log --format=%s\`），`,
     '       凡 commit 訊息符合 `night(<TASK_ID>):` 格式（例如 `night(T2): ...`）→ 該 TASK_ID 視為「已完成」。',
     '       分支不存在（首夜）→ 視為沒有任何已完成 commit。',
     '   (b) PROGRESS.md：最近夜跑區塊狀態表中標 ✅ done 的 task ID，也視為已完成。',
@@ -370,18 +378,19 @@ function testPrompt(item, impl, attemptNote) {
 
 function integratorPrompt(passed, branchHint, night) {
   return [
-    '你是夜跑的 INTEGRATOR（opus 角色）。把下列「通過驗收」的 worktree 變更，序列收斂回單一 feature branch。',
+    '你是夜跑的 INTEGRATOR（opus 角色）。把下列「通過驗收」的 worktree 變更，序列收斂回常駐滾動分支。',
     '通過驗收的項目（含 worktree 路徑/分支/commit）：',
     JSON.stringify(passed),
     '',
     '步驟：',
-    `1. 確定 feature branch：${branchHint ? '使用指定名 ' + branchHint : '若無指定，命名 feat/night-<日期>；日期請用 `git log -1 --format=%cd` 或系統取得，腳本不提供日期'}。`,
-    '   若該 branch 不存在，從 main 切出（git switch -c）。絕不在 main 上動工。',
-    '2. 按優先序逐一把各 worktree 的暫存 commit 合進 feature branch（git merge 或 cherry-pick）。',
-    '   【跨晚 resume 完成標記 — 務必保留】合進 feature branch 後，該項在分支上的 commit 訊息',
+    `1. 夜跑常駐滾動分支固定為 ${branchHint || 'feat/night'}（不另開 per-date 分支）。頂層 orchestrator 已先切到它；`,
+    `   你只要確認當前分支是 ${branchHint || 'feat/night'}（git rev-parse --abbrev-ref HEAD），不是就 git switch ${branchHint || 'feat/night'}。`,
+    `   若該分支不存在（理論上不該發生），從 origin/main（取不到用本地 main）切出一次：git switch -c ${branchHint || 'feat/night'} origin/main。絕不在 main 上動工。`,
+    `2. 按優先序逐一把各 worktree 的暫存 commit 合進 ${branchHint || 'feat/night'}（git merge 或 cherry-pick），每項落成一個 night(Tn) commit。`,
+    `   【跨晚 resume 完成標記 — 務必保留】合進 ${branchHint || 'feat/night'} 後，該項在分支上的 commit 訊息`,
     '   第一行必須是 `night(<TASK_ID>): <摘要>`（cherry-pick 預設會原樣保留 IMPLEMENT 寫的訊息；',
     '   若你做了 squash/改寫，務必確保第一行仍帶 `night(<TASK_ID>):`）。這是隔晚 PLANNER 用',
-    '   `git log --format=%s <branch>` 判定「已完成而跳過」的唯一持久依據；遺漏會導致該項隔晚被重做。',
+    `   \`git log --format=%s ${branchHint || 'feat/night'}\` 判定「已完成而跳過」的唯一持久依據；遺漏會導致該項隔晚被重做。`,
     '3. 每合併一項後跑 npm run check，綠了才合下一項（早發現衝突）。',
     '4. 衝突處理：自動可解（不同檔/段）直接合；純文字衝突可試一次三方合併；',
     '   仍衝突 → 不硬解，該 item 記為 conflict、保留其 worktree branch、繼續合其餘項。',
@@ -397,12 +406,14 @@ function integratorPrompt(passed, branchHint, night) {
 
 function reporterPrompt(payload, autoDeploy) {
   return [
-    '你是夜跑的 REPORTER（小模型角色）。更新 PROGRESS.md 並輸出當晚摘要。你不拍板任何決策。',
+    '你是夜跑的 REPORTER（小模型角色）。更新 PROGRESS.md、commit，並輸出當晚摘要。你不拍板任何決策。',
     '本晚編排資料：',
     JSON.stringify(payload),
     '',
     '步驟：',
-    '1. 在 PROGRESS.md 末尾追加一個「## <日期> — 夜跑（branch: ...）」區塊，含：',
+    '0. 確認當前分支是常駐滾動分支 `feat/night`（git rev-parse --abbrev-ref HEAD）。所有讀寫與 commit 都在它上面。',
+    '1.【追加，不可覆寫/另開新檔】先讀 feat/night 上現有的 PROGRESS.md，在「檔案末尾追加」一個',
+    '   「## <日期> — 夜跑（branch: feat/night）」區塊（保留既有所有內容；嚴禁覆寫整檔、嚴禁新建別的 PROGRESS 檔）。區塊含：',
     '   - 任務消化狀態表（| id | 標題 | 結果(✅done/⏭skipped/❌failed/❌conflict) | 說明 |）。',
     '     本晚跳過、判定「先前已完成」的 task（payload.skippedDone）也列一列，結果標「⏭ 已於先前夜跑完成」。',
     '   - 卡在哪 / 下一步 / 待決策（留白天，勿自行拍板）/ 預算（token 花費、止於何種終止條件',
@@ -410,6 +421,10 @@ function reporterPrompt(payload, autoDeploy) {
     '   - 【跨晚待續隊列（carryover）】獨立一小節，逐項列出未完成/失敗的 task ID + 原因 + 下一步，',
     '     明確標示「以下會在隔天晚上自動接續，已完成的不會重做」。同時填進輸出的 carryover[] 欄位。',
     '   日期請用 `git log -1 --format=%cd` 或系統取得（腳本不提供日期）。',
+    '1b.【commit PROGRESS — 務必做】把 PROGRESS.md 的追加變更 commit 到 feat/night：',
+    '   git add PROGRESS.md && git commit。commit 訊息第一行用 `night: update PROGRESS <date>`',
+    '   （<date> 同上由 git/系統取得），結尾加一行「' + COAUTHOR + '」。',
+    '   即使被 07:00 硬殺，已 commit 的 PROGRESS 也會留在 feat/night 上，隔晚接得上。progressUpdated 反映是否成功 commit。',
     autoDeploy
       ? '2. autoDeploy=true：若 feature branch 已成功 push，可跑 vercel（非 --prod）產 preview，URL 記入 PROGRESS 與 previewUrl。'
       : '2. autoDeploy=false：不要做任何 preview deploy。',
@@ -458,7 +473,8 @@ const KICKOFF = (args && args.kickoffPath) || 'KICKOFF.md';
 const CAP = (args && args.budgetCap) || 1_500_000;          // 單晚 output token 硬上限
 const PARALLELISM = Math.max(1, (args && args.parallelism) || 3);
 const AUTO_DEPLOY = !!(args && args.autoDeploy);
-const BRANCH_HINT = (args && args.branch) || '';
+// 常駐滾動分支：預設 feat/night（夜跑固定續用同一條，跨晚 resume 才成立）。
+const BRANCH_HINT = (args && args.branch) || 'feat/night';
 const NIGHT = (args && args.night) || '';
 
 const summary = {
@@ -513,8 +529,8 @@ if (!plan || !plan.hasTasks || !plan.milestones || plan.milestones.length === 0)
   return summary;
 }
 
-// 收斂用的分支 hint：優先 args，其次 PLANNER 解析到的
-const branchHint = BRANCH_HINT || (plan.branch || '');
+// 收斂用的分支 hint：常駐滾動分支固定為 feat/night（args.branch 預設即 feat/night）。
+const branchHint = BRANCH_HINT || (plan.branch || 'feat/night');
 const night = NIGHT || (plan.night || '');
 summary.branch = branchHint;
 

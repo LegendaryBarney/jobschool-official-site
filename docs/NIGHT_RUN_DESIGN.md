@@ -78,7 +78,7 @@ night: 2026-06-10
 budget_tasks: 8          # 今晚最多消化幾個 work item（軟上限，超過寫進 PROGRESS 留隔天）
 max_parallel: 3          # 覆寫預設並行度（不填用預設 3）
 allow_preview_deploy: false   # 是否允許收斂後做 preview deploy（預設 false）
-branch: feat/night-2026-06-10 # 指定夜跑 feature branch（不填則 orchestrator 自動命名）
+branch: feat/night          # 夜跑常駐滾動分支（固定 feat/night；不填即用預設）
 ---
 
 # 今晚任務書
@@ -123,7 +123,7 @@ PLANNER 必須輸出符合下列 schema 的物件（供 SPLITTER 使用）：
   "budgetTasks": 8,
   "maxParallel": 3,
   "allowPreviewDeploy": false,
-  "branch": "feat/night-2026-06-10",
+  "branch": "feat/night",
   "globalForbidden": ["不動 astro.config site", "不改 .env"],
   "tasks": [
     {
@@ -145,14 +145,14 @@ PLANNER 必須輸出符合下列 schema 的物件（供 SPLITTER 使用）：
 
 ## 3. PROGRESS.md 更新協定
 
-PROGRESS 是 resume 的唯一真相來源。協定如下：
+PROGRESS 是 resume 的人類可讀鏡像（git commit 才是 ground truth）。協定如下：
 
 ### 3.1 每晚一個區塊，內含逐項狀態表
 
-REPORTER 在 PROGRESS 末尾追加：
+REPORTER 在 `feat/night` 上現有 PROGRESS.md 的**末尾追加**一個帶日期的區塊（**不可覆寫整檔、不可另開新檔**），完成後 **commit** 到 `feat/night`（訊息 `night: update PROGRESS <date>`）：
 
 ```markdown
-## 2026-06-10 — 夜跑（branch: feat/night-2026-06-10）
+## 2026-06-10 — 夜跑（branch: feat/night）
 
 ### 任務消化狀態
 | id | 標題 | 結果 | 說明 |
@@ -176,15 +176,15 @@ REPORTER 在 PROGRESS 末尾追加：
 
 ### 3.2 跨晚 resume（task ID + commit 標記 + PLANNER 去重）
 
-夜跑於 07:00 被硬停（或 token 預算耗盡提前收尾）時，沒做完的工作要「隔天晚上接著做、不重做已完成的項目」。機制以 **task ID + commit 標記** 為持久真相，三段協作：
+夜跑於 07:00 被硬停（或 token 預算耗盡提前收尾）時，沒做完的工作要「隔天晚上接著做、不重做已完成的項目」。**前提是夜跑固定用同一條常駐滾動分支 `feat/night`**（只從 main 開一次，之後每晚在它上面續做、累積 commit 與 PROGRESS）：唯有跨晚都在同一分支，前一晚的 `night(Tn):` commit 與 PROGRESS 區塊隔晚才看得到、resume 才成立。**絕不每晚從 main 切 per-date 分支**（會讓前一晚的完成標記在新分支上消失、PROGRESS 分岔）。機制以 **task ID + commit 標記** 為持久真相，三段協作：
 
-1. **持久完成標記（ground truth = git）**：每個工作項通過後，IMPLEMENT 在自己的 worktree commit、INTEGRATOR 合回 feature branch 時，commit message 第一行**必帶 task ID**，格式 **`night(<TASK_ID>): <摘要>`**（例 `night(T2): 課程 SEO meta`，結尾仍加 `Co-Authored-By`）。
-   - 關鍵性質：即使 07:00 被 `night-run.ps1` 硬殺、REPORTER 沒跑到、PROGRESS 沒寫完，這個 commit 仍落在夜跑 feature branch 上。**git 是 ground truth，PROGRESS 只是人類可讀的鏡像**；兩者衝突時以 git log 為準。
-2. **PLANNER 去重**：每晚開工，PLANNER 讀 KICKOFF + CLAUDE.md + PROGRESS.md，並**額外讀夜跑 feature branch 的 git log**（`git log --format=%s <branch>`）。完成集合 `doneSet` = ①git log 中出現過的 `night(<id>):` task ID ∪ ②PROGRESS 最近夜跑區塊標 `✅ done` 的 id。
+1. **持久完成標記（ground truth = git）**：每個工作項通過後，IMPLEMENT 在自己的 worktree commit、INTEGRATOR 合回 `feat/night` 時，commit message 第一行**必帶 task ID**，格式 **`night(<TASK_ID>): <摘要>`**（例 `night(T2): 課程 SEO meta`，結尾仍加 `Co-Authored-By`）。
+   - 關鍵性質：即使 07:00 被 `night-run.ps1` 硬殺、REPORTER 沒跑到、PROGRESS 沒寫完，這個 commit 仍落在 `feat/night` 上。**git 是 ground truth，PROGRESS 只是人類可讀的鏡像**；兩者衝突時以 git log 為準。
+2. **PLANNER 去重**：每晚開工，PLANNER 讀 KICKOFF + CLAUDE.md + PROGRESS.md，並**額外讀 `feat/night` 的 git log**（`git log --format=%s feat/night`）。完成集合 `doneSet` = ①git log 中出現過的 `night(<id>):` task ID ∪ ②PROGRESS 最近夜跑區塊標 `✅ done` 的 id。
    - milestones **只放「KICKOFF 有列、但 id 不在 doneSet」** 的任務（未完成 / 失敗待重試 / 從未動過）；已完成者一律排除，不重做。
    - PLANNER 明確輸出兩個清單：`tonightTasks`（本晚要做的 task id）與 `skippedDone`（已完成而跳過的 task id），供 log 與 REPORTER 對照。
    - 若 KICKOFF 全部任務都已在 doneSet → `hasTasks=false`，當晚只記一行「全部任務已於先前夜跑完成」後結束。
-3. **carryover（跨晚待續隊列）**：REPORTER 寫 PROGRESS 時輸出獨立的「跨晚待續隊列」小節，逐項列出**未完成 / 失敗的 task ID + 原因 + 下一步**（同時填進結構化的 `carryover[]` 回傳欄位），明確標示「以下會在隔天晚上自動接續，已完成的不會重做」，方便隔晚接續與業主檢視。
+3. **carryover（跨晚待續隊列）**：REPORTER 在 `feat/night` 上**追加**（不可覆寫/另開新檔）一個帶日期的夜跑區塊到現有 PROGRESS.md 並**commit**（訊息 `night: update PROGRESS <date>`），其中獨立的「跨晚待續隊列」小節逐項列出**未完成 / 失敗的 task ID + 原因 + 下一步**（同時填進結構化的 `carryover[]` 回傳欄位），明確標示「以下會在隔天晚上自動接續，已完成的不會重做」，方便隔晚接續與業主檢視。commit PROGRESS 的好處：即使 07:00 硬殺，已 commit 的 PROGRESS 仍留在分支上，隔晚 PLANNER 讀得到。
 
 - **停在哪、下次從哪續 = 由 task ID 完成集合決定**：Execute 迴圈遇 budget 超標或某項失敗時，已完成項的 commit 不受影響；resume 不是「從頭重跑」，而是隔晚 PLANNER 用 doneSet 去重後只跑剩下的。
 - **冪等寫法要求**：每個 IMPLEMENT subagent 開工前先 `git status` 檢查該 item 是否已部分完成，避免重覆套用。
@@ -230,14 +230,14 @@ REPORTER 在 PROGRESS 末尾追加：
 
 ## 5. git / 分支 / 部署策略
 
-- **分支**：夜跑只在一條 feature branch（KICKOFF 指定或 orchestrator 自動命名 `feat/night-YYYY-MM-DD`）。worktree 從它切出、合回它。
+- **分支**：夜跑固定用單一**常駐滾動分支 `feat/night`**（不每晚切 per-date 分支）。起跑時：不存在 → 從 main（優先 origin/main）建立一次（`git switch -c feat/night origin/main`）；已存在 → checkout 續用。orchestrator 在呼叫 Workflow 前就切到 `feat/night`，worktree 從它切出、合回它。業主隨時 review，準備好才 PR 進 main。
 - **commit 粒度**：預設 **每項通過驗收即 commit 一個**，好追溯、好 resume、好 revert。匯總式 single commit 為備選（見 §10 決策點）。
 - **commit 訊息帶 task ID（跨晚 resume 的完成標記）**：訊息第一行格式 **`night(<TASK_ID>): <摘要>`**（例 `night(T1): 首頁禁用詞修正`）。這是隔晚 PLANNER 用 `git log` 判定「已完成而跳過」的 ground truth（見 §3.2）；硬殺也不丟。INTEGRATOR 合回 feature branch 時須保留此格式。
 - **commit 署名**：依 CLAUDE.md，commit message 結尾加 `Co-Authored-By` 行。
-- **push**：只 push feature branch（`git push -u origin feat/...`，guard 會擋 main）。push 時機：所有可合的 item 收斂完、PROGRESS 更新後，一次 push。
+- **push**：只 push 常駐分支（`git push -u origin feat/night`，guard 會擋 main）。push 時機：所有可合的 item 收斂完、PROGRESS 追加並 commit 後，一次 push。
 - **preview deploy**：**預設關閉**。僅當 `KICKOFF.allow_preview_deploy: true` 且 push 成功時，orchestrator 才跑 `vercel`（非 --prod）產 preview，URL 記入 PROGRESS。
 - **紅線（主動避開，不靠 hook 兜底）**：
-  - 不 `git push origin main` / 不在 main 開發（夜跑第一步就 `git switch -c`）。
+  - 不 `git push origin main` / 不在 main 開發（夜跑第一步就切到常駐分支 `feat/night`）。
   - 不 `vercel --prod` / promote / rollback / alias / dns / domains / remove。
   - 不碰 DNS、不寫 `.env`、不刪遠端資源、不 force push、不 reset --hard。
 
@@ -308,7 +308,7 @@ REPORTER 在 PROGRESS 末尾追加：
   if ($now -ge $cutoff) { $cutoff = $cutoff.AddDays(1) }   # 已過 07:00 → 隔天 07:00
   $TimeoutSec = [int]([math]::Max(60, ($cutoff - $now).TotalSeconds))
   ```
-- 換掉 `$Prompt`：改成「orchestrator 指示」，要求頂層 claude 呼叫 Workflow 工具執行 `orchestrate.mjs`，而不是自己動手實作。
+- 換掉 `$Prompt`：改成「orchestrator 指示」，要求頂層 claude 先確保工作樹切到常駐分支 `feat/night`，再用 Workflow 工具、**以 scriptPath 執行** `.claude/workflows/night-orchestrate.mjs`（custom workflow 不能用 name 叫，只有 built-in 才行；用 name 會 not found），而不是自己動手實作。
 
 ### 9.2 新 orchestrator prompt（骨架，繁中）
 
@@ -319,10 +319,14 @@ REPORTER 在 PROGRESS 末尾追加：
 你本身不寫 code、不跑大段實作；你的工作是「編排與發包」：
 1. 用一個 subagent 讀 KICKOFF.md + PROGRESS 最近夜跑區塊 + git log，判斷今晚有哪些「未 done」任務 id。
    若無任務 → 在 PROGRESS 記一行「<日期> 夜跑：無任務」後結束。
-2. 確保在 feature branch 上（git switch -c feat/night-<date>，若 KICKOFF 指定則用指定名）。絕不在 main 上動工。
-3. 呼叫 Workflow 工具執行編排腳本 orchestrate.mjs，傳入未 done 任務、budget、max_parallel、allow_preview_deploy。
-4. Workflow 回傳後：依其結果讓 subagent 更新 PROGRESS（逐項狀態/卡點/下一步/待決策），
-   commit（每項一 commit 或匯總，依設定），push feature branch（guard 會擋 main）。
+2. 確保工作樹切到常駐滾動分支 feat/night：先 git fetch；不存在 → 從 origin/main 建一次
+   （git switch -c feat/night origin/main）；已存在 → git switch feat/night 續用。絕不在 main 上動工。
+   要在呼叫 Workflow 前就切好（Workflow 的 worktree 會以 feat/night 為基底）。
+3. 用 Workflow 工具、以 scriptPath 執行 .claude/workflows/night-orchestrate.mjs（不可用 name），
+   傳入 args：kickoffPath、budgetCap、parallelism、autoDeploy、branch:"feat/night"。
+4. Workflow 回傳後：確認 REPORTER 已在 feat/night 上「追加」並 commit PROGRESS（逐項狀態/卡點/
+   下一步/待決策/carryover）；未做就讓 subagent 補做。INTEGRATOR 已把成功變更以 night(Tn) commit
+   合回 feat/night。push feat/night（guard 會擋 main）。
 5. 僅當 allow_preview_deploy=true 才做 vercel preview（非 --prod），URL 記入 PROGRESS。
 紅線：不 push main、不 vercel prod、不碰 DNS/.env、遇需決策一律寫 PROGRESS 不拍板。
 ```

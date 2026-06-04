@@ -54,7 +54,7 @@ KICKOFF.template.md — 夜跑「當晚任務書」範本
 # 沒做完的 task 隔晚自動接續、不重做已完成項（完成以 git 上 `night(Tn):` commit 為準）。
 # 同一份 KICKOFF.md 可跨晚沿用，不必每晚清掉已完成任務。
 
-# 夜跑日期（YYYY-MM-DD）。用於 feature branch 命名與 PROGRESS 區塊標題。
+# 夜跑日期（YYYY-MM-DD）。用於 PROGRESS 區塊標題（分支固定 feat/night，不用於命名）。
 night: 2026-06-10
 
 # 今晚最多消化幾個 work item（軟上限）。超過的留隔天，寫進 PROGRESS。
@@ -68,8 +68,9 @@ max_parallel: 3
 # 需先完成 vercel login，否則 push/preview 會失敗（見 PROGRESS 卡點）。
 allow_preview_deploy: false
 
-# 指定夜跑 feature branch。不填則由 INTEGRATOR 自動命名 feat/night-<日期>。
-branch: feat/night-2026-06-10
+# 夜跑常駐滾動分支：固定 feat/night（每晚續用同一條、累積 PROGRESS，跨晚 resume 才成立）。
+# 不填即用預設 feat/night；除非有特殊理由，不要改成 per-date 分支（會讓跨晚 resume 失效）。
+branch: feat/night
 ---
 
 # 今晚任務書
