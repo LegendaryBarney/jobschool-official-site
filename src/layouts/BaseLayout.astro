@@ -69,6 +69,8 @@ const jsonLdArray: Record<string, unknown>[] = jsonLd
 // Analytics IDs（缺值時不渲染）
 const GA_ID = (import.meta.env.PUBLIC_GA_ID as string | undefined) ?? '';
 const CLARITY_ID = (import.meta.env.PUBLIC_CLARITY_ID as string | undefined) ?? '';
+const META_PIXEL_ID = (import.meta.env.PUBLIC_META_PIXEL_ID as string | undefined) ?? '';
+const GSC_VERIFICATION = (import.meta.env.PUBLIC_GSC_VERIFICATION as string | undefined) ?? '';
 ---
 
 <!doctype html>
@@ -78,6 +80,8 @@ const CLARITY_ID = (import.meta.env.PUBLIC_CLARITY_ID as string | undefined) ?? 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#F5EFE6" />
     <meta name="generator" content={Astro.generator} />
+    {/* Google Search Console 網站驗證 — 缺值時不渲染 */}
+    {GSC_VERIFICATION && <meta name="google-site-verification" content={GSC_VERIFICATION} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonical} />
 
@@ -151,6 +155,38 @@ const CLARITY_ID = (import.meta.env.PUBLIC_CLARITY_ID as string | undefined) ?? 
           y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
         })(window, document, 'clarity', 'script', CLARITY_ID);
       `}</script>
+    )}
+
+    {/* Meta Pixel — 條件渲染，尊重 DNT，搭配 View Transitions 重發 PageView */}
+    {META_PIXEL_ID && (
+      <>
+        <script is:inline define:vars={{ META_PIXEL_ID }}>{`
+          (function (f, b, e, v, n, t, s) {
+            if (typeof navigator !== 'undefined' && navigator.doNotTrack === '1') return;
+            if (f.fbq) return; n = f.fbq = function () {
+              n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+            };
+            if (!f._fbq) f._fbq = n;
+            n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = [];
+            t = b.createElement(e); t.async = !0; t.src = v;
+            s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+            f.fbq('init', META_PIXEL_ID);
+            f.fbq('track', 'PageView');
+            b.addEventListener('astro:after-swap', function () {
+              if (typeof f.fbq === 'function') f.fbq('track', 'PageView');
+            });
+          })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+        `}</script>
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style="display:none"
+            alt=""
+            src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+          />
+        </noscript>
+      </>
     )}
 
     <slot name="head" />
