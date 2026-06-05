@@ -21,6 +21,7 @@
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
     "@astrojs/vercel": "^9.0.5",
+    "@google/genai": "^2.8.0",
     "@marsidev/react-turnstile": "^1.5.2",
     "@sentry/astro": "^10.52.0",
     "@tailwindcss/vite": "^4.3.0",
