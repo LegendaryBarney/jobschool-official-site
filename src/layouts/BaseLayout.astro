@@ -6,7 +6,6 @@ import Footer from '~/components/Footer.astro';
 import MobileStickyCTA from '~/components/MobileStickyCTA.astro';
 import SmoothScroll from '~/components/SmoothScroll.astro';
 import SiteScripts from '~/components/SiteScripts.astro';
-import ExitIntentLine from '~/components/ExitIntentLine';
 import { buildMeta, buildOgImageUrl } from '~/lib/seo';
 import '~/styles/global.css';
 
@@ -21,7 +20,6 @@ interface Props {
   canonical?: string;
   noindex?: boolean;
   hideMobileCta?: boolean;
-  hideExitIntent?: boolean;
   jsonLd?: JsonLdValue;
 }
 
@@ -33,7 +31,6 @@ const {
   canonical: canonicalProp,
   noindex,
   hideMobileCta = false,
-  hideExitIntent = false,
   jsonLd,
 } = Astro.props;
 
@@ -204,7 +201,6 @@ const GSC_VERIFICATION = (import.meta.env.PUBLIC_GSC_VERIFICATION as string | un
 
     <SmoothScroll />
     <SiteScripts />
-    {!hideExitIntent && <ExitIntentLine client:idle />}
 
     {/* Pagefind UI script 預留（build 後 /pagefind/ 才會生成） */}
   </body>
