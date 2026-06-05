@@ -121,7 +121,7 @@ const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
   </section>
 
   {/* ===== 三大優勢 ===== */}
-  <SectionFadeUp class="band band-latte" aria-labelledby="adv-title">
+  <SectionFadeUp class="band band-latte band-adv" aria-labelledby="adv-title">
     <div class="wrap">
       <div class="head-row">
         <div class="section-head">
@@ -145,7 +145,7 @@ const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
   </SectionFadeUp>
 
   {/* ===== 數據區 ===== */}
-  <SectionFadeUp class="band band-cream" aria-labelledby="stats-title">
+  <SectionFadeUp class="band band-cream band-stats" aria-labelledby="stats-title">
     <div class="wrap">
       <div class="section-head section-head-center">
         <span class="eyebrow">寫在黑板上的數字</span>
@@ -364,6 +364,13 @@ const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
   }
   .band-cream {
     background: var(--color-cream);
+  }
+  /* 優勢區 ↔ 數據區之間加大留白（generous whitespace） */
+  .band-adv {
+    padding-bottom: clamp(96px, 12vw, 168px);
+  }
+  .band-stats {
+    padding-top: clamp(96px, 12vw, 168px);
   }
 
   /* 編輯誌標題層級 */
