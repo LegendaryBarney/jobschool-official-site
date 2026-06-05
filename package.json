@@ -8,7 +8,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "prebuild": "tsx scripts/generate-llms-full.ts",
-    "build": "astro build && pagefind --site dist/client",
+    "build": "astro build && pagefind --site .vercel/output/static && node scripts/copy-pagefind.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "generate:llms": "tsx scripts/generate-llms-full.ts",
