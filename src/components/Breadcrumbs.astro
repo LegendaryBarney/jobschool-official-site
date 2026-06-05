@@ -1,6 +1,7 @@
 ---
-import { breadcrumbJsonLd } from '~/lib/jsonld';
-
+// 注意：本元件「只負責視覺麵包屑」，不再輸出 BreadcrumbList JSON-LD。
+// 結構化資料一律由頁面層用 breadcrumbJsonLd(...) 傳入 BaseLayout 的 jsonLd，
+// 以確保每個有麵包屑的頁面有且僅有一份 BreadcrumbList（避免重複）。
 export interface BreadcrumbItem {
   label: string;
   href?: string;
@@ -16,13 +17,6 @@ const { items, class: className = '' } = Astro.props;
 const fullItems: BreadcrumbItem[] = items[0]?.label === '首頁'
   ? items
   : [{ label: '首頁', href: '/' }, ...items];
-
-const ldItems = fullItems.map((it) => ({
-  label: it.label,
-  href: it.href ? new URL(it.href, Astro.site ?? Astro.url.origin).toString() : undefined,
-}));
-
-const jsonLd = breadcrumbJsonLd(ldItems);
 ---
 
 <nav aria-label="麵包屑" class={`text-sm text-charcoal/70 ${className}`}>
@@ -48,5 +42,3 @@ const jsonLd = breadcrumbJsonLd(ldItems);
     }
   </ol>
 </nav>
-
-<script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
