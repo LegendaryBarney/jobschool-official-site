@@ -22,6 +22,9 @@ const allTags = Array.from(
 const allCategories = Array.from(
   new Set(allPosts.map((p) => p.data.category).filter(Boolean) as string[]),
 ).sort();
+const allYears = Array.from(
+  new Set(allPosts.map((p) => String(p.data.published.getFullYear()))),
+).sort((a, b) => Number(b) - Number(a));
 
 const jsonLd = [
   blogJsonLd(),
@@ -76,6 +79,19 @@ const jsonLd = [
               class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
             >
               #{t}
+            </a>
+          ))}
+        </div>
+      )}
+      {allYears.length > 0 && (
+        <div class="flex flex-wrap items-center gap-2 text-sm">
+          <span class="text-charcoal/60 mr-1">年份：</span>
+          {allYears.map((y) => (
+            <a
+              href={`/posts/year/${y}`}
+              class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
+            >
+              {y} 年
             </a>
           ))}
         </div>

@@ -5,7 +5,8 @@ import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
 import Timeline from '~/components/Timeline.astro';
 import IconChalk from '~/components/IconChalk.astro';
-import { educationalOrgJsonLd } from '~/lib/jsonld';
+import { educationalOrgJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
 
 const principles = [
   {
@@ -37,7 +38,13 @@ const milestones = [
   { year: '2026', title: '啟用全新官方網站', desc: '替換舊有 Weebly 站，整合課程資訊、學生見證與線上試聽預約，把溝通做到更貼心。' },
 ];
 
-const jsonLd = [educationalOrgJsonLd()];
+const jsonLd = [
+  educationalOrgJsonLd(),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '關於我們', href: SITE.url + '/about' },
+  ]),
+];
 ---
 
 <BaseLayout

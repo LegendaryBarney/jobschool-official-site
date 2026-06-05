@@ -2,10 +2,16 @@
  * JSON-LD 結構化資料工廠函式
  * 涵蓋：LocalBusiness、EducationalOrganization、Course、Person、Article、FAQPage、Review、Breadcrumb
  */
-import { SITE } from './seo';
+import { SITE, getActiveSocials } from './seo';
 import { LOCATIONS } from './locations';
 
 export type JsonLd = Record<string, unknown>;
+
+/**
+ * 取得 SITE.socials 中非空的 URL 陣列，供 schema.org sameAs 使用。
+ * 全部為空時回傳空陣列（呼叫端應以此判斷是否輸出 sameAs 鍵）。
+ */
+const sameAsUrls = (): string[] => getActiveSocials().map((s) => s.url);
 
 const baseAddress = () => ({
   '@type': 'PostalAddress',
@@ -17,6 +23,7 @@ const baseAddress = () => ({
 });
 
 export function localBusinessJsonLd(): JsonLd {
+  const sameAs = sameAsUrls();
   return {
     '@context': 'https://schema.org',
     '@type': ['LocalBusiness', 'EducationalOrganization'],
@@ -61,10 +68,12 @@ export function localBusinessJsonLd(): JsonLd {
         ? { foundingDate: String(LOCATIONS.shinobi.foundedYear) }
         : {}),
     },
+    ...(sameAs.length > 0 ? { sameAs } : {}),
   };
 }
 
 export function educationalOrgJsonLd(): JsonLd {
+  const sameAs = sameAsUrls();
   return {
     '@context': 'https://schema.org',
     '@type': 'EducationalOrganization',
@@ -75,6 +84,7 @@ export function educationalOrgJsonLd(): JsonLd {
     address: baseAddress(),
     telephone: SITE.phone,
     foundingDate: String(SITE.founded),
+    ...(sameAs.length > 0 ? { sameAs } : {}),
   };
 }
 
