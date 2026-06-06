@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
@@ -7,6 +8,9 @@ import TrialForm from '~/components/TrialForm';
 import { localBusinessJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
 import { LOCATIONS } from '~/lib/locations';
+
+import spaceMainClassroom from '~/assets/images/spaces/main-classroom.webp';
+import spaceSelfStudy from '~/assets/images/spaces/self-study.webp';
 
 const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
 
@@ -49,8 +53,23 @@ const jsonLd = [
   <SectionFadeUp>
     <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
       <div class="grid gap-10 lg:grid-cols-5">
-        {/* 左側：地圖 + 聯絡資訊 */}
+        {/* 左側：實景照 + 地圖 + 聯絡資訊 */}
         <aside class="lg:col-span-2 space-y-6">
+          <figure class="overflow-hidden rounded-xl border border-cream bg-chalk">
+            <div class="aspect-[16/9] overflow-hidden bg-cream">
+              <Image
+                src={spaceMainClassroom}
+                alt="賈伯斯數理教室（東區康樂街校區）主教室實景"
+                widths={[480, 768]}
+                sizes="(max-width: 1024px) 100vw, 440px"
+                class="h-full w-full object-cover"
+              />
+            </div>
+            <figcaption class="px-4 py-2.5 text-sm text-charcoal/70">
+              東區 · 康樂街校區教室實景
+            </figcaption>
+          </figure>
+
           <div class="rounded-xl overflow-hidden border border-cream bg-cream/60">
             <div class="aspect-[4/3] bg-cream">
               <iframe
@@ -158,7 +177,23 @@ const jsonLd = [
       </p>
 
       <div class="mt-8 grid gap-6 lg:grid-cols-5">
-        <div class="lg:col-span-3 rounded-xl overflow-hidden border border-cream bg-cream/60">
+        <div class="lg:col-span-3 space-y-6">
+          <figure class="overflow-hidden rounded-xl border border-cream bg-chalk">
+            <div class="aspect-[16/9] overflow-hidden bg-cream">
+              <Image
+                src={spaceSelfStudy}
+                alt={`${shinobi.name}（西區杭州一街校區）自習空間實景`}
+                widths={[480, 768, 1024]}
+                sizes="(max-width: 1024px) 100vw, 620px"
+                class="h-full w-full object-cover"
+              />
+            </div>
+            <figcaption class="px-4 py-2.5 text-sm text-charcoal/70">
+              西區 · 杭州一街校區空間實景
+            </figcaption>
+          </figure>
+
+          <div class="rounded-xl overflow-hidden border border-cream bg-cream/60">
           <div class="aspect-[16/9] bg-cream">
             <iframe
               src={shinobi.mapEmbedSrc}
@@ -180,6 +215,7 @@ const jsonLd = [
             >
               在 Google 地圖打開 →
             </a>
+          </div>
           </div>
         </div>
 
