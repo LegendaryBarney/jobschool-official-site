@@ -4,7 +4,22 @@
 > 即可知道：做到哪、有哪些設置、業主拍板了什麼、下一步、待決策。
 > 記憶另存於 `~/.claude/projects/<本專案>/memory/`（索引 MEMORY.md，每 session 自動載入）。
 
-最後更新：2026-06-05（夜跑編排 dry-run 驗證通過、揪出 2 問題）
+最後更新：2026-06-06（全站無人物影像上線、圖片管線定案）
+
+---
+
+## ⭐ 最新現況（2026-06-06）— 先讀這段
+
+**已上 production**（main，Vercel 自動部署；DNS 仍指舊 Weebly，對外不可見＝私有正式版）：
+- Live：**https://jobsofficialsite.vercel.app**（首頁/搜尋/課程帶圖皆驗證 200）。
+- 首頁改版 D；夜跑 N1–N12；上線前修正（pagefind 線上搜尋、breadcrumb 去重、astro 5.18.2 安全修補）；UX（移除 LINE 彈窗、加大留白、CountUp、robots、404）；課程內頁 hero、OG 副標精簡。
+- **全站無人物影像 25 張上線**：14 課程封面 + 6 教室/空間（關於頁網格＋聯絡頁兩校區）+ 4 部落格封面 + 1 暑期 LP hero。皆 `src/assets/images/` + 接 content `cover/heroImage`。
+
+**圖片管線（定案、免費）**：chrome-devtools MCP 連業主已登入的 Chrome → 驅動 Gemini 網頁（Nano Banana 2）生圖 → 下載原尺寸（Downloads 為 `<uuid>.tmp`）→ Bash 差集抓檔 → `sharp` 裁底 7% 去浮水印 → webp。prompt 在 `docs/image-prompts/`，末尾加「warm edge-to-edge, NO people, no text, 16:9」。dreamina(VIP)/Imagen API(免費額度0) 皆棄。
+
+**只剩業主能解的決策**（非瑣事）：① 師資/家教肖像＝等實拍；② GA4/Clarity/Meta Pixel/GSC 碼 + IG/FB/YouTube/Google 商家 URL（已 env 佔位）；③ Astro 5→6 大遷移（解 @astrojs/vercel@10 剩餘弱點，另開 session）；④ DNS 切換時點；⑤ Decap CMS 後端。
+
+**工作流**：代理業主——實作派 subagent、別過度發問、驗證過批次直接 PR→main。已登入 gh、vercel。排程 `JobschoolNightRun` 仍停用（待白天驗 headless 觸發）。
 
 ---
 
