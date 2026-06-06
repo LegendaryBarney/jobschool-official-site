@@ -70,11 +70,33 @@ export interface OgImageInput {
   type?: 'website' | 'article';
 }
 
+/**
+ * 將長描述精簡成 OG 副標：截斷到約 50 字，盡量在標點處斷句，超出補上省略號。
+ * 目的是讓 OG 卡副標簡潔，不要塞整段 description。
+ */
+export function buildOgSubtitle(raw?: string, max = 50): string {
+  if (!raw) return '';
+  const text = raw.trim().replace(/\s+/g, ' ');
+  if (text.length <= max) return text;
+  const slice = text.slice(0, max);
+  // 嘗試在最後一個標點處斷句，讓副標更自然
+  const punct = Math.max(
+    slice.lastIndexOf('，'),
+    slice.lastIndexOf('。'),
+    slice.lastIndexOf('、'),
+    slice.lastIndexOf('；'),
+    slice.lastIndexOf('·'),
+  );
+  const base = punct >= max * 0.6 ? slice.slice(0, punct) : slice;
+  return base + '…';
+}
+
 export function buildOgImageUrl(input: OgImageInput = {}): string {
   const slugRaw = input.slug?.replace(/^\/+|\/+$/g, '') || 'home';
   const params = new URLSearchParams();
   if (input.title) params.set('title', input.title.slice(0, 60));
-  if (input.subtitle) params.set('subtitle', input.subtitle.slice(0, 120));
+  const subtitle = buildOgSubtitle(input.subtitle);
+  if (subtitle) params.set('subtitle', subtitle);
   const qs = params.toString();
   return `/og/${slugRaw}.png${qs ? `?${qs}` : ''}`;
 }
