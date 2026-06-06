@@ -19,6 +19,7 @@ priceRange: 9,300 元 / 12 節
 featured: false
 order: 6
 seoDescription: 嘉義東區高中化學補習推薦 — 賈伯斯數理教室高中化學小班，清大物理碩士豪理老師授課，從原子結構到有機化學系統性建立觀念。
+cover: ../../assets/images/courses/high-chemistry.webp
 ---
 
 ## 教學節奏：依程度給速度與難度
