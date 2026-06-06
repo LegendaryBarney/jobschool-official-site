@@ -63,5 +63,6 @@ prototypes/
 
 # Playwright 截圖暫存
 .playwright-mcp/
+.rwd-shots/
 home-*.jpeg
 verify-*.jpeg

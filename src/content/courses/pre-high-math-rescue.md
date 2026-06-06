@@ -18,6 +18,7 @@ priceRange: 9,300 元 / 12 節
 featured: true
 order: 10
 seoDescription: 嘉義東區升高中數學銜接 — 賈伯斯數理教室升高中數學基礎搶救班，Jason 老師授課，提供 11 節免費試聽，從國中代數補強到高一三角函數先修。
+cover: ../../assets/images/courses/pre-high-math-rescue.webp
 ---
 
 ## 課程定位

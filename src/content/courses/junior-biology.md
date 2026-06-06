@@ -18,6 +18,7 @@ priceRange: 4,650 元 / 12 節
 featured: false
 order: 9
 seoDescription: 嘉義東區國中生物補習推薦 — 賈伯斯數理教室國中生物小班，由臺大資工碩士 Barney 老師親自授課，從細胞到生態系統循序建立完整觀念。
+cover: ../../assets/images/courses/junior-biology.webp
 ---
 
 ## 教學節奏：依程度給速度與難度

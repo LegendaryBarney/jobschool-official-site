@@ -20,6 +20,7 @@ priceRange: 9,300 元 / 12 節
 featured: true
 order: 5
 seoDescription: 嘉義東區高中物理補習推薦 — 賈伯斯數理教室高中物理小班，清大物理碩士豪理老師授課，精緻小班、現象式教學，協助嘉中、嘉女、協同、輔仁學生建立扎實觀念。
+cover: ../../assets/images/courses/high-physics.webp
 ---
 
 ## 教學節奏：依程度給速度與難度

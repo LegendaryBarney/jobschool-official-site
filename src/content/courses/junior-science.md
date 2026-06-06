@@ -18,6 +18,7 @@ priceRange: 9,300 元 / 12 節
 featured: false
 order: 8
 seoDescription: 嘉義東區國中自然（理化）補習推薦 — 賈伯斯數理教室國中自然小班，由臺大資工碩士 Barney 老師親自授課，協助蘭潭、北興、民生、協同、輔仁學生會考穩穩拿分。
+cover: ../../assets/images/courses/junior-science.webp
 ---
 
 ## 教學節奏：依程度給速度與難度

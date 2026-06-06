@@ -17,6 +17,7 @@ priceRange: 9,300 元 / 12 節
 featured: true
 order: 2
 seoDescription: 嘉義東區高二數學補習推薦 — 賈伯斯數理教室高二數學進階班，精緻小班、由臺、清、交、嘉義大學、高師大資歷的師資授課，協助嘉中、嘉女、協同、輔仁學生在學測前一年穩定累積實力。
+cover: ../../assets/images/courses/high-math-grade-11.webp
 ---
 
 ## 教學節奏：依程度給速度與難度

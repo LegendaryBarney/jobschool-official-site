@@ -17,6 +17,7 @@ priceRange: 9,300 元 / 12 節
 featured: true
 order: 3
 seoDescription: 嘉義東區高三數學總複習推薦 — 賈伯斯數理教室高三數學班，由臺、清、交、嘉義大學、高師大資歷的師資授課，精緻小班，協助嘉中、嘉女、協同、輔仁學生面對學測與分科測驗。
+cover: ../../assets/images/courses/high-math-grade-12.webp
 ---
 
 ## 教學節奏：依程度給速度與難度

@@ -23,7 +23,6 @@ export default function CountUp({
 }: CountUpProps) {
   const ref = useRef<HTMLSpanElement | null>(null);
   const [value, setValue] = useState<number>(from);
-  const startedRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -33,9 +32,9 @@ export default function CountUp({
       return;
     }
 
-    const node = ref.current;
-    if (!node) return;
-
+    // 本元件以 Astro `client:visible` 載入，hydration 發生時元素已進入視窗，
+    // 不需再用內部 IntersectionObserver 二次把關（會疊加延遲、讓數字停在 0 過久）。
+    // 直接在 mount 後立即開跑動畫。
     let raf = 0;
     let startTime: number | null = null;
 
@@ -50,23 +49,9 @@ export default function CountUp({
       }
     };
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting && !startedRef.current) {
-            startedRef.current = true;
-            raf = window.requestAnimationFrame(tick);
-            io.disconnect();
-          }
-        }
-      },
-      { threshold: 0.4 },
-    );
-
-    io.observe(node);
+    raf = window.requestAnimationFrame(tick);
 
     return () => {
-      io.disconnect();
       if (raf) window.cancelAnimationFrame(raf);
     };
   }, [to, from, duration]);
