@@ -17,6 +17,7 @@ priceRange: 9,300 元 / 12 節
 featured: false
 order: 4
 seoDescription: 嘉義東區學測數學衝刺班 — 賈伯斯數理教室專為嘉中、嘉女、協同、輔仁高三生設計，3 個月密集模擬考＋錯題檢討，由臺、清、交、嘉義大學、高師大資歷的師資親自帶班。
+cover: ../../assets/images/courses/gsat-math-sprint.webp
 ---
 
 ## 教學節奏：依程度給速度與難度
