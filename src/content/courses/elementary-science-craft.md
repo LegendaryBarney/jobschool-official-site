@@ -18,6 +18,7 @@ priceRange: 4,650 元 / 12 節
 featured: false
 order: 14
 seoDescription: 嘉義國小自然手作班 — 賈伯斯數理教室國小自然手作班，由 Jason 老師授課，提供 11 節免費試聽，孩子每堂都能帶作品回家。
+cover: ../../assets/images/courses/elementary-science-craft.webp
 ---
 
 ## 課程定位

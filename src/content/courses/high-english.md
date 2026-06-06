@@ -19,6 +19,7 @@ priceRange: 9,300 元 / 12 節
 featured: false
 order: 7
 seoDescription: 嘉義東區高中英文補習推薦 — 賈伯斯數理教室高中英文小班，由嘉中畢業、現就讀高師大英語系的 Joker 老師授課，從文法到寫作系統性建立。
+cover: ../../assets/images/courses/high-english.webp
 ---
 
 ## 教學節奏：依程度給速度與難度

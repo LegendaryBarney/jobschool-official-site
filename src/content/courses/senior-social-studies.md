@@ -19,6 +19,7 @@ priceRange: 9,300 元 / 12 節
 featured: false
 order: 13
 seoDescription: 嘉義東區高中社會補習 — 賈伯斯數理教室高中社會小班，由 Barney 老師授課，提供 11 節免費試聽，協助嘉中、嘉女、協同學生面對學測社會。
+cover: ../../assets/images/courses/senior-social-studies.webp
 ---
 
 ## 課程定位
