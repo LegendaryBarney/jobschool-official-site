@@ -77,6 +77,19 @@ const jsonLd = [
     />
   </div>
 
+  {/* Hero 封面 banner */}
+  {cover && (
+    <div class="mx-auto max-w-6xl px-4 pt-6 lg:px-8">
+      <Image
+        src={cover}
+        alt={`${name}課程封面`}
+        widths={[640, 1024, 1600]}
+        sizes="(max-width: 1024px) 100vw, 1152px"
+        class="h-48 w-full rounded-2xl border border-cream object-cover shadow-sm sm:h-64 lg:h-80"
+      />
+    </div>
+  )}
+
   {/* Hero */}
   <section class="bg-cream/40 paper-grain border-b border-cream">
     <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
@@ -105,15 +118,6 @@ const jsonLd = [
     <div class="grid gap-10 lg:grid-cols-3">
       {/* 主要內容 */}
       <article class="brand-prose lg:col-span-2 max-w-none">
-        {cover && (
-          <Image
-            src={cover}
-            alt={name}
-            widths={[640, 1024]}
-            sizes="(max-width: 1024px) 100vw, 640px"
-            class="rounded-xl border border-cream mb-6"
-          />
-        )}
         <Content />
       </article>
 
