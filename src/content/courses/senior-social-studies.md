@@ -12,13 +12,13 @@ schedule:
   - 週四 19:00-22:00
   - 週日 14:00-17:00
 classType: 小班
-trialLessons: 11
+trialLessons: 1
 lessonHours: 3
 pricePerPack: 9,300 元 / 12 節（每節 3 小時）
 priceRange: 9,300 元 / 12 節
 featured: false
 order: 13
-seoDescription: 嘉義東區高中社會補習 — 賈伯斯數理教室高中社會小班，由 Barney 老師授課，提供 11 節免費試聽，協助嘉中、嘉女、協同學生面對學測社會。
+seoDescription: 嘉義東區高中社會補習 — 賈伯斯數理教室高中社會小班，由 Barney 老師授課，提供 1 節免費試聽，協助嘉中、嘉女、協同學生面對學測社會。
 cover: ../../assets/images/courses/senior-social-studies.webp
 ---
 
@@ -43,9 +43,9 @@ cover: ../../assets/images/courses/senior-social-studies.webp
 
 由 Barney 老師整理的「高中社會三科核心地圖」，把學測常考主題用一張總表呈現，學生可以快速建立全科視野。
 
-## 11 節免費試聽
+## 1 節免費試聽
 
-本課程提供 **11 節免費試聽**。社會科的學習節奏比較需要時間沉澱，因此我們提供長時間試聽，讓學生真的找到適合自己的節奏。
+本課程提供 **1 節免費試聽**。社會科的學習節奏比較需要時間沉澱，因此我們提供免費試聽，讓學生先實際感受課堂節奏，找到適合自己的步調。
 
 ## 適合對象
 

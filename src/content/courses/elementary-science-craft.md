@@ -11,13 +11,13 @@ schedule:
   - 週六 09:30-11:00
   - 週日 09:30-11:00
 classType: 極小班
-trialLessons: 11
+trialLessons: 1
 lessonHours: 1.5
 pricePerPack: 4,650 元 / 12 節（每節 1.5 小時）
 priceRange: 4,650 元 / 12 節
 featured: false
 order: 14
-seoDescription: 嘉義國小自然手作班 — 賈伯斯數理教室國小自然手作班，由 Jason 老師授課，提供 11 節免費試聽，孩子每堂都能帶作品回家。
+seoDescription: 嘉義國小自然手作班 — 賈伯斯數理教室國小自然手作班，由 Jason 老師授課，提供 1 節免費試聽，孩子每堂都能帶作品回家。
 cover: ../../assets/images/courses/elementary-science-craft.webp
 ---
 
@@ -48,9 +48,9 @@ cover: ../../assets/images/courses/elementary-science-craft.webp
 3. **20 分鐘討論**：用自己的話解釋剛才看到的現象
 4. **15 分鐘整理**：把作品帶回家，並完成一張簡短的觀察紀錄
 
-## 11 節免費試聽
+## 1 節免費試聽
 
-本課程提供 **11 節免費試聽**。我們希望孩子是真的覺得「上這個課好玩」才報名，不是被家長安排。試聽期間可以隨時退出，沒有任何費用、沒有任何壓力。
+本課程提供 **1 節免費試聽**。我們希望孩子是真的覺得「上這個課好玩」才報名，不是被家長安排。試聽後可以自由決定是否報名，沒有任何費用、沒有任何壓力。
 
 ## 適合對象
 
