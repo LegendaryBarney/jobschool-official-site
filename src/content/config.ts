@@ -217,6 +217,39 @@ const fees = defineCollection({
   }),
 });
 
+const WEEKDAYS = ['週一', '週二', '週三', '週四', '週五'] as const;
+
+// 課表：每位老師在某教室、某些週次授課的固定班課表資料。
+// 純資料驅動，新增/異動老師排程只需改 JSON，不動頁面元件。
+const schedule = defineCollection({
+  type: 'data',
+  schema: z.object({
+    teacher: z.string().describe('教師顯示名稱，如：黃韋誌(Barney)'),
+    teacherSlug: z.string().optional().describe('對應 teachers collection 的 slug'),
+    order: z.number().default(0),
+    // 每個教室一筆排程；day 限定為週一至週五
+    rooms: z
+      .array(
+        z.object({
+          room: z.enum(['賈伯斯', '忍文理']),
+          days: z.array(z.enum(WEEKDAYS)).default([]),
+          subjects: z.array(z.string()).default([]).describe('於該教室教授科目'),
+        }),
+      )
+      .default([]),
+  }),
+});
+
+// 課務政策（請假・補課規則）：書面化內容，以 Markdown 驅動。
+const policy = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    section: z.string().describe('區段標題，如：學生請假'),
+    order: z.number().default(0),
+  }),
+});
+
 export const collections = {
   teachers,
   courses,
@@ -227,4 +260,6 @@ export const collections = {
   landing,
   site,
   fees,
+  schedule,
+  policy,
 };

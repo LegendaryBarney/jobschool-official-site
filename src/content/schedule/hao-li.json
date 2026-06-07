@@ -1,0 +1,8 @@
+{
+  "teacher": "陳世倫(豪理)",
+  "teacherSlug": "hao-li",
+  "order": 5,
+  "rooms": [
+    { "room": "賈伯斯", "days": ["週三", "週四", "週五"] }
+  ]
+}
