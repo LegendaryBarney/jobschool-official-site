@@ -34,23 +34,24 @@
 
 - [/](https://jobsedu.com.tw/) — 首頁，含品牌定位、三大優勢、課程總覽
 - [/about](https://jobsedu.com.tw/about) — 關於我們：創辦故事、教學理念、教室空間
-- [/teachers](https://jobsedu.com.tw/teachers) — 師資介紹（共 7 位）
+- [/teachers](https://jobsedu.com.tw/teachers) — 師資介紹（共 8 位）
 - [/courses](https://jobsedu.com.tw/courses) — 小班課程總覽（共 14 門）
-- [/tutors](https://jobsedu.com.tw/tutors) — 1 對 1 家教總覽（共 3 門）
+- [/tutors](https://jobsedu.com.tw/tutors) — 1 對 1 家教總覽（共 4 門）
 - [/posts](https://jobsedu.com.tw/posts) — 學習筆記（共 4 篇）
 - [/testimonials](https://jobsedu.com.tw/testimonials) — 學生見證（共 7 則）
-- [/faq](https://jobsedu.com.tw/faq) — 常見問題（共 12 題）
+- [/faq](https://jobsedu.com.tw/faq) — 常見問題（共 9 題）
 - [/contact](https://jobsedu.com.tw/contact) — 聯絡與試聽預約
 
 ## 師資快覽
 
-- [黃韋誌](https://jobsedu.com.tw/teachers/barney) — 創辦人 / 數學科主任（國中數學、高中數學、國中自然、國中生物、國中社會、高中社會、Python 程式設計）
-- [Seba 老師](https://jobsedu.com.tw/teachers/seba) — 高中數學專任講師（高中數學）
-- [豪理 老師](https://jobsedu.com.tw/teachers/hao-li) — 物理化學科主任（高中物理、高中化學）
-- [Jason 老師](https://jobsedu.com.tw/teachers/jason) — 數學與自然科專任講師（國中數學、高中數學、升高中數學基礎搶救班、國小自然手作）
-- [葉謹寬](https://jobsedu.com.tw/teachers/joker) — 喬克英文 主任講師（國小英文、國中英文、高中英文、英文作文）
-- [Sandra 老師](https://jobsedu.com.tw/teachers/sandra) — 英文作文 1 對 1 遠端家教（英文作文、高中英文）
-- [陳淑儀](https://jobsedu.com.tw/teachers/chili) — 國中／高中英文 1 對 1 實體家教（國中英文、高中英文）
+- [黃韋誌](https://jobsedu.com.tw/teachers/barney) — 創辦人、老師與主任（高中數學、國中數學、國中生物、國中理化、國中社會）
+- [黃中懌](https://jobsedu.com.tw/teachers/seba) — 高中數學專任講師（高中數學）
+- [陳世倫](https://jobsedu.com.tw/teachers/hao-li) — 物理化學科主任（高中物理、高中化學）
+- [陳俊穎](https://jobsedu.com.tw/teachers/jason) — 數學科專任講師（國中數學、升高中的數學銜接基礎班）
+- [葉謹寬](https://jobsedu.com.tw/teachers/joker) — 喬克英文 主任講師（國中英文、高中英文、英文作文）
+- [林貞君](https://jobsedu.com.tw/teachers/sandra) — 英文作文 1 對 1 遠端家教（高中英文作文、高中英文、國中英文）
+- [陳淑儀](https://jobsedu.com.tw/teachers/chili) — 專職一對一國中和高中英文家教（國中英文、高中英文）
+- [侯恩平](https://jobsedu.com.tw/teachers/louis) — 專職一對一國中數學和理化家教（國中數學、國中理化）
 
 ## 小班課程快覽
 
@@ -71,9 +72,10 @@
 
 ## 1 對 1 家教快覽
 
-- [英文作文 1 對 1 遠端家教](https://jobsedu.com.tw/tutors/sandra-english-composition) — 英文作文（遠端）
-- [喬克英文 國小至高中 1 對 1 實體家教](https://jobsedu.com.tw/tutors/joker-english) — 英文（實體）
+- [英文作文與英文 1 對 1 遠端家教](https://jobsedu.com.tw/tutors/sandra-english-composition) — 英文・英文作文（遠端）
+- [喬克英文 國中至高中 1 對 1 實體家教](https://jobsedu.com.tw/tutors/joker-english) — 英文（實體）
 - [國中／高中英文 1 對 1 實體家教（Chili 老師）](https://jobsedu.com.tw/tutors/chili-english) — 英文（實體）
+- [國中數學與理化 1 對 1 實體家教（Louis 老師）](https://jobsedu.com.tw/tutors/louis-math-science) — 數學・理化（實體）
 
 ## 最新文章
 
