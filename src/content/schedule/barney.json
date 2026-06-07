@@ -1,0 +1,9 @@
+{
+  "teacher": "黃韋誌(Barney)",
+  "teacherSlug": "barney",
+  "order": 1,
+  "rooms": [
+    { "room": "賈伯斯", "days": ["週一", "週二", "週四"] },
+    { "room": "忍文理", "days": ["週三", "週五"] }
+  ]
+}

@@ -148,6 +148,108 @@ const site = defineCollection({
   }),
 });
 
+const fees = defineCollection({
+  type: 'data',
+  schema: z.object({
+    // 收費方式總覽
+    methods: z
+      .array(z.object({ name: z.string(), summary: z.string() }))
+      .default([]),
+    // 季繳
+    quarterly: z.object({
+      subjects: z.array(z.string()).default([]),
+      prices: z
+        .array(
+          z.object({
+            label: z.string(),
+            hours: z.string(),
+            lessons: z.string(),
+            price: z.string(),
+          }),
+        )
+        .default([]),
+      seasons: z.array(z.string()).default([]),
+      earlyBirdNote: z.string(),
+      newStudentNote: z.string(),
+    }),
+    // 半年繳
+    semiAnnual: z.object({
+      price: z.string(),
+      lessons: z.string(),
+      subjects: z.array(z.string()).default([]),
+      notes: z.array(z.string()).default([]),
+    }),
+    // 家教
+    tutoring: z.object({ description: z.string(), formula: z.string() }),
+    // 套裝
+    packageCourse: z.object({ description: z.string() }),
+    // 客製化
+    customized: z.object({ description: z.string() }),
+    // 繳費方式
+    payment: z.object({
+      methods: z
+        .array(z.object({ name: z.string(), detail: z.string() }))
+        .default([]),
+      note: z.string(),
+    }),
+    // 退費 — 市府規定
+    refundGov: z
+      .array(z.object({ stage: z.string(), rate: z.string() }))
+      .default([]),
+    refundGovApplies: z.array(z.string()).default([]),
+    // 退費 — 季繳舊生
+    refundOldStudent: z.object({
+      eligibilityNote: z.string(),
+      lateNote: z.string(),
+      applies: z.array(z.string()).default([]),
+    }),
+    // 本班優規退費表（refund.png 重新渲染）
+    refundTable: z
+      .array(
+        z.object({
+          consumed: z.string(),
+          refund: z.string(),
+          highlight: z.boolean().default(false),
+          noRefund: z.boolean().default(false),
+        }),
+      )
+      .default([]),
+  }),
+});
+
+const WEEKDAYS = ['週一', '週二', '週三', '週四', '週五'] as const;
+
+// 課表：每位老師在某教室、某些週次授課的固定班課表資料。
+// 純資料驅動，新增/異動老師排程只需改 JSON，不動頁面元件。
+const schedule = defineCollection({
+  type: 'data',
+  schema: z.object({
+    teacher: z.string().describe('教師顯示名稱，如：黃韋誌(Barney)'),
+    teacherSlug: z.string().optional().describe('對應 teachers collection 的 slug'),
+    order: z.number().default(0),
+    // 每個教室一筆排程；day 限定為週一至週五
+    rooms: z
+      .array(
+        z.object({
+          room: z.enum(['賈伯斯', '忍文理']),
+          days: z.array(z.enum(WEEKDAYS)).default([]),
+          subjects: z.array(z.string()).default([]).describe('於該教室教授科目'),
+        }),
+      )
+      .default([]),
+  }),
+});
+
+// 課務政策（請假・補課規則）：書面化內容，以 Markdown 驅動。
+const policy = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    section: z.string().describe('區段標題，如：學生請假'),
+    order: z.number().default(0),
+  }),
+});
+
 export const collections = {
   teachers,
   courses,
@@ -157,4 +259,7 @@ export const collections = {
   faq,
   landing,
   site,
+  fees,
+  schedule,
+  policy,
 };

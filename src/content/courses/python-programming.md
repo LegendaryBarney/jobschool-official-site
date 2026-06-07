@@ -11,13 +11,13 @@ schedule:
   - 週六 14:00-17:00
   - 週日 14:00-17:00
 classType: 極小班
-trialLessons: 11
+trialLessons: 1
 lessonHours: 3
 pricePerPack: 9,300 元 / 12 節（每節 3 小時）
 priceRange: 9,300 元 / 12 節
 featured: true
 order: 11
-seoDescription: 嘉義東區 Python 程式設計補習 — 賈伯斯數理教室 Python 小班，由臺大資工碩士 Barney 老師親自授課，提供 11 節免費試聽，適合國中與高中生。
+seoDescription: 嘉義東區 Python 程式設計補習 — 賈伯斯數理教室 Python 小班，由臺大資工碩士 Barney 老師親自授課，提供 1 節免費試聽，適合國中與高中生。
 cover: ../../assets/images/courses/python-programming.webp
 ---
 
@@ -43,9 +43,9 @@ cover: ../../assets/images/courses/python-programming.webp
 
 Barney 老師畢業於臺大資工碩士，本科就是寫程式。在我們的經驗裡，**教程式最大的差別不是「會不會寫」，而是「能不能把為什麼這樣寫講清楚」**。Barney 老師的板書與口語邏輯，讓他在數學課的優勢，同樣完整轉移到程式設計課堂上。
 
-## 11 節免費試聽
+## 1 節免費試聽
 
-本課程提供 **11 節免費試聽**。寫程式這件事，孩子需要時間慢慢「上手」才能真正知道自己是否有興趣，所以我們提供幾乎整個學期的試聽，讓家長與孩子真的看到成果再決定是否續班。
+本課程提供 **1 節免費試聽**。寫程式這件事，孩子需要親自體驗才能真正知道自己是否有興趣，所以我們提供免費試聽，讓家長與孩子先實際感受課堂節奏，再決定是否報名。
 
 ## 適合對象
 
