@@ -2,6 +2,7 @@
 name: 林貞君
 englishName: Sandra
 title: 英文作文 1 對 1 遠端家教
+photo: ../../assets/images/teachers/sandra.webp
 education:
   - 國立臺灣師範大學 英語學系 學士
 yearsOfExperience: 8
