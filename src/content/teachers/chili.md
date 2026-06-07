@@ -1,7 +1,8 @@
 ---
 name: 陳淑儀
 englishName: Chili
-title: 國中／高中英文 1 對 1 實體家教
+title: 專職一對一國中和高中英文家教
+photo: ../../assets/images/teachers/chili.webp
 education:
   - 義守大學 職能治療學系 學士
 yearsOfExperience: 7
