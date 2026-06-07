@@ -148,6 +148,75 @@ const site = defineCollection({
   }),
 });
 
+const fees = defineCollection({
+  type: 'data',
+  schema: z.object({
+    // 收費方式總覽
+    methods: z
+      .array(z.object({ name: z.string(), summary: z.string() }))
+      .default([]),
+    // 季繳
+    quarterly: z.object({
+      subjects: z.array(z.string()).default([]),
+      prices: z
+        .array(
+          z.object({
+            label: z.string(),
+            hours: z.string(),
+            lessons: z.string(),
+            price: z.string(),
+          }),
+        )
+        .default([]),
+      seasons: z.array(z.string()).default([]),
+      earlyBirdNote: z.string(),
+      newStudentNote: z.string(),
+    }),
+    // 半年繳
+    semiAnnual: z.object({
+      price: z.string(),
+      lessons: z.string(),
+      subjects: z.array(z.string()).default([]),
+      notes: z.array(z.string()).default([]),
+    }),
+    // 家教
+    tutoring: z.object({ description: z.string(), formula: z.string() }),
+    // 套裝
+    packageCourse: z.object({ description: z.string() }),
+    // 客製化
+    customized: z.object({ description: z.string() }),
+    // 繳費方式
+    payment: z.object({
+      methods: z
+        .array(z.object({ name: z.string(), detail: z.string() }))
+        .default([]),
+      note: z.string(),
+    }),
+    // 退費 — 市府規定
+    refundGov: z
+      .array(z.object({ stage: z.string(), rate: z.string() }))
+      .default([]),
+    refundGovApplies: z.array(z.string()).default([]),
+    // 退費 — 季繳舊生
+    refundOldStudent: z.object({
+      eligibilityNote: z.string(),
+      lateNote: z.string(),
+      applies: z.array(z.string()).default([]),
+    }),
+    // 本班優規退費表（refund.png 重新渲染）
+    refundTable: z
+      .array(
+        z.object({
+          consumed: z.string(),
+          refund: z.string(),
+          highlight: z.boolean().default(false),
+          noRefund: z.boolean().default(false),
+        }),
+      )
+      .default([]),
+  }),
+});
+
 export const collections = {
   teachers,
   courses,
@@ -157,4 +226,5 @@ export const collections = {
   faq,
   landing,
   site,
+  fees,
 };

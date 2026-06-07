@@ -1,0 +1,304 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import Button from '~/components/Button.astro';
+import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+const entry = await getEntry('fees', 'policy');
+if (!entry) {
+  throw new Error('找不到收費政策資料：src/content/fees/policy.json');
+}
+const fees = entry.data;
+
+const sections = [
+  { id: 'overview', label: '收費方式總覽' },
+  { id: 'quarterly', label: '季繳' },
+  { id: 'semi-annual', label: '半年繳' },
+  { id: 'tutoring', label: '家教計費' },
+  { id: 'package', label: '套裝與客製化' },
+  { id: 'payment', label: '繳費方式' },
+  { id: 'refund', label: '退費規定' },
+];
+
+const jsonLd = [
+  webPageJsonLd({
+    name: '收費與退費',
+    description: '賈伯斯數理教室收費標準與退費規定：季繳、半年繳、套裝、客製化與家教計費方式，以及市府退費規定與本班季繳舊生優規退費表。',
+    url: SITE.url + '/fees',
+  }),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '收費與退費', href: SITE.url + '/fees' },
+  ]),
+];
+---
+
+<BaseLayout
+  title="收費與退費"
+  description="賈伯斯數理教室收費標準與退費規定：季繳每週 3 小時 9,300 元 / 12 節、半年繳 18,600 元 / 24 節、套裝、客製化與家教計費方式，以及市府退費規定與季繳舊生本班優規退費表。"
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '收費與退費' }]} />
+  </div>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
+      <p class="font-handwriting text-2xl text-espresso">收費與退費</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        透明的收費與退費規則
+      </h1>
+      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+        本頁完整說明本班各類課程的收費標準與退費規定。收費依課程性質區分為季繳、半年繳、套裝、客製化與家教計費；退費則以市政府公告規定為基準，並針對季繳舊生提供更寬鬆的本班優規退費辦法。
+        若仍有疑問，歡迎透過 <a href="/contact" class="text-espresso underline hover:text-caramel">聯絡表單</a>
+        或 LINE 直接詢問。
+      </p>
+
+      <nav aria-label="收費與退費快速跳轉" class="mt-6 flex flex-wrap gap-2 text-sm">
+        {sections.map((s) => (
+          <a
+            href={`#${s.id}`}
+            class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
+          >
+            {s.label}
+          </a>
+        ))}
+      </nav>
+    </div>
+  </section>
+
+  <SectionFadeUp>
+    <div class="mx-auto max-w-4xl px-4 py-12 lg:px-8 lg:py-16 brand-prose">
+      <!-- A. 收費方式總覽 -->
+      <section id="overview" class="scroll-mt-24" aria-labelledby="h-overview">
+        <h2 id="h-overview" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
+          <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
+          收費方式總覽
+        </h2>
+        <p class="mt-4 text-charcoal/85 leading-relaxed">
+          本班課程收費會依課程性質調整，主要分為以下五種形式：
+        </p>
+        <ul class="mt-4 space-y-3 list-none pl-0" role="list">
+          {fees.methods.map((m) => (
+            <li class="rounded-xl border border-cream bg-chalk px-5 py-4">
+              <span class="font-serif text-lg font-bold text-charcoal">{m.name}</span>
+              <p class="mt-1 text-charcoal/80 leading-relaxed">{m.summary}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- B. 季繳詳解 -->
+      <section id="quarterly" class="scroll-mt-24 mt-14" aria-labelledby="h-quarterly">
+        <h2 id="h-quarterly" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
+          <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
+          季繳
+        </h2>
+        <p class="mt-4 text-charcoal/85 leading-relaxed">
+          季繳為佔大宗的收費方式，一次收取 12 堂課的費用。適用科目包括：
+        </p>
+        <ul class="mt-3 list-disc pl-6 text-charcoal/85 leading-relaxed space-y-1">
+          {fees.quarterly.subjects.map((s) => (<li>{s}</li>))}
+        </ul>
+
+        <h3 class="mt-8 font-serif text-xl font-bold text-charcoal">價格表</h3>
+        <p class="mt-2 text-charcoal/80 leading-relaxed">季繳費用依每週上課時數區分，一次收取 12 堂課：</p>
+        <div class="mt-3 overflow-x-auto">
+          <table>
+            <caption class="sr-only">季繳價格表</caption>
+            <thead>
+              <tr>
+                <th scope="col">收費項目</th>
+                <th scope="col">每堂時數</th>
+                <th scope="col">堂數</th>
+                <th scope="col">費用</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fees.quarterly.prices.map((p) => (
+                <tr>
+                  <td>{p.label}</td>
+                  <td>{p.hours}</td>
+                  <td>{p.lessons}</td>
+                  <td class="font-semibold text-charcoal">{p.price}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="mt-8 font-serif text-xl font-bold text-charcoal">四季劃分</h3>
+        <p class="mt-2 text-charcoal/80 leading-relaxed">一年分為四季：</p>
+        <ul class="mt-3 list-disc pl-6 text-charcoal/85 leading-relaxed space-y-1">
+          {fees.quarterly.seasons.map((s) => (<li>{s}</li>))}
+        </ul>
+        <p class="mt-4 text-charcoal/85 leading-relaxed">{fees.quarterly.earlyBirdNote}</p>
+
+        <h3 class="mt-8 font-serif text-xl font-bold text-charcoal">新生中途入班計費</h3>
+        <p class="mt-2 text-charcoal/85 leading-relaxed">{fees.quarterly.newStudentNote}</p>
+      </section>
+
+      <!-- C. 半年繳詳解 -->
+      <section id="semi-annual" class="scroll-mt-24 mt-14" aria-labelledby="h-semi">
+        <h2 id="h-semi" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
+          <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
+          半年繳
+        </h2>
+        <p class="mt-4 text-charcoal/85 leading-relaxed">
+          半年繳費用一概為 <strong>{fees.semiAnnual.price}</strong>，共 <strong>{fees.semiAnnual.lessons}</strong>。
+          目前適用課程包括：
+        </p>
+        <ul class="mt-3 list-disc pl-6 text-charcoal/85 leading-relaxed space-y-1">
+          {fees.semiAnnual.subjects.map((s) => (<li>{s}</li>))}
+        </ul>
+        <ul class="mt-4 space-y-2 list-none pl-0 text-charcoal/85 leading-relaxed">
+          {fees.semiAnnual.notes.map((n) => (
+            <li class="flex gap-2">
+              <span class="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-caramel" aria-hidden="true"></span>
+              <span>{n}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- D. 家教計費 -->
+      <section id="tutoring" class="scroll-mt-24 mt-14" aria-labelledby="h-tutoring">
+        <h2 id="h-tutoring" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
+          <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
+          家教計費
+        </h2>
+        <p class="mt-4 text-charcoal/85 leading-relaxed">{fees.tutoring.description}</p>
+        <p class="mt-4 rounded-xl border border-cream bg-chalk px-5 py-4 text-charcoal/85 leading-relaxed">
+          {fees.tutoring.formula}
+        </p>
+      </section>
+
+      <!-- E. 套裝與客製化 -->
+      <section id="package" class="scroll-mt-24 mt-14" aria-labelledby="h-package">
+        <h2 id="h-package" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
+          <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
+          套裝與客製化
+        </h2>
+        <h3 class="mt-4 font-serif text-xl font-bold text-charcoal">套裝課程</h3>
+        <p class="mt-2 text-charcoal/85 leading-relaxed">{fees.packageCourse.description}</p>
+        <h3 class="mt-6 font-serif text-xl font-bold text-charcoal">客製化課程</h3>
+        <p class="mt-2 text-charcoal/85 leading-relaxed">{fees.customized.description}</p>
+      </section>
+
+      <!-- F. 繳費方式 -->
+      <section id="payment" class="scroll-mt-24 mt-14" aria-labelledby="h-payment">
+        <h2 id="h-payment" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
+          <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
+          繳費方式
+        </h2>
+        <ul class="mt-4 space-y-3 list-none pl-0" role="list">
+          {fees.payment.methods.map((m) => (
+            <li class="rounded-xl border border-cream bg-chalk px-5 py-4">
+              <span class="font-serif text-lg font-bold text-charcoal">{m.name}</span>
+              <p class="mt-1 text-charcoal/80 leading-relaxed">{m.detail}</p>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-4 text-charcoal/85 leading-relaxed">{fees.payment.note}</p>
+      </section>
+
+      <!-- G. 退費規定 -->
+      <section id="refund" class="scroll-mt-24 mt-14" aria-labelledby="h-refund">
+        <h2 id="h-refund" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
+          <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
+          退費規定
+        </h2>
+        <p class="mt-4 text-charcoal/85 leading-relaxed">
+          本班退費依各類收費方式略有不同，但基本上皆以市政府公告規定為基準。針對季繳舊生，則另提供較寬鬆的本班優規退費辦法。
+        </p>
+
+        <h3 class="mt-8 font-serif text-xl font-bold text-charcoal">市府退費規定</h3>
+        <p class="mt-2 text-charcoal/80 leading-relaxed">下列課程依退班時間點，按市政府規定辦理退費：</p>
+        <ul class="mt-3 list-disc pl-6 text-charcoal/85 leading-relaxed space-y-1">
+          {fees.refundGovApplies.map((s) => (<li>{s}</li>))}
+        </ul>
+        <div class="mt-4 overflow-x-auto">
+          <table>
+            <caption class="sr-only">市府退費規定</caption>
+            <thead>
+              <tr>
+                <th scope="col">退班時間點</th>
+                <th scope="col">退費金額</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fees.refundGov.map((r) => (
+                <tr>
+                  <td class="font-medium text-charcoal">{r.stage}</td>
+                  <td>{r.rate}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="mt-10 font-serif text-xl font-bold text-charcoal">季繳舊生・本班優規退費</h3>
+        <p class="mt-2 text-charcoal/85 leading-relaxed">{fees.refundOldStudent.eligibilityNote}</p>
+        <p class="mt-2 text-charcoal/85 leading-relaxed">{fees.refundOldStudent.lateNote}</p>
+        <p class="mt-3 text-charcoal/80 leading-relaxed">適用課程：</p>
+        <ul class="mt-2 list-disc pl-6 text-charcoal/85 leading-relaxed space-y-1">
+          {fees.refundOldStudent.applies.map((s) => (<li>{s}</li>))}
+        </ul>
+
+        <h4 class="mt-6 font-serif text-lg font-bold text-charcoal">本班優規退費表</h4>
+        <p class="mt-2 text-charcoal/70 text-sm leading-relaxed">
+          下表以「已耗用堂數」對應本班優規可退還的學費比例（以 12 堂計）。
+        </p>
+        <div class="mt-3 overflow-x-auto">
+          <table>
+            <caption class="sr-only">季繳舊生本班優規退費表</caption>
+            <thead>
+              <tr>
+                <th scope="col">已耗用</th>
+                <th scope="col">本班優規（早鳥／正常繳費）</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fees.refundTable.map((row) => (
+                <tr class={row.highlight ? 'refund-highlight' : ''}>
+                  <td class="font-medium text-charcoal">{row.consumed}</td>
+                  <td class={row.noRefund ? 'refund-none font-semibold' : 'refund-ok font-semibold'}>
+                    {row.refund}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </SectionFadeUp>
+
+  <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        想了解特定課程的費用？
+      </h2>
+      <p class="mt-4 text-charcoal/80">歡迎查看課程頁面，或直接聯絡我們，我們會在 1 個工作日內回覆。</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href="/contact" variant="primary" size="lg">聯絡我們</Button>
+        <Button href="/courses" variant="secondary" size="lg">看課程</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>
+
+<style>
+  .refund-highlight td {
+    background-color: var(--color-cream);
+  }
+  .refund-ok {
+    color: var(--color-espresso);
+  }
+  .refund-none {
+    color: #9a3b2e;
+  }
+</style>
