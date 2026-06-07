@@ -122,11 +122,17 @@ export const SITE = {
   openingHoursDisplay: '週一至週六 14:00–22:00（週日休）',
   founded: 2014,
   socials: {
-    instagram: 'https://www.instagram.com/jobschool_ig/',
-    facebook: 'https://www.facebook.com/JobsSchool/?locale=zh_TW',
+    instagram:
+      import.meta.env.PUBLIC_INSTAGRAM_URL || 'https://www.instagram.com/jobschool_ig/',
+    facebook:
+      import.meta.env.PUBLIC_FACEBOOK_URL ||
+      'https://www.facebook.com/JobsSchool/?locale=zh_TW',
     youtube:
+      import.meta.env.PUBLIC_YOUTUBE_URL ||
       'https://www.youtube.com/@%E8%B3%88%E4%BC%AF%E6%96%AF%E4%B8%AD%E5%B0%8F%E7%8F%AD%E9%AB%98%E4%B8%AD%E6%95%B8%E7%90%86',
-    googleBusiness: 'https://maps.app.goo.gl/E95P1Mk4JU9PGZAF8',
+    googleBusiness:
+      import.meta.env.PUBLIC_GOOGLE_BUSINESS_URL ||
+      'https://maps.app.goo.gl/E95P1Mk4JU9PGZAF8',
   },
 } as const;
 

@@ -4,22 +4,38 @@
 > 即可知道：做到哪、有哪些設置、業主拍板了什麼、下一步、待決策。
 > 記憶另存於 `~/.claude/projects/<本專案>/memory/`（索引 MEMORY.md，每 session 自動載入）。
 
-最後更新：2026-06-06（全站無人物影像上線、圖片管線定案）
+最後更新：2026-06-07（內容更新批上線；業主新增更正處理中）
 
 ---
 
-## ⭐ 最新現況（2026-06-06）— 先讀這段
+## ⭐ 完整交接（先讀這段，遷 session 不必重講）
 
-**已上 production**（main，Vercel 自動部署；DNS 仍指舊 Weebly，對外不可見＝私有正式版）：
-- Live：**https://jobsofficialsite.vercel.app**（首頁/搜尋/課程帶圖皆驗證 200）。
-- 首頁改版 D；夜跑 N1–N12；上線前修正（pagefind 線上搜尋、breadcrumb 去重、astro 5.18.2 安全修補）；UX（移除 LINE 彈窗、加大留白、CountUp、robots、404）；課程內頁 hero、OG 副標精簡。
-- **全站無人物影像 25 張上線**：14 課程封面 + 6 教室/空間（關於頁網格＋聯絡頁兩校區）+ 4 部落格封面 + 1 暑期 LP hero。皆 `src/assets/images/` + 接 content `cover/heroImage`。
+### 這個專案是什麼
+賈伯斯數理教室（嘉義精英小班補習班，創辦人黃韋誌 Barney）的新官網，取代舊 Weebly 站。Astro 5 + Tailwind 4 + React islands + Decap CMS，部署 Vercel。完整協定見 CLAUDE.md，品牌驗收見 BRAND_GUIDELINES.md，規格見 WEBSITE_RFP.md，內容地雷見 known_errors.md，業主最新更正見 `info_rement.md`。
 
-**圖片管線（定案、免費）**：chrome-devtools MCP 連業主已登入的 Chrome → 驅動 Gemini 網頁（Nano Banana 2）生圖 → 下載原尺寸（Downloads 為 `<uuid>.tmp`）→ Bash 差集抓檔 → `sharp` 裁底 7% 去浮水印 → webp。prompt 在 `docs/image-prompts/`，末尾加「warm edge-to-edge, NO people, no text, 16:9」。dreamina(VIP)/Imagen API(免費額度0) 皆棄。
+### 我的角色（最重要）
+**「代理業主 / orchestrator」**：規劃/切割/實作/測試都**派 subagent 做**，我只定義工作、發包、驗收、回報。**不過度發問**（瑣事自己決定）；只有真正商業/不可逆/需要業主資料才問（金鑰、品牌取捨、DNS、花錢）。驗證過的批次**直接 PR→main 部署**（業主已多次授權）。回報用繁中、直接、量化、白話（業主聽不懂 jargon）。
 
-**只剩業主能解的決策**（非瑣事）：① 師資/家教肖像＝等實拍；② GA4/Clarity/Meta Pixel/GSC 碼 + IG/FB/YouTube/Google 商家 URL（已 env 佔位）；③ Astro 5→6 大遷移（解 @astrojs/vercel@10 剩餘弱點，另開 session）；④ DNS 切換時點；⑤ Decap CMS 後端。
+### 目前線上（production = main，Vercel 自動部署）
+Live：**https://jobsofficialsite.vercel.app**（DNS 暫用 Vercel 網域，不切 jobsedu.com.tw）。已含：
+- 首頁改版 **方向 D**（黑板手感×編輯誌字體×B 師資卡）、夜跑 N1–N12、上線前修正（pagefind 線上搜尋、breadcrumb 去重、安全修補）、UX（移除 LINE 彈窗、留白、CountUp、robots、404）、課程內頁 hero、OG 精簡。
+- **全站無人物影像 25 張**：14 課程封面 + 6 教室/空間 + 4 部落格封面 + 1 LP hero（`src/assets/images/`，接 content cover/heroImage）。
+- **內容更新批**：教師 8 位 profile 重寫（真名+正確科目，新增 Louis 侯恩平，6 張實照 webp，移除虛構引言）、FAQ 重寫 9 題、收費頁 `/fees`、課表頁 `/schedule`、社群連結（Footer + JSON-LD sameAs）、試聽 11→1。
 
-**工作流**：代理業主——實作派 subagent、別過度發問、驗證過批次直接 PR→main。已登入 gh、vercel。排程 `JobschoolNightRun` 仍停用（待白天驗 headless 觸發）。
+### 兩大自建系統
+1. **夜跑編排**：`.claude/workflows/night-orchestrate.mjs`（Workflow，PLANNER→SPLITTER→實作/測試 pipeline(worktree 隔離)→INTEGRATOR→REPORTER）。`.claude/scripts/night-run.ps1` 啟動器（排程 `JobschoolNightRun` **仍停用**，待驗 headless 觸發）。**呼叫用 scriptPath 不能用 name**。常駐分支 `feat/night`、07:00 停、跨晚 resume、budget 1.5M。日間我也用它跑批次（如內容更新批 C1–C6）。詳見 docs/NIGHT_RUN_DESIGN.md。
+2. **圖片管線（免費）**：chrome-devtools MCP 連業主已登入的 Chrome → 驅動 Gemini 網頁(Nano Banana 2)生圖 → 點「下載原尺寸」(落 Downloads 為 `<uuid>.tmp`) → Bash 前後差集抓檔 → `sharp` 裁底 7% 去浮水印 → webp。prompt 在 `docs/image-prompts/`，末尾加「warm edge-to-edge, NO people, no text, 16:9」。dreamina(VIP)、Imagen API(免費額度0) 皆棄。**師資/家教實照**業主放 `src/assets/images/teachers/`。
+
+### 安全/權限
+`.claude/settings.json`（allow 白名單 + deny）+ `.claude/hooks/guard.mjs`（PreToolUse 守門：擋 push main / force push / reset --hard / vercel prod / 刪遠端）。**`git push` 與 `--base main` 別放同一條指令**（會誤觸 guard）；push 與 PR 要分開下。`.env` Write/Edit 被 deny（機密保護）。已登入 gh、vercel。
+
+### 業主處理中/待辦（2026-06-07 更正，處理中見 §下一步）
+- GA4 ID `G-6WM9G6HMGG`（業主授權寫入 Vercel env）、LINE URL（舊站 footer：`http://line.me/ti/p/@jfp3998u`）、4 個社群 URL（已在 seo.ts、要再進 env）、通知信箱 `hwjnctucsie92@gmail.com`。
+- Python程式設計/高中社會＝**新開課程**(保留)；國小自然手作＝**停開**(下架)；Seba 補掛高中數學課 + 排程**新增週五在賈伯斯**；Chili(非 Chilli) 統一。
+- 業主聽不懂也暫不做：Astro6 遷移（純技術維護、修小安全提醒、使用者無感）、Decap 後端（之後自編內容才需）。
+
+### 重要檔案地圖
+協定 CLAUDE.md｜品牌 BRAND_GUIDELINES.md｜規格 WEBSITE_RFP.md｜地雷 known_errors.md｜業主更正 info_rement.md｜退費表 refund.png｜權限 .claude/settings.json + hooks/guard.mjs｜夜跑 .claude/{scripts/night-run.ps1,workflows/night-orchestrate.mjs} + docs/NIGHT_RUN_DESIGN.md｜backlog docs/BACKLOG.md｜圖 prompt docs/image-prompts/｜記憶 ~/.claude/projects/<本專案>/memory/MEMORY.md。
 
 ---
 
