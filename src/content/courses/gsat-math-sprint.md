@@ -4,7 +4,7 @@ grade: 高中
 gradeLevel:
   - 高三
 subject: 數學
-teacher: barney
+teacher: seba
 summary: 學測前 3 個月密集衝刺。每週 1 場全真模擬考、1 場單元主題複習、1 場錯題檢討，精緻小班規模，協助學生在最後階段把分數穩定推上去。
 schedule:
   - 週六 13:00-17:00（含模擬考）
