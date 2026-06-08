@@ -3,7 +3,7 @@
  * 涵蓋：LocalBusiness、EducationalOrganization、Course、Person、Article、FAQPage、Review、Breadcrumb
  */
 import { SITE, getActiveSocials } from './seo';
-import { LOCATIONS } from './locations';
+import { LOCATIONS, type LocationInfo } from './locations';
 
 export type JsonLd = Record<string, unknown>;
 
@@ -69,6 +69,49 @@ export function localBusinessJsonLd(): JsonLd {
         : {}),
     },
     ...(sameAs.length > 0 ? { sameAs } : {}),
+  };
+}
+
+/**
+ * 為單一校區產生 Place / LocalBusiness 結構化資料。
+ * 主品牌（jobs）輸出 LocalBusiness + EducationalOrganization 並掛回 #organization；
+ * 姊妹品牌（shinobi）輸出 LocalBusiness，並以 parentOrganization 連回主品牌。
+ */
+export function placeJsonLd(loc: LocationInfo): JsonLd {
+  const isMain = loc.key === 'jobs';
+  return {
+    '@context': 'https://schema.org',
+    '@type': isMain ? ['LocalBusiness', 'EducationalOrganization'] : 'LocalBusiness',
+    ...(isMain ? { '@id': `${SITE.url}#organization` } : { '@id': `${SITE.url}/locations#${loc.key}` }),
+    name: loc.name,
+    url: `${SITE.url}/locations`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: loc.address,
+      addressLocality: '嘉義市',
+      addressCountry: 'TW',
+    },
+    telephone: loc.phone,
+    hasMap: loc.mapLink,
+    ...(loc.geo
+      ? {
+          geo: {
+            '@type': 'GeoCoordinates',
+            latitude: loc.geo.lat,
+            longitude: loc.geo.lng,
+          },
+        }
+      : {}),
+    ...(loc.foundedYear ? { foundingDate: String(loc.foundedYear) } : {}),
+    ...(loc.parentBrand
+      ? {
+          parentOrganization: {
+            '@type': 'EducationalOrganization',
+            '@id': `${SITE.url}#organization`,
+            name: SITE.name,
+          },
+        }
+      : {}),
   };
 }
 

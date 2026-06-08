@@ -26,6 +26,7 @@ const siteMap = [
   { href: '/posts', label: '部落格' },
   { href: '/testimonials', label: '學生見證' },
   { href: '/faq', label: '常見問題' },
+  { href: '/locations', label: '教室據點' },
   { href: '/contact', label: '聯絡我們' },
 ];
 
@@ -127,6 +128,9 @@ try {
             {shinobi.address}
             {shinobi.foundedYear && <span class="text-charcoal/50"> · EST. {shinobi.foundedYear}</span>}
           </address>
+          <a href="/locations" class="mt-2 inline-block text-xs text-espresso hover:underline">
+            兩教室據點與地圖 →
+          </a>
         </div>
       </div>
 
