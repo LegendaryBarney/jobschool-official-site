@@ -17,11 +17,11 @@ import spaceSelfStudy from '~/assets/images/spaces/self-study.webp';
 import spaceEntrance from '~/assets/images/spaces/entrance.webp';
 
 const spaces = [
-  { img: spaceMainClassroom, label: '主教室', sub: 'U 字型小班配置', alt: '主教室：U 字型排列的木質長桌與黑板，自然採光、暖色木地板' },
-  { img: spaceDiscussion, label: '小組討論區', sub: '錯題複習用', alt: '小組討論區：小木桌與椅子，牆上小黑板，適合錯題複習' },
-  { img: spaceOffice, label: '老師辦公室', sub: '個別輔導', alt: '老師辦公室：木質書桌與書櫃，安靜專業的個別輔導空間' },
+  { img: spaceMainClassroom, label: '主教室', sub: '小班授課教室', alt: '主教室：木質課桌椅面向大片黑板，小班授課的明亮教室' },
+  { img: spaceDiscussion, label: '小組討論區', sub: '討論與錯題複習', alt: '小組討論區：靠窗的木質長桌與座椅，適合小組討論與錯題複習' },
+  { img: spaceOffice, label: '老師辦公室', sub: '備課與個別輔導', alt: '老師辦公室：靠窗的木質工作桌與座椅，老師備課與個別輔導的空間' },
   { img: spacePantry, label: '茶水區', sub: '休息與閒聊', alt: '茶水區：手沖咖啡器具與整齊的馬克杯，溫暖的休息角落' },
-  { img: spaceSelfStudy, label: '自習區', sub: '免費開放', alt: '自習區：獨立木桌與桌燈，安靜適合長時間閱讀的環境' },
+  { img: spaceSelfStudy, label: '自習區', sub: '免費開放', alt: '自習區：靠窗的木質長桌座位，安靜明亮、適合長時間自習' },
   { img: spaceEntrance, label: '入口走道', sub: '溫暖採光', alt: '入口走道：木地板與米色牆面，盡頭擺著鮮花，咖啡館般的入口氛圍' },
 ];
 
@@ -129,7 +129,7 @@ const jsonLd = [
             <div class="aspect-[4/5] overflow-hidden bg-cream">
               <Image
                 src={spaceMainClassroom}
-                alt="賈伯斯數理教室主教室實景：U 字型排列的木質長桌、黑板與自然採光"
+                alt="賈伯斯數理教室主教室實景：木質課桌椅、大片黑板與明亮採光"
                 widths={[480, 768]}
                 sizes="(max-width: 1024px) 100vw, 440px"
                 class="h-full w-full object-cover"
