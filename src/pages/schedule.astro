@@ -1,22 +1,11 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
 import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
-
-// ── 課務政策（請假・補課）：Markdown 驅動 ──────────────────
-const policyEntries = (await getCollection('policy')).sort(
-  (a, b) => (a.data.order ?? 0) - (b.data.order ?? 0),
-);
-const policySections = await Promise.all(
-  policyEntries.map(async (entry) => {
-    const { Content } = await render(entry);
-    return { data: entry.data, Content };
-  }),
-);
 
 // ── 課表：JSON 資料驅動，科目取自 teachers collection ──────
 const WEEKDAYS = ['週一', '週二', '週三', '週四', '週五'] as const;
@@ -73,84 +62,46 @@ const roomTables = rooms.map((r) => ({ ...r, rows: buildRoomRows(r.key) }));
 const pageUrl = SITE.url + '/schedule';
 const jsonLd = [
   webPageJsonLd({
-    name: '課務說明與課表',
-    description: '賈伯斯數理教室與忍文理教室的請假補課規則，以及兩間教室的固定班教師課表。',
+    name: '教室課表',
+    description: '賈伯斯教室與忍文理教室的固定班教師授課日程課表。',
     url: pageUrl,
   }),
   breadcrumbJsonLd([
     { label: '首頁', href: SITE.url + '/' },
-    { label: '課務說明與課表', href: pageUrl },
+    { label: '教室課表', href: pageUrl },
   ]),
 ];
 ---
 
 <BaseLayout
-  title="課務說明與課表"
-  description="賈伯斯數理教室課務說明：學生／老師請假、颱風假、不可抗力與補課券發放規則，並附賈伯斯教室與忍文理教室的固定班教師課表。"
+  title="教室課表"
+  description="賈伯斯教室與忍文理教室的固定班教師授課日程課表。家教採個別排課，請假與補課規則請見課務說明。"
   jsonLd={jsonLd}
 >
   <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
-    <Breadcrumbs items={[{ label: '課務說明與課表' }]} />
+    <Breadcrumbs items={[{ label: '教室課表' }]} />
   </div>
 
   <section class="bg-cream/40 paper-grain border-b border-cream">
     <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
-      <p class="font-handwriting text-2xl text-espresso">課務說明</p>
+      <p class="font-handwriting text-2xl text-espresso">教室課表</p>
       <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
-        請假、補課與課表
+        固定班教師課表
       </h1>
       <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
-        為保障學習進度與權益，請假與補課依下列規則辦理。如有個別狀況，歡迎透過
-        <a href="/contact" class="text-espresso underline hover:text-caramel">聯絡表單</a>
-        或 LINE 與課務人員確認。
+        下列為賈伯斯教室與忍文理教室兩間教室的固定班教師授課日程。家教採個別排課，不列入固定課表，請逕洽課務人員安排。
+        各時段之確切上課時間與科目開班狀況，以教室公告為準。
       </p>
 
-      <nav aria-label="頁內快速跳轉" class="mt-6 flex flex-wrap gap-2 text-sm">
-        <a
-          href="#leave-policy"
-          class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
+      <p class="mt-6 text-base text-charcoal/80 leading-relaxed">
+        <a href="/policy" class="text-espresso underline hover:text-caramel"
+          >請假補課規則請見課務說明 →</a
         >
-          請假補課規則
-        </a>
-        <a
-          href="#timetable"
-          class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
-        >
-          教室課表
-        </a>
-      </nav>
+      </p>
     </div>
   </section>
 
-  {/* ── 區段 A：請假補課規則 ─────────────────────────── */}
-  <SectionFadeUp>
-    <div class="mx-auto max-w-4xl px-4 py-12 lg:px-8 lg:py-16">
-      <h2
-        id="leave-policy"
-        class="scroll-mt-24 font-serif text-3xl lg:text-4xl font-bold text-charcoal flex items-center gap-3"
-      >
-        <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
-        請假補課規則
-      </h2>
-
-      <div class="mt-8 space-y-6">
-        {
-          policySections.map(({ data, Content }) => (
-            <article class="rounded-2xl border border-cream bg-chalk p-6 lg:p-8">
-              <h3 class="font-serif text-xl lg:text-2xl font-bold text-charcoal">
-                {data.section}
-              </h3>
-              <div class="mt-4 prose prose-stone max-w-none text-charcoal/85 leading-relaxed prose-a:text-espresso hover:prose-a:text-caramel prose-strong:text-charcoal prose-headings:font-serif prose-headings:text-charcoal prose-h3:text-lg prose-h3:mt-6">
-                <Content />
-              </div>
-            </article>
-          ))
-        }
-      </div>
-    </div>
-  </SectionFadeUp>
-
-  {/* ── 區段 B：課表 ─────────────────────────────────── */}
+  {/* ── 課表 ─────────────────────────────────────────── */}
   <SectionFadeUp class="bg-cream/40 paper-grain border-y border-cream">
     <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
       <h2
@@ -160,10 +111,6 @@ const jsonLd = [
         <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
         課表
       </h2>
-      <p class="mt-4 max-w-3xl text-charcoal/80 leading-relaxed">
-        下列為兩間教室的固定班教師授課日程。家教採個別排課，不列入固定課表，請逕洽課務人員安排。
-        各時段之確切上課時間與科目開班狀況，以教室公告為準。
-      </p>
 
       <div class="mt-10 space-y-12">
         {
@@ -244,6 +191,12 @@ const jsonLd = [
       <p class="mt-8 text-xs text-charcoal/55 leading-relaxed">
         說明：科目欄位顯示該教師所授科目；實際各教室開班科目以現場公告與排課為準。如需確認特定班別時段，歡迎來電
         <a href="tel:+88652230303" class="text-espresso hover:underline">(05) 223-0303</a> 詢問。
+      </p>
+
+      <p class="mt-6 text-base text-charcoal/80 leading-relaxed">
+        <a href="/policy" class="text-espresso underline hover:text-caramel"
+          >請假補課規則請見課務說明 →</a
+        >
       </p>
     </div>
   </SectionFadeUp>

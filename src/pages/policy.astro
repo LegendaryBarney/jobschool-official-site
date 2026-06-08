@@ -1,0 +1,138 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import Button from '~/components/Button.astro';
+import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+// ── 課務政策（請假・補課・颱風・不可抗力・補課券）：Markdown 驅動 ──
+const policyEntries = (await getCollection('policy')).sort(
+  (a, b) => (a.data.order ?? 0) - (b.data.order ?? 0),
+);
+const policySections = await Promise.all(
+  policyEntries.map(async (entry) => {
+    const { Content } = await render(entry);
+    return { id: entry.id, data: entry.data, Content };
+  }),
+);
+
+const pageUrl = SITE.url + '/policy';
+const jsonLd = [
+  webPageJsonLd({
+    name: '課務說明',
+    description:
+      '賈伯斯數理教室與忍文理教室的課務說明：學生請假、老師請假、颱風假、不可抗力因素與補課券發放規則。',
+    url: pageUrl,
+  }),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '課務說明', href: pageUrl },
+  ]),
+];
+---
+
+<BaseLayout
+  title="課務說明"
+  description="賈伯斯數理教室課務說明：學生請假、老師請假、颱風假、不可抗力因素與補課券發放規則，逐項說明補課辦理方式與時間規定。"
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '課務說明' }]} />
+  </div>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
+      <p class="font-handwriting text-2xl text-espresso">課務說明</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
+        請假與補課規則
+      </h1>
+      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+        為保障學習進度與權益，請假與補課依下列規則辦理。如有個別狀況，歡迎透過
+        <a href="/contact" class="text-espresso underline hover:text-caramel">聯絡表單</a>
+        或 LINE 與課務人員確認。固定班教師授課日程請見
+        <a href="/schedule" class="text-espresso underline hover:text-caramel">課表</a>。
+      </p>
+
+      <nav aria-label="頁內快速跳轉" class="mt-6 flex flex-wrap gap-2 text-sm">
+        {
+          policySections.map(({ id, data }) => (
+            <a
+              href={`#${id}`}
+              class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
+            >
+              {data.section}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+  </section>
+
+  {/* ── 五段課務政策，一段一主題 ───────────────────────── */}
+  <SectionFadeUp>
+    <div class="mx-auto max-w-4xl px-4 py-12 lg:px-8 lg:py-16">
+      <div class="space-y-12">
+        {
+          policySections.map(({ id, data, Content }) => (
+            <section id={id} class="scroll-mt-24" aria-labelledby={`h-${id}`}>
+              <h2
+                id={`h-${id}`}
+                class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3"
+              >
+                <span
+                  class="inline-block h-2 w-8 rounded-full bg-caramel"
+                  aria-hidden="true"
+                />
+                {data.section}
+              </h2>
+              <div class="mt-5 rounded-2xl border border-cream bg-chalk p-6 lg:p-8">
+                <div class="prose prose-stone max-w-none text-charcoal/85 leading-relaxed prose-a:text-espresso hover:prose-a:text-caramel prose-strong:text-charcoal prose-headings:font-serif prose-headings:text-charcoal prose-h3:text-lg prose-h3:mt-6">
+                  <Content />
+                </div>
+              </div>
+            </section>
+          ))
+        }
+      </div>
+
+      {/* ── 入班後權益：退費與課表雙向連結 ─────────────── */}
+      <div class="mt-12 grid gap-4 sm:grid-cols-2">
+        <a
+          href="/fees#refund"
+          class="group rounded-2xl border border-cream bg-cream/30 px-6 py-5 transition-colors hover:bg-cream/60"
+        >
+          <p class="font-serif text-lg font-bold text-charcoal">退費規定請見收費與退費頁</p>
+          <p class="mt-1 text-sm text-charcoal/70">
+            市府退費規定與季繳舊生本班優規退費辦法
+            <span class="ml-1 text-espresso group-hover:text-caramel" aria-hidden="true">→</span>
+          </p>
+        </a>
+        <a
+          href="/schedule"
+          class="group rounded-2xl border border-cream bg-cream/30 px-6 py-5 transition-colors hover:bg-cream/60"
+        >
+          <p class="font-serif text-lg font-bold text-charcoal">固定班教師課表請見課表頁</p>
+          <p class="mt-1 text-sm text-charcoal/70">
+            賈伯斯教室與忍文理教室的固定班授課日程
+            <span class="ml-1 text-espresso group-hover:text-caramel" aria-hidden="true">→</span>
+          </p>
+        </a>
+      </div>
+    </div>
+  </SectionFadeUp>
+
+  <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        對請假或補課安排有疑問？
+      </h2>
+      <p class="mt-4 text-charcoal/80">課務人員會在 1 個工作日內回覆，協助您處理個別狀況。</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <Button href="/contact" variant="primary" size="lg">聯絡我們</Button>
+        <Button href="/schedule" variant="secondary" size="lg">看課表</Button>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>
