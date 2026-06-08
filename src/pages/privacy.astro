@@ -1,0 +1,171 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import Button from '~/components/Button.astro';
+import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+
+const pageUrl = SITE.url + '/privacy';
+const pageDescription =
+  '賈伯斯數理教室隱私權與個人資料保護政策：說明試聽與聯絡表單蒐集的個資項目、蒐集目的與用途、保存與保護方式，以及您查詢、更正、刪除個資的權利。';
+
+const jsonLd = [
+  webPageJsonLd({
+    name: '隱私權與個人資料保護政策',
+    description: pageDescription,
+    url: pageUrl,
+  }),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '隱私權與個人資料保護政策', href: pageUrl },
+  ]),
+];
+
+const sections = [
+  {
+    id: 'collect',
+    title: '一、我們蒐集哪些個人資料',
+    body: [
+      '當您透過本網站的「試聽預約」或「聯絡我們」表單與我們聯繫時，我們會蒐集您主動填寫的下列資料：',
+    ],
+    list: [
+      '聯絡人姓名（家長或學生姓名）',
+      '聯絡電話',
+      '電子郵件信箱（Email）',
+      '學生就讀年級',
+      '您於表單中填寫的課程需求或其他留言內容',
+    ],
+    after: [
+      '除上述您主動提供的資料外，本網站不會要求您填寫與安排試聽、課務聯繫無關的個人資料。',
+    ],
+  },
+  {
+    id: 'purpose',
+    title: '二、蒐集目的與用途',
+    body: [
+      '我們蒐集前述個人資料，僅用於安排試聽與後續的課務聯繫，包括與您確認試聽時段、回覆課程諮詢、提供課程與收費資訊等。',
+      '我們承諾：上述資料不作行銷推播用途、不轉售、不外洩或提供予任何與課務無關的第三方。試聽結束後若您決定不報名，我們不會有後續的行銷聯繫。',
+    ],
+    list: [],
+    after: [],
+  },
+  {
+    id: 'protect',
+    title: '三、資料的保存與保護',
+    body: [
+      '我們會以合理且妥善的方式保存您的個人資料，並將存取權限限定於負責課務聯繫的相關人員。',
+      '當蒐集目的已達成、或您的資料已不再為課務聯繫所需時，我們會主動刪除或銷毀相關資料。',
+    ],
+    list: [],
+    after: [],
+  },
+  {
+    id: 'rights',
+    title: '四、您對個人資料的權利',
+    body: [
+      '就我們持有的您的個人資料，您可隨時行使下列權利：',
+    ],
+    list: [
+      '查詢或請求閱覽',
+      '請求製給複本',
+      '請求補充或更正',
+      '請求停止蒐集、處理或利用',
+      '請求刪除',
+    ],
+    after: [
+      '若您希望行使上述任一權利，歡迎透過電話 (05) 223-0303，或本網站的「聯絡我們」表單與我們聯繫，我們會在合理期間內協助處理。',
+    ],
+  },
+  {
+    id: 'cookie',
+    title: '五、Cookie 與網站分析',
+    body: [
+      '本網站可能使用 Cookie 或網站分析工具（例如 Google Analytics），以了解網站的整體使用情形（例如各頁面的瀏覽次數）。這些資料用於改善網站內容與服務品質，屬彙總性的統計分析，不會用來辨識個別使用者的身分。',
+      '您可透過瀏覽器設定停用或清除 Cookie；停用後仍可正常瀏覽本網站，惟部分功能的使用體驗可能略有差異。',
+    ],
+    list: [],
+    after: [],
+  },
+  {
+    id: 'update',
+    title: '六、政策修訂',
+    body: [
+      '本政策將因應法令或實際作業調整而適時修訂。修訂後的內容將公告於本頁面，建議您不定期查閱，以了解我們最新的個人資料保護做法。',
+    ],
+    list: [],
+    after: [],
+  },
+];
+---
+
+<BaseLayout
+  title="隱私權與個人資料保護政策"
+  description={pageDescription}
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-3xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '隱私權與個人資料保護政策' }]} />
+  </div>
+
+  {/* Hero */}
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-3xl px-4 py-12 lg:px-8 lg:py-16">
+      <p class="font-handwriting text-2xl text-espresso">隱私權政策</p>
+      <h1 class="mt-2 font-serif text-3xl lg:text-5xl font-bold text-charcoal leading-tight">
+        隱私權與個人資料保護政策
+      </h1>
+      <p class="mt-6 text-lg text-charcoal/80 leading-relaxed">
+        我們非常重視您的個人資料。本政策說明賈伯斯數理教室（含姊妹品牌忍文理教室）
+        透過本網站蒐集個人資料的項目、目的、保存與保護方式，以及您所享有的權利。
+      </p>
+    </div>
+  </section>
+
+  {/* 內文 */}
+  <SectionFadeUp>
+    <div class="mx-auto max-w-3xl px-4 py-12 lg:px-8 lg:py-16">
+      <div class="space-y-12">
+        {
+          sections.map((s) => (
+            <section id={s.id}>
+              <h2 class="font-serif text-2xl lg:text-3xl font-bold text-charcoal">
+                {s.title}
+              </h2>
+              <div class="mt-4 space-y-4 text-charcoal/85 leading-[1.85]">
+                {s.body.map((p) => (
+                  <p>{p}</p>
+                ))}
+                {s.list.length > 0 && (
+                  <ul class="space-y-2 pl-1">
+                    {s.list.map((item) => (
+                      <li class="flex gap-3">
+                        <span aria-hidden="true" class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-caramel" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {s.after.map((p) => (
+                  <p>{p}</p>
+                ))}
+              </div>
+            </section>
+          ))
+        }
+      </div>
+
+      <div class="mt-12 rounded-xl border border-cream bg-cream/40 paper-grain p-6 lg:p-7">
+        <p class="font-handwriting text-2xl text-espresso">有任何疑問？</p>
+        <p class="mt-2 text-charcoal/80 leading-relaxed">
+          若您對本政策或個人資料的處理有任何疑問，歡迎透過電話
+          <a href="tel:+88652230303" class="text-espresso hover:underline">(05) 223-0303</a>
+          或聯絡表單與我們聯繫。
+        </p>
+        <div class="mt-5">
+          <Button href="/contact" variant="primary" size="md">前往聯絡我們</Button>
+        </div>
+      </div>
+    </div>
+  </SectionFadeUp>
+</BaseLayout>
