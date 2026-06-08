@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Button from '~/components/Button.astro';
@@ -35,7 +36,7 @@ const advantages = [
   {
     num: '01',
     title: '臺大資工碩士領軍',
-    desc: '師資來自臺、清、交、嘉義大學、高師大等不同背景，多元互補，最資深者教學經驗達 15 年。學科之外，也帶得動讀書方法。',
+    desc: '師資來自臺、交、高師大、嘉義大學、臺北市立大學等不同背景，多元互補，最資深者教學經驗達 15 年。學科之外，也帶得動讀書方法。',
     tag: '教得久，也教得對',
   },
   {
@@ -70,7 +71,7 @@ const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
 
 <BaseLayout
   title="賈伯斯數理教室"
-  description="嘉義東區精英小班補習推薦 — 由臺大資工碩士領軍，師資來自臺、清、交、嘉義大學、高師大等背景，過去 12 年品牌資歷、極小班 / 精緻班 / 小班三種規模與自編教材，協助嘉中、嘉女、協同、輔仁學生踏實累積。歡迎安排免費試聽。"
+  description="嘉義東區精英小班補習推薦 — 由臺大資工碩士領軍，師資來自臺、交、高師大、嘉義大學、臺北市立大學等背景，過去 12 年品牌資歷、極小班 / 精緻班 / 小班三種規模與自編教材，協助嘉中、嘉女、協同、輔仁學生踏實累積。歡迎安排免費試聽。"
   jsonLd={jsonLd}
 >
   {/* ===== 黑板 HERO ===== */}
@@ -244,7 +245,17 @@ const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
             return (
               <a class="teacher-card" href={`/teachers/${t.slug}`}>
                 <div class="teacher-photo">
-                  <span class="initial" aria-hidden="true">{initial}</span>
+                  {t.data.photo ? (
+                    <Image
+                      src={t.data.photo}
+                      alt={`${displayName} 老師`}
+                      widths={[320, 640]}
+                      sizes="(max-width: 768px) 90vw, 360px"
+                      class="photo-img"
+                    />
+                  ) : (
+                    <span class="initial" aria-hidden="true">{initial}</span>
+                  )}
                 </div>
                 <div class="teacher-body">
                   <h3>{displayName}</h3>
@@ -854,7 +865,7 @@ const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
     box-shadow: 0 16px 38px rgba(31, 27, 22, 0.1);
   }
   .teacher-photo {
-    aspect-ratio: 5 / 4;
+    aspect-ratio: 4 / 5;
     background: var(--color-charcoal);
     position: relative;
     display: grid;
@@ -869,10 +880,22 @@ const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
       linear-gradient(rgba(250, 250, 247, 0.05) 1px, transparent 1px),
       linear-gradient(90deg, rgba(250, 250, 247, 0.05) 1px, transparent 1px);
     background-size: 26px 26px;
-    opacity: 0.7;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .teacher-photo :global(.photo-img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 18%;
+    z-index: 1;
   }
   .teacher-photo .initial {
     position: relative;
+    z-index: 1;
     font-family: var(--font-serif-en);
     font-size: 3rem;
     color: var(--color-caramel);

@@ -13,7 +13,7 @@ export interface SeoMeta {
 
 const SITE_NAME = '賈伯斯數理教室';
 const DEFAULT_DESCRIPTION =
-  '嘉義在地的精英小班補習機構，由臺大資工碩士領軍，師資來自臺、清、交、嘉義大學、高師大等不同背景，2014 年返鄉創立、品牌資歷 12 年，專攻國中至高中數理與相關科目。';
+  '嘉義在地的精英小班補習機構，由臺大資工碩士領軍，師資來自臺、交、高師大、嘉義大學、臺北市立大學等不同背景，2014 年返鄉創立、品牌資歷 12 年，專攻國中至高中數理與相關科目。';
 
 export function buildTitle(pageTitle?: string): string {
   if (!pageTitle || pageTitle === SITE_NAME) {
