@@ -4,7 +4,6 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import CourseCard from '~/components/CourseCard.astro';
-import Tag from '~/components/Tag.astro';
 import Button from '~/components/Button.astro';
 import { breadcrumbJsonLd, educationalOrgJsonLd, itemListJsonLd } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
@@ -46,7 +45,7 @@ const jsonLd = [
 
 <BaseLayout
   title="課程總覽"
-  description="嘉義東區國中、高中數學物理化學英文補習課程一覽：極小班 / 精緻班 / 小班三種規模、由臺、清、交、嘉義大學、高師大資歷的師資親自帶班，依年級與科目分區，從銜接到衝刺都有對應課程。"
+  description="嘉義東區國中、高中數學物理化學英文補習課程一覽：極小班 / 精緻班 / 小班三種規模、由臺、交、高師大、嘉義大學、臺北市立大學資歷的師資親自帶班，依年級與科目分區，從銜接到衝刺都有對應課程。"
   jsonLd={jsonLd}
 >
   <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
@@ -60,12 +59,12 @@ const jsonLd = [
         從銜接到衝刺，<br />每階段都有對應的小班課
       </h1>
       <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
-        我們依年級分區（國中 / 高中），按科目分群。每門課都由臺、清、交、嘉義大學、高師大資歷的師資親自帶，依科目與年級彈性配置「極小班 2-5 人 / 精緻班 6-10 人 / 小班 10-14 人」三種規模。
+        我們依年級分區（國中 / 高中），按科目分群。每門課都由臺、交、高師大、嘉義大學、臺北市立大學資歷的師資親自帶，依科目與年級彈性配置「極小班 2-5 人 / 精緻班 6-10 人 / 小班 10-14 人」三種規模。
       </p>
     </div>
   </section>
 
-  {/* 篩選列（純錨點導覽） */}
+  {/* 篩選列：快速跳轉（錨點）＋ 科目過濾（漸進增強，關 JS 仍顯示全部） */}
   <SectionFadeUp class="bg-latte border-b border-cream">
     <div class="mx-auto max-w-6xl px-4 py-6 lg:px-8">
       <div class="flex flex-wrap items-center gap-2 text-sm">
@@ -84,14 +83,37 @@ const jsonLd = [
         </a>
         <span class="text-charcoal/40 mx-2">|</span>
         <span class="text-charcoal/60 mr-1">科目：</span>
-        {allSubjects.map((s) => <Tag size="sm">{s}</Tag>)}
+        <div id="subject-filter" class="contents" data-subject-filter>
+          <button
+            type="button"
+            data-subject="__all__"
+            aria-pressed="true"
+            class="subject-chip inline-flex items-center rounded-full bg-cream px-2.5 py-0.5 text-xs font-medium text-espresso transition-colors hover:bg-caramel hover:text-charcoal aria-pressed:bg-caramel aria-pressed:text-charcoal"
+          >
+            全部
+          </button>
+          {allSubjects.map((s) => (
+            <button
+              type="button"
+              data-subject={s}
+              aria-pressed="false"
+              class="subject-chip inline-flex items-center rounded-full bg-cream px-2.5 py-0.5 text-xs font-medium text-espresso transition-colors hover:bg-caramel hover:text-charcoal aria-pressed:bg-caramel aria-pressed:text-charcoal"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   </SectionFadeUp>
 
   {groups.map((g) => g.subjects.size > 0 && (
     <SectionFadeUp class={g.grade === '國中' ? 'bg-latte' : 'bg-cream/40 paper-grain'}>
-      <div id={`grade-${g.grade}`} class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24 scroll-mt-24">
+      <div
+        id={`grade-${g.grade}`}
+        class="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-24 scroll-mt-24"
+        data-grade-section
+      >
         <div class="flex items-end justify-between flex-wrap gap-4 mb-10">
           <div>
             <p class="font-handwriting text-2xl text-espresso">
@@ -108,7 +130,7 @@ const jsonLd = [
 
         <div class="space-y-12">
           {Array.from(g.subjects.entries()).map(([subject, list]) => (
-            <div>
+            <div data-subject-group={subject}>
               <h3 class="font-serif text-2xl font-bold text-charcoal flex items-center gap-3">
                 <span
                   class="inline-block h-2 w-8 rounded-full bg-caramel"
@@ -127,6 +149,25 @@ const jsonLd = [
     </SectionFadeUp>
   ))}
 
+  {/* 過濾後無符合課程時的友善空狀態（預設隱藏，由 JS 控制） */}
+  <div id="course-empty-state" hidden class="bg-cream/40 paper-grain border-t border-cream">
+    <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
+      <p class="font-serif text-2xl font-bold text-charcoal">目前沒有符合此科目的課程</p>
+      <p class="mt-3 text-charcoal/70">
+        請改選其他科目，或點選「全部」查看所有課程。
+      </p>
+      <div class="mt-6">
+        <button
+          type="button"
+          data-reset-filter
+          class="inline-flex items-center rounded-full bg-caramel px-4 py-2 text-sm font-medium text-charcoal transition-colors hover:bg-espresso hover:text-chalk"
+        >
+          顯示全部課程
+        </button>
+      </div>
+    </div>
+  </div>
+
   <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
     <div class="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-20 text-center">
       <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
@@ -141,4 +182,63 @@ const jsonLd = [
       </div>
     </div>
   </SectionFadeUp>
+
+  <script>
+    // 科目過濾：漸進增強。SSR 已輸出全部課程，這段只負責顯示/隱藏。
+    const filterBar = document.getElementById('subject-filter');
+    const chips = Array.from(
+      document.querySelectorAll<HTMLButtonElement>('.subject-chip'),
+    );
+    const groups = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-subject-group]'),
+    );
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-grade-section]'),
+    );
+    const emptyState = document.getElementById('course-empty-state');
+    const resetButtons = Array.from(
+      document.querySelectorAll<HTMLButtonElement>('[data-reset-filter]'),
+    );
+
+    function apply(subject: string) {
+      let anyVisible = false;
+
+      for (const group of groups) {
+        const match = subject === '__all__' || group.dataset.subjectGroup === subject;
+        group.hidden = !match;
+        if (match) anyVisible = true;
+      }
+
+      // 隱藏完全沒有可見科目群組的年級區塊
+      for (const section of sections) {
+        const hasVisible = Array.from(
+          section.querySelectorAll<HTMLElement>('[data-subject-group]'),
+        ).some((el) => !el.hidden);
+        section.closest<HTMLElement>('section')!.hidden = !hasVisible;
+      }
+
+      for (const chip of chips) {
+        chip.setAttribute(
+          'aria-pressed',
+          chip.dataset.subject === subject ? 'true' : 'false',
+        );
+      }
+
+      if (emptyState) emptyState.hidden = anyVisible;
+    }
+
+    if (filterBar) {
+      filterBar.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
+          '.subject-chip',
+        );
+        if (!btn) return;
+        apply(btn.dataset.subject ?? '__all__');
+      });
+    }
+
+    for (const btn of resetButtons) {
+      btn.addEventListener('click', () => apply('__all__'));
+    }
+  </script>
 </BaseLayout>

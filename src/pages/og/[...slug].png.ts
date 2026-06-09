@@ -80,7 +80,7 @@ function fallbackRedirect(reqUrl: URL): Response {
 export const GET: APIRoute = async ({ url }) => {
   const title = clamp(url.searchParams.get('title') ?? '賈伯斯數理教室', 60);
   const subtitle = clamp(
-    url.searchParams.get('subtitle') ?? '嘉義精英小班補習 · 臺、清、交、嘉大、高師大資歷師資 · 12 年品牌資歷',
+    url.searchParams.get('subtitle') ?? '嘉義精英小班補習 · 臺、交、高師大、嘉大、市北大資歷師資 · 12 年品牌資歷',
     120,
   );
 

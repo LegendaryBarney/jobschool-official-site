@@ -1,5 +1,5 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
@@ -7,21 +7,19 @@ import Button from '~/components/Button.astro';
 import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
 
-// ── 課務政策（請假・補課）：Markdown 驅動 ──────────────────
-const policyEntries = (await getCollection('policy')).sort(
-  (a, b) => (a.data.order ?? 0) - (b.data.order ?? 0),
-);
-const policySections = await Promise.all(
-  policyEntries.map(async (entry) => {
-    const { Content } = await render(entry);
-    return { data: entry.data, Content };
-  }),
-);
-
 // ── 課表：JSON 資料驅動，科目取自 teachers collection ──────
+// 設計目標：客戶用「科目」找老師，而非用老師名字找。
+// 因此兩間教室合併為單一課表，每位老師一列；科目升為主要可見資訊，
+// 每個星期格內以教室短標籤標示該日授課地點（同日兩教室則並列）。
 const WEEKDAYS = ['週一', '週二', '週三', '週四', '週五'] as const;
 type Weekday = (typeof WEEKDAYS)[number];
 type Room = '賈伯斯' | '忍文理';
+
+// 教室短標籤：格內空間有限，取最短可辨識字樣。
+const ROOM_SHORT: Record<Room, string> = {
+  賈伯斯: '賈伯斯',
+  忍文理: '忍',
+};
 
 const teacherCollection = await getCollection('teachers');
 const subjectsBySlug = new Map<string, string[]>(
@@ -32,125 +30,100 @@ const scheduleEntries = (await getCollection('schedule')).sort(
   (a, b) => (a.data.order ?? 0) - (b.data.order ?? 0),
 );
 
-interface RoomRow {
+interface TeacherRow {
   teacher: string;
   subjects: string[];
-  days: Set<Weekday>;
+  // 以星期為鍵，值為當天授課教室清單；無授課者不入鍵。
+  byDay: Map<Weekday, Room[]>;
 }
 
-function buildRoomRows(room: Room): RoomRow[] {
-  const rows: RoomRow[] = [];
+// 以「老師」聚合：每位老師合併其各教室排程為單列，
+// 每個星期格內帶該日所屬教室（room）。
+function buildTeacherRows(): TeacherRow[] {
+  const rows: TeacherRow[] = [];
   for (const entry of scheduleEntries) {
-    const roomData = entry.data.rooms.find((r) => r.room === room);
-    if (!roomData || roomData.days.length === 0) continue;
     const fallback = entry.data.teacherSlug
       ? subjectsBySlug.get(entry.data.teacherSlug) ?? []
       : [];
-    rows.push({
-      teacher: entry.data.teacher,
-      subjects: roomData.subjects.length > 0 ? roomData.subjects : fallback,
-      days: new Set(roomData.days as Weekday[]),
-    });
+    // 彙整各教室於該教室定義的科目；沿用 teachers collection 作為後備。
+    const roomSubjects = entry.data.rooms.flatMap((r) => r.subjects ?? []);
+    const subjects = roomSubjects.length > 0 ? [...new Set(roomSubjects)] : fallback;
+
+    const byDay = new Map<Weekday, Room[]>();
+    for (const roomData of entry.data.rooms) {
+      for (const day of roomData.days as Weekday[]) {
+        const list = byDay.get(day) ?? [];
+        if (!list.includes(roomData.room)) list.push(roomData.room);
+        byDay.set(day, list);
+      }
+    }
+    if (byDay.size === 0) continue;
+    rows.push({ teacher: entry.data.teacher, subjects, byDay });
   }
   return rows;
 }
 
-const rooms: { key: Room; label: string; note: string }[] = [
+const teacherRows = buildTeacherRows();
+
+// 教室對照（圖例與地址說明用）。
+const roomLegend: { key: Room; short: string; label: string; note: string }[] = [
   {
     key: '賈伯斯',
+    short: ROOM_SHORT['賈伯斯'],
     label: '賈伯斯教室',
     note: '嘉義市東區康樂街 10 號',
   },
   {
     key: '忍文理',
+    short: ROOM_SHORT['忍文理'],
     label: '忍文理教室',
     note: '嘉義市西區杭州一街 38 號（姊妹品牌）',
   },
 ];
 
-const roomTables = rooms.map((r) => ({ ...r, rows: buildRoomRows(r.key) }));
-
 const pageUrl = SITE.url + '/schedule';
 const jsonLd = [
   webPageJsonLd({
-    name: '課務說明與課表',
-    description: '賈伯斯數理教室與忍文理教室的請假補課規則，以及兩間教室的固定班教師課表。',
+    name: '教室課表',
+    description: '賈伯斯教室與忍文理教室的固定班教師授課日程課表。',
     url: pageUrl,
   }),
   breadcrumbJsonLd([
     { label: '首頁', href: SITE.url + '/' },
-    { label: '課務說明與課表', href: pageUrl },
+    { label: '教室課表', href: pageUrl },
   ]),
 ];
 ---
 
 <BaseLayout
-  title="課務說明與課表"
-  description="賈伯斯數理教室課務說明：學生／老師請假、颱風假、不可抗力與補課券發放規則，並附賈伯斯教室與忍文理教室的固定班教師課表。"
+  title="教室課表"
+  description="賈伯斯教室與忍文理教室的固定班教師授課日程課表。家教採個別排課，請假與補課規則請見課務說明。"
   jsonLd={jsonLd}
 >
   <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
-    <Breadcrumbs items={[{ label: '課務說明與課表' }]} />
+    <Breadcrumbs items={[{ label: '教室課表' }]} />
   </div>
 
   <section class="bg-cream/40 paper-grain border-b border-cream">
     <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
-      <p class="font-handwriting text-2xl text-espresso">課務說明</p>
+      <p class="font-handwriting text-2xl text-espresso">教室課表</p>
       <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
-        請假、補課與課表
+        固定班教師課表
       </h1>
       <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
-        為保障學習進度與權益，請假與補課依下列規則辦理。如有個別狀況，歡迎透過
-        <a href="/contact" class="text-espresso underline hover:text-caramel">聯絡表單</a>
-        或 LINE 與課務人員確認。
+        下列為賈伯斯教室與忍文理教室兩間教室的固定班教師授課日程。家教採個別排課，不列入固定課表，請逕洽課務人員安排。
+        各時段之確切上課時間與科目開班狀況，以教室公告為準。
       </p>
 
-      <nav aria-label="頁內快速跳轉" class="mt-6 flex flex-wrap gap-2 text-sm">
-        <a
-          href="#leave-policy"
-          class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
+      <p class="mt-6 text-base text-charcoal/80 leading-relaxed">
+        <a href="/policy" class="text-espresso underline hover:text-caramel"
+          >請假補課規則請見課務說明 →</a
         >
-          請假補課規則
-        </a>
-        <a
-          href="#timetable"
-          class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
-        >
-          教室課表
-        </a>
-      </nav>
+      </p>
     </div>
   </section>
 
-  {/* ── 區段 A：請假補課規則 ─────────────────────────── */}
-  <SectionFadeUp>
-    <div class="mx-auto max-w-4xl px-4 py-12 lg:px-8 lg:py-16">
-      <h2
-        id="leave-policy"
-        class="scroll-mt-24 font-serif text-3xl lg:text-4xl font-bold text-charcoal flex items-center gap-3"
-      >
-        <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
-        請假補課規則
-      </h2>
-
-      <div class="mt-8 space-y-6">
-        {
-          policySections.map(({ data, Content }) => (
-            <article class="rounded-2xl border border-cream bg-chalk p-6 lg:p-8">
-              <h3 class="font-serif text-xl lg:text-2xl font-bold text-charcoal">
-                {data.section}
-              </h3>
-              <div class="mt-4 prose prose-stone max-w-none text-charcoal/85 leading-relaxed prose-a:text-espresso hover:prose-a:text-caramel prose-strong:text-charcoal prose-headings:font-serif prose-headings:text-charcoal prose-h3:text-lg prose-h3:mt-6">
-                <Content />
-              </div>
-            </article>
-          ))
-        }
-      </div>
-    </div>
-  </SectionFadeUp>
-
-  {/* ── 區段 B：課表 ─────────────────────────────────── */}
+  {/* ── 課表 ─────────────────────────────────────────── */}
   <SectionFadeUp class="bg-cream/40 paper-grain border-y border-cream">
     <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
       <h2
@@ -163,87 +136,112 @@ const jsonLd = [
       <p class="mt-4 max-w-3xl text-charcoal/80 leading-relaxed">
         下列為兩間教室的固定班教師授課日程。家教採個別排課，不列入固定課表，請逕洽課務人員安排。
         各時段之確切上課時間與科目開班狀況，以教室公告為準。
+        各教室位置請見 <a href="/locations" class="text-espresso underline hover:text-caramel">教室據點 →</a>
       </p>
 
-      <div class="mt-10 space-y-12">
+      {/* 教室圖例：說明格內短標籤對應的教室與地址 */}
+      <dl class="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
         {
-          roomTables.map((table) => (
-            <section aria-labelledby={`room-${table.key}`}>
-              <h3
-                id={`room-${table.key}`}
-                class="font-serif text-2xl font-bold text-charcoal"
-              >
-                {table.label}
-              </h3>
-              <p class="mt-1 text-sm text-charcoal/65">{table.note}</p>
+          roomLegend.map((r) => (
+            <div class="flex items-center gap-2">
+              <dt>
+                <span class="inline-flex items-center justify-center rounded-md bg-caramel/20 px-2 py-0.5 text-xs font-bold text-espresso">
+                  {r.short}
+                </span>
+              </dt>
+              <dd class="text-charcoal/70">
+                <span class="font-medium text-charcoal">{r.label}</span>
+                <span class="ml-1 text-charcoal/60">{r.note}</span>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
 
-              {table.rows.length > 0 ? (
-                <div class="mt-5 overflow-x-auto rounded-2xl border border-cream bg-chalk">
-                  <table class="w-full min-w-[640px] border-collapse text-left text-sm">
-                    <caption class="sr-only">{table.label}固定班教師授課日程</caption>
-                    <thead>
-                      <tr class="border-b border-cream bg-cream/40">
-                        <th scope="col" class="px-4 py-3 font-serif font-bold text-charcoal">
-                          教師
-                        </th>
-                        {WEEKDAYS.map((d) => (
-                          <th
-                            scope="col"
-                            class="px-3 py-3 text-center font-serif font-bold text-charcoal"
-                          >
-                            {d}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {table.rows.map((row) => (
-                        <tr class="border-b border-cream/70 last:border-b-0 align-top">
-                          <th
-                            scope="row"
-                            class="px-4 py-4 font-medium text-charcoal whitespace-nowrap"
-                          >
-                            <span class="block">{row.teacher}</span>
-                            {row.subjects.length > 0 && (
-                              <span class="mt-1 block text-xs font-normal text-charcoal/60 max-w-[12rem] whitespace-normal">
-                                {row.subjects.join('、')}
+      <div class="mt-8">
+        {
+          teacherRows.length > 0 ? (
+            <div class="overflow-x-auto rounded-2xl border border-cream bg-chalk">
+              <table class="w-full min-w-[680px] border-collapse text-left text-sm">
+                <caption class="sr-only">固定班教師授課科目與每週授課日程</caption>
+                <thead>
+                  <tr class="border-b border-cream bg-cream/40">
+                    <th scope="col" class="px-4 py-3 font-serif font-bold text-charcoal">
+                      科目與教師
+                    </th>
+                    {WEEKDAYS.map((d) => (
+                      <th
+                        scope="col"
+                        class="px-3 py-3 text-center font-serif font-bold text-charcoal"
+                      >
+                        {d}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {teacherRows.map((row) => (
+                    <tr class="border-b border-cream/70 last:border-b-0 align-top">
+                      <th
+                        scope="row"
+                        class="px-4 py-4 text-left font-normal whitespace-nowrap"
+                      >
+                        {row.subjects.length > 0 && (
+                          <span class="block max-w-[16rem] whitespace-normal font-serif text-base font-bold leading-snug text-charcoal">
+                            {row.subjects.join('、')}
+                          </span>
+                        )}
+                        <span class="mt-1 block text-sm font-medium text-charcoal/75">
+                          {row.teacher}
+                        </span>
+                      </th>
+                      {WEEKDAYS.map((d) => {
+                        const dayRooms = row.byDay.get(d) ?? [];
+                        return (
+                          <td class="px-3 py-4 text-center">
+                            {dayRooms.length > 0 ? (
+                              <span class="inline-flex flex-wrap items-center justify-center gap-1">
+                                {dayRooms.map((rm) => (
+                                  <span
+                                    class="inline-flex items-center justify-center rounded-full bg-caramel/20 px-2.5 py-1 text-xs font-bold text-espresso"
+                                    aria-label={`${row.teacher} ${d}於${rm === '賈伯斯' ? '賈伯斯教室' : '忍文理教室'}授課`}
+                                  >
+                                    {ROOM_SHORT[rm]}
+                                  </span>
+                                ))}
+                              </span>
+                            ) : (
+                              <span class="text-charcoal/25" aria-hidden="true">
+                                —
                               </span>
                             )}
-                          </th>
-                          {WEEKDAYS.map((d) => (
-                            <td class="px-3 py-4 text-center">
-                              {row.days.has(d) ? (
-                                <span
-                                  class="inline-flex items-center justify-center rounded-full bg-caramel/20 px-2.5 py-1 text-xs font-medium text-espresso"
-                                  aria-label={`${row.teacher} ${d}於${table.label}授課`}
-                                >
-                                  授課
-                                </span>
-                              ) : (
-                                <span class="text-charcoal/25" aria-hidden="true">
-                                  —
-                                </span>
-                              )}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p class="mt-5 rounded-2xl border border-cream bg-chalk px-5 py-6 text-sm text-charcoal/70">
-                  本教室固定班課表整理中，詳情請洽課務人員。
-                </p>
-              )}
-            </section>
-          ))
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p class="rounded-2xl border border-cream bg-chalk px-5 py-6 text-sm text-charcoal/70">
+              固定班課表整理中，詳情請洽課務人員。
+            </p>
+          )
         }
       </div>
 
       <p class="mt-8 text-xs text-charcoal/55 leading-relaxed">
-        說明：科目欄位顯示該教師所授科目；實際各教室開班科目以現場公告與排課為準。如需確認特定班別時段，歡迎來電
+        說明：左欄為各教師所授科目與姓名，星期欄內之標籤標示當日授課教室（{
+          roomLegend.map((r) => `${r.short}＝${r.label}`).join('、')
+        }）；同日於兩間教室授課者並列兩標籤。實際各教室開班科目以現場公告與排課為準。如需確認特定班別時段，歡迎來電
         <a href="tel:+88652230303" class="text-espresso hover:underline">(05) 223-0303</a> 詢問。
+      </p>
+
+      <p class="mt-6 text-base text-charcoal/80 leading-relaxed">
+        <a href="/policy" class="text-espresso underline hover:text-caramel"
+          >請假補課規則請見課務說明 →</a
+        >
       </p>
     </div>
   </SectionFadeUp>

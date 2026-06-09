@@ -2,7 +2,7 @@
 campaign: summer-2026
 title: 2026 暑期班｜把卡住的觀念補回來
 headline: 暑假，是把弱科逆轉的最後一塊拼圖
-subheadline: 6 週密集銜接、極小班 / 精緻班 / 小班三種規模、由臺、清、交、嘉義大學、高師大資歷的師資親自帶班，從觀念到題型一次補齊。
+subheadline: 6 週密集銜接、極小班 / 精緻班 / 小班三種規模、由臺、交、高師大、嘉義大學、臺北市立大學資歷的師資親自帶班，從觀念到題型一次補齊。
 heroImage: ../../assets/images/landing/summer-2026.webp
 ctaLabel: 立即預約試聽
 ctaHref: /contact

@@ -1,0 +1,211 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import SectionFadeUp from '~/components/SectionFadeUp.astro';
+import IconChalk from '~/components/IconChalk.astro';
+import { placeJsonLd, webPageJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { SITE } from '~/lib/seo';
+import { ALL_LOCATIONS } from '~/lib/locations';
+
+import spaceMainClassroom from '~/assets/images/spaces/main-classroom.webp';
+import spaceSelfStudy from '~/assets/images/spaces/self-study.webp';
+
+const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
+
+/**
+ * 兩據點的呈現資料：地點事實一律取自 ~/lib/locations 的 LOCATIONS（單一資料來源），
+ * 此處僅補充各據點對應的實景照與簡介（書面、institutional 調性）。
+ */
+const photos: Record<'jobs' | 'shinobi', { image: ImageMetadata; alt: string; caption: string }> = {
+  jobs: {
+    image: spaceMainClassroom,
+    alt: '賈伯斯數理教室（東區康樂街校區）主教室實景',
+    caption: '東區 · 康樂街校區教室實景',
+  },
+  shinobi: {
+    image: spaceSelfStudy,
+    alt: '忍文理教室（西區杭州一街校區）自習空間實景',
+    caption: '西區 · 杭州一街校區空間實景',
+  },
+};
+
+const intros: Record<'jobs' | 'shinobi', { eyebrow: string; blurb: string }> = {
+  jobs: {
+    eyebrow: '主校區 · 東區',
+    blurb:
+      '賈伯斯數理教室位於嘉義市東區康樂街，鄰近嘉中、嘉女，步行約 8–12 分鐘。本校區為精緻小班的主要授課場地，提供國中至高中數理與相關科目的固定班與一對一課程。',
+  },
+  shinobi: {
+    eyebrow: '姊妹品牌 · 西區',
+    blurb:
+      '忍文理教室為賈伯斯數理教室於 2023 年在嘉義市西區杭州一街新增的姊妹品牌，延續同樣的精緻小班理念，服務嘉義西區的學生與家長。',
+  },
+};
+
+const pageUrl = SITE.url + '/locations';
+const jsonLd = [
+  webPageJsonLd({
+    name: '教室據點',
+    description: '賈伯斯數理教室（東區康樂街）與姊妹品牌忍文理教室（西區杭州一街）的地址、電話、地圖與實景。',
+    url: pageUrl,
+  }),
+  ...ALL_LOCATIONS.map((loc) => placeJsonLd(loc)),
+  breadcrumbJsonLd([
+    { label: '首頁', href: SITE.url + '/' },
+    { label: '教室據點', href: pageUrl },
+  ]),
+];
+---
+
+<BaseLayout
+  title="教室據點"
+  description="賈伯斯數理教室（嘉義市東區康樂街 10 號）與姊妹品牌忍文理教室（嘉義市西區杭州一街 38 號）的地址、電話、Google 地圖與實景照。西區家長可就近選擇忍文理教室。"
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
+    <Breadcrumbs items={[{ label: '教室據點' }]} />
+  </div>
+
+  <section class="bg-cream/40 paper-grain border-b border-cream">
+    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      <p class="font-handwriting text-2xl text-espresso">教室據點</p>
+      <h1 class="mt-2 font-serif text-4xl lg:text-5xl font-bold text-charcoal leading-tight">
+        兩個校區，<br class="md:hidden" />一致的教學品質
+      </h1>
+      <p class="mt-5 max-w-2xl text-lg text-charcoal/80 leading-relaxed">
+        賈伯斯數理教室位於嘉義市東區，姊妹品牌忍文理教室位於西區。
+        以下並列兩據點的地址、電話、地圖與實景，方便您就近選擇與安排試聽。
+      </p>
+    </div>
+  </section>
+
+  {
+    ALL_LOCATIONS.map((loc, idx) => {
+      const photo = photos[loc.key];
+      const intro = intros[loc.key];
+      const flip = idx % 2 === 1;
+      return (
+        <SectionFadeUp class={idx % 2 === 1 ? 'bg-cream/40 paper-grain border-y border-cream' : ''}>
+          <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+            <p class="font-handwriting text-2xl text-espresso">{intro.eyebrow}</p>
+            <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+              {loc.name}
+            </h2>
+            <p class="mt-3 max-w-2xl text-charcoal/80 leading-relaxed">{intro.blurb}</p>
+
+            <div class="mt-8 grid gap-6 lg:grid-cols-5">
+              <div class={`space-y-6 lg:col-span-3 ${flip ? 'lg:order-2' : ''}`}>
+                <figure class="overflow-hidden rounded-xl border border-cream bg-chalk">
+                  <div class="aspect-[16/9] overflow-hidden bg-cream">
+                    <Image
+                      src={photo.image}
+                      alt={photo.alt}
+                      widths={[480, 768, 1024]}
+                      sizes="(max-width: 1024px) 100vw, 620px"
+                      class="h-full w-full object-cover"
+                    />
+                  </div>
+                  <figcaption class="px-4 py-2.5 text-sm text-charcoal/70">
+                    {photo.caption}
+                  </figcaption>
+                </figure>
+
+                <div class="rounded-xl overflow-hidden border border-cream bg-cream/60">
+                  <div class="aspect-[16/9] bg-cream">
+                    <iframe
+                      src={loc.mapEmbedSrc}
+                      title={`${loc.name} 位置地圖`}
+                      width="100%"
+                      height="100%"
+                      style="border: 0;"
+                      loading="lazy"
+                      referrerpolicy="no-referrer-when-downgrade"
+                      allowfullscreen
+                    />
+                  </div>
+                  <div class="p-4 text-sm">
+                    <a
+                      href={loc.mapLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-espresso hover:text-caramel font-medium"
+                    >
+                      在 Google 地圖打開 →
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div class={`lg:col-span-2 rounded-xl border border-cream bg-chalk p-5 space-y-4 ${flip ? 'lg:order-1' : ''}`}>
+                <div class="flex gap-3">
+                  <span class="text-espresso shrink-0 mt-0.5">
+                    <IconChalk name="flag" size={20} />
+                  </span>
+                  <div>
+                    <p class="text-xs font-semibold tracking-wider text-espresso uppercase">地址</p>
+                    <p class="mt-1 text-charcoal">{loc.address}</p>
+                    {loc.key === 'jobs' && (
+                      <p class="mt-1 text-xs text-charcoal/60">距嘉中、嘉女步行約 8–12 分鐘</p>
+                    )}
+                  </div>
+                </div>
+                <div class="flex gap-3">
+                  <span class="text-espresso shrink-0 mt-0.5">
+                    <IconChalk name="compass" size={20} />
+                  </span>
+                  <div>
+                    <p class="text-xs font-semibold tracking-wider text-espresso uppercase">電話</p>
+                    <a href={`tel:${loc.phoneTel}`} class="mt-1 block text-charcoal hover:text-espresso">
+                      {loc.phone}
+                    </a>
+                    {loc.key === 'shinobi' && (
+                      <p class="mt-1 text-xs text-charcoal/55">與賈伯斯共用客服電話</p>
+                    )}
+                  </div>
+                </div>
+                {loc.foundedYear && (
+                  <div class="flex gap-3 pt-3 border-t border-cream/80">
+                    <span class="text-espresso shrink-0 mt-0.5">
+                      <IconChalk name="cup" size={20} />
+                    </span>
+                    <div>
+                      <p class="text-xs font-semibold tracking-wider text-espresso uppercase">開設年份</p>
+                      <p class="mt-1 text-charcoal">EST. {loc.foundedYear}</p>
+                    </div>
+                  </div>
+                )}
+                <div class="flex gap-3 pt-3 border-t border-cream/80">
+                  <span class="text-espresso shrink-0 mt-0.5">
+                    <IconChalk name="spark" size={20} />
+                  </span>
+                  <div class="flex-1">
+                    <p class="text-xs font-semibold tracking-wider text-espresso uppercase">預約試聽</p>
+                    <p class="mt-1 text-sm text-charcoal/70">填表或加 LINE，課務人員會主動聯絡您。</p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                      <a
+                        href="/contact"
+                        class="inline-flex h-10 items-center rounded-lg bg-caramel px-4 text-sm font-medium text-charcoal hover:-translate-y-px transition-transform"
+                      >
+                        預約試聽
+                      </a>
+                      <a
+                        href={lineUrl}
+                        target={lineUrl !== '#' ? '_blank' : undefined}
+                        rel={lineUrl !== '#' ? 'noopener noreferrer' : undefined}
+                        class="inline-flex h-10 items-center rounded-lg border border-espresso bg-chalk px-4 text-sm font-medium text-espresso hover:bg-cream transition-colors"
+                      >
+                        加 LINE 詢問
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </SectionFadeUp>
+      );
+    })
+  }
+</BaseLayout>

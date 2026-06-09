@@ -10,7 +10,6 @@ import { SITE } from '~/lib/seo';
 import { LOCATIONS } from '~/lib/locations';
 
 import spaceMainClassroom from '~/assets/images/spaces/main-classroom.webp';
-import spaceSelfStudy from '~/assets/images/spaces/self-study.webp';
 
 const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
 
@@ -164,93 +163,23 @@ const jsonLd = [
     </div>
   </SectionFadeUp>
 
-  {/* 姊妹品牌：忍文理教室 */}
+  {/* 姊妹品牌：忍文理教室（完整據點資訊移至 /locations） */}
   <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
-      <p class="font-handwriting text-2xl text-espresso">另一個校區</p>
-      <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
-        姊妹品牌 · {shinobi.name}
-      </h2>
-      <p class="mt-3 max-w-2xl text-charcoal/80 leading-relaxed">
-        2023 年我們在嘉義市西區新增了 {shinobi.name}，
-        延續同樣的精緻小班理念，服務嘉義西區的學生與家長。
-      </p>
-
-      <div class="mt-8 grid gap-6 lg:grid-cols-5">
-        <div class="lg:col-span-3 space-y-6">
-          <figure class="overflow-hidden rounded-xl border border-cream bg-chalk">
-            <div class="aspect-[16/9] overflow-hidden bg-cream">
-              <Image
-                src={spaceSelfStudy}
-                alt={`${shinobi.name}（西區杭州一街校區）自習空間實景`}
-                widths={[480, 768, 1024]}
-                sizes="(max-width: 1024px) 100vw, 620px"
-                class="h-full w-full object-cover"
-              />
-            </div>
-            <figcaption class="px-4 py-2.5 text-sm text-charcoal/70">
-              西區 · 杭州一街校區空間實景
-            </figcaption>
-          </figure>
-
-          <div class="rounded-xl overflow-hidden border border-cream bg-cream/60">
-          <div class="aspect-[16/9] bg-cream">
-            <iframe
-              src={shinobi.mapEmbedSrc}
-              title={`${shinobi.name} 位置地圖`}
-              width="100%"
-              height="100%"
-              style="border: 0;"
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              allowfullscreen
-            ></iframe>
-          </div>
-          <div class="p-4 text-sm">
-            <a
-              href={shinobi.mapLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-espresso hover:text-caramel font-medium"
-            >
-              在 Google 地圖打開 →
-            </a>
-          </div>
-          </div>
+    <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8 lg:py-12">
+      <div class="rounded-xl border border-cream bg-chalk p-6 lg:p-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p class="font-handwriting text-xl text-espresso">另一個校區</p>
+          <p class="mt-1 text-charcoal/80 leading-relaxed">
+            西區家長可就近選擇姊妹品牌 {shinobi.name}（{shinobi.address}）。
+            兩據點的地址、電話、地圖與實景，請見教室據點頁。
+          </p>
         </div>
-
-        <div class="lg:col-span-2 rounded-xl border border-cream bg-chalk p-5 space-y-4">
-          <div class="flex gap-3">
-            <span class="text-espresso shrink-0 mt-0.5">
-              <IconChalk name="flag" size={20} />
-            </span>
-            <div>
-              <p class="text-xs font-semibold tracking-wider text-espresso uppercase">地址</p>
-              <p class="mt-1 text-charcoal">{shinobi.address}</p>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <span class="text-espresso shrink-0 mt-0.5">
-              <IconChalk name="compass" size={20} />
-            </span>
-            <div>
-              <p class="text-xs font-semibold tracking-wider text-espresso uppercase">電話</p>
-              <a href={`tel:${shinobi.phoneTel}`} class="mt-1 block text-charcoal hover:text-espresso">
-                {shinobi.phone}
-              </a>
-              <p class="mt-1 text-xs text-charcoal/55">與賈伯斯共用客服電話</p>
-            </div>
-          </div>
-          <div class="flex gap-3 pt-3 border-t border-cream/80">
-            <span class="text-espresso shrink-0 mt-0.5">
-              <IconChalk name="cup" size={20} />
-            </span>
-            <div>
-              <p class="text-xs font-semibold tracking-wider text-espresso uppercase">開設年份</p>
-              <p class="mt-1 text-charcoal">EST. {shinobi.foundedYear}</p>
-            </div>
-          </div>
-        </div>
+        <a
+          href="/locations"
+          class="inline-flex h-11 shrink-0 items-center rounded-lg bg-caramel px-5 text-sm font-medium text-charcoal hover:-translate-y-px transition-transform"
+        >
+          西區家長請看忍文理教室 →
+        </a>
       </div>
     </div>
   </SectionFadeUp>

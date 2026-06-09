@@ -36,7 +36,14 @@ for (const item of rendered) {
   grouped.set(cat, list);
 }
 
-const categoryOrder = ['試聽流程', '收費與發票', '課程與教材', '退費與請假', '位置與交通', '一般'];
+const categoryOrder = [
+  '試聽流程',
+  '課程與教材',
+  '收費與發票',
+  '課務（請假・補課）',
+  '退費與請假',
+  '一般',
+];
 const sortedCategories = Array.from(grouped.keys()).sort((a, b) => {
   const ai = categoryOrder.indexOf(a);
   const bi = categoryOrder.indexOf(b);
@@ -62,7 +69,7 @@ const jsonLd = [
 
 <BaseLayout
   title="常見問題"
-  description="關於試聽流程、收費、課程安排、退費請假、位置交通的常見問題。賈伯斯數理教室嘉義東區精英小班補習常見疑問彙整。"
+  description="關於試聽流程、課程安排、收費發票、請假補課、退費規則的常見問題。賈伯斯數理教室嘉義東區精英小班補習常見疑問彙整。"
   jsonLd={jsonLd}
 >
   <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">

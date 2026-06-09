@@ -21,10 +21,12 @@ const siteMap = [
   { href: '/tutors', label: '1對1家教' },
   { href: '/teachers', label: '師資' },
   { href: '/fees', label: '收費與退費' },
-  { href: '/schedule', label: '課務說明與課表' },
+  { href: '/schedule', label: '課表' },
+  { href: '/policy', label: '課務說明' },
   { href: '/posts', label: '部落格' },
   { href: '/testimonials', label: '學生見證' },
   { href: '/faq', label: '常見問題' },
+  { href: '/locations', label: '教室據點' },
   { href: '/contact', label: '聯絡我們' },
 ];
 
@@ -60,7 +62,7 @@ try {
       <div>
         <h3 class="font-serif text-xl font-bold text-charcoal">賈伯斯數理教室</h3>
         <p class="mt-3 text-sm text-charcoal/80 leading-relaxed">
-          嘉義在地的精緻小班補習機構，由臺、清、交、嘉義大學、高師大資歷師資組成，專攻國中至高中數理與英文科目。
+          嘉義在地的精緻小班補習機構，由臺、交、高師大、嘉義大學、臺北市立大學資歷師資組成，專攻國中至高中數理與英文科目。
         </p>
         <address class="mt-4 not-italic text-sm text-charcoal/80 leading-relaxed">
           <span class="block">嘉義市東區康樂街 10 號</span>
@@ -126,6 +128,9 @@ try {
             {shinobi.address}
             {shinobi.foundedYear && <span class="text-charcoal/50"> · EST. {shinobi.foundedYear}</span>}
           </address>
+          <a href="/locations" class="mt-2 inline-block text-xs text-espresso hover:underline">
+            兩教室據點與地圖 →
+          </a>
         </div>
       </div>
 
@@ -179,7 +184,7 @@ try {
     <div class="mt-12 pt-6 border-t border-cream/80 flex flex-col gap-3 md:flex-row md:items-center md:justify-between text-xs text-charcoal/60">
       <span>&copy; 2014–2026 賈伯斯數理教室</span>
       <ul class="flex flex-wrap gap-x-4 gap-y-1">
-        <li><a href="#" class="hover:text-espresso">隱私權政策</a></li>
+        <li><a href="/privacy" class="hover:text-espresso">隱私權政策</a></li>
         <li><a href="#" class="hover:text-espresso">Cookie 設定</a></li>
         <li><a href="/contact" class="hover:text-espresso">聯絡我們</a></li>
       </ul>
