@@ -1,6 +1,7 @@
 ---
 import { getEntry } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/PageHero.astro';
 import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
@@ -16,7 +17,6 @@ const fees = entry.data;
 const sections = [
   { id: 'overview', label: '收費方式總覽' },
   { id: 'quarterly', label: '季繳' },
-  { id: 'semi-annual', label: '半年繳' },
   { id: 'tutoring', label: '家教計費' },
   { id: 'package', label: '套裝與客製化' },
   { id: 'payment', label: '繳費方式' },
@@ -26,7 +26,7 @@ const sections = [
 const jsonLd = [
   webPageJsonLd({
     name: '收費與退費',
-    description: '賈伯斯數理教室收費標準與退費規定：季繳、半年繳、套裝、客製化與家教計費方式，以及市府退費規定與本班季繳舊生優規退費表。',
+    description: '賈伯斯數理教室收費標準與退費規定：季繳、套裝、客製化與家教計費方式，以及市府退費規定與本班季繳舊生優規退費表。',
     url: SITE.url + '/fees',
   }),
   breadcrumbJsonLd([
@@ -38,37 +38,32 @@ const jsonLd = [
 
 <BaseLayout
   title="收費與退費"
-  description="賈伯斯數理教室收費標準與退費規定：季繳每週 3 小時 9,300 元 / 12 節、半年繳 18,600 元 / 24 節、套裝、客製化與家教計費方式，以及市府退費規定與季繳舊生本班優規退費表。"
+  description="賈伯斯數理教室收費標準與退費規定：季繳每週 3 小時 9,300 元 / 12 節、套裝、客製化與家教計費方式，以及市府退費規定與季繳舊生本班優規退費表。"
   jsonLd={jsonLd}
 >
   <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
     <Breadcrumbs items={[{ label: '收費與退費' }]} />
   </div>
 
-  <section class="bg-cream/40 paper-grain border-b border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
-      <p class="font-handwriting text-2xl text-espresso">收費與退費</p>
-      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
-        透明的收費與退費規則
-      </h1>
-      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
-        本頁完整說明本班各類課程的收費標準與退費規定。收費依課程性質區分為季繳、半年繳、套裝、客製化與家教計費；退費則以市政府公告規定為基準，並針對季繳舊生提供更寬鬆的本班優規退費辦法。
-        若仍有疑問，歡迎透過 <a href="/contact" class="text-espresso underline hover:text-caramel">聯絡表單</a>
-        或 LINE 直接詢問。
-      </p>
+  <PageHero variant="paper" eyebrow="收費與退費" glyph="$" tint="caramel">
+    <Fragment slot="heading">透明的收費與退費規則</Fragment>
+    <p class="max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+      本頁完整說明本班各類課程的收費標準與退費規定。收費依課程性質區分為季繳、套裝、客製化與家教計費；退費則以市政府公告規定為基準，並針對季繳舊生提供更寬鬆的本班優規退費辦法。
+      若仍有疑問，歡迎透過 <a href="/contact" class="text-espresso underline hover:text-caramel">聯絡表單</a>
+      或 LINE 直接詢問。
+    </p>
 
-      <nav aria-label="收費與退費快速跳轉" class="mt-6 flex flex-wrap gap-2 text-sm">
-        {sections.map((s) => (
-          <a
-            href={`#${s.id}`}
-            class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
-          >
-            {s.label}
-          </a>
-        ))}
-      </nav>
-    </div>
-  </section>
+    <nav aria-label="收費與退費快速跳轉" class="mt-6 flex flex-wrap gap-2 text-sm">
+      {sections.map((s) => (
+        <a
+          href={`#${s.id}`}
+          class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
+        >
+          {s.label}
+        </a>
+      ))}
+    </nav>
+  </PageHero>
 
   <SectionFadeUp>
     <div class="mx-auto max-w-4xl px-4 py-12 lg:px-8 lg:py-16 brand-prose">
@@ -141,30 +136,7 @@ const jsonLd = [
         <p class="mt-2 text-charcoal/85 leading-relaxed">{fees.quarterly.newStudentNote}</p>
       </section>
 
-      <!-- C. 半年繳詳解 -->
-      <section id="semi-annual" class="scroll-mt-24 mt-14" aria-labelledby="h-semi">
-        <h2 id="h-semi" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
-          <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
-          半年繳
-        </h2>
-        <p class="mt-4 text-charcoal/85 leading-relaxed">
-          半年繳費用一概為 <strong>{fees.semiAnnual.price}</strong>，共 <strong>{fees.semiAnnual.lessons}</strong>。
-          目前適用課程包括：
-        </p>
-        <ul class="mt-3 list-disc pl-6 text-charcoal/85 leading-relaxed space-y-1">
-          {fees.semiAnnual.subjects.map((s) => (<li>{s}</li>))}
-        </ul>
-        <ul class="mt-4 space-y-2 list-none pl-0 text-charcoal/85 leading-relaxed">
-          {fees.semiAnnual.notes.map((n) => (
-            <li class="flex gap-2">
-              <span class="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-caramel" aria-hidden="true"></span>
-              <span>{n}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <!-- D. 家教計費 -->
+      <!-- C. 家教計費 -->
       <section id="tutoring" class="scroll-mt-24 mt-14" aria-labelledby="h-tutoring">
         <h2 id="h-tutoring" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
           <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
