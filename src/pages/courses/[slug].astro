@@ -7,6 +7,7 @@ import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
 import Tag from '~/components/Tag.astro';
 import IconChalk from '~/components/IconChalk.astro';
+import PageHero from '~/components/PageHero.astro';
 import TrialForm from '~/components/TrialForm';
 import {
   courseJsonLd,
@@ -43,6 +44,19 @@ const {
 } = course.data;
 const priceDisplay = pricePerPack ?? priceRange;
 const slug = course.id.replace(/\.(md|mdx)$/, '');
+
+/* 依科目推導 banner 大字水印符號（與首頁 hero 同一套視覺語言） */
+function courseSymbol(s: string): string {
+  if (s.includes('數學')) return '∫';
+  if (s.includes('物理')) return 'ΔE';
+  if (s.includes('化學')) return 'pH';
+  if (s.includes('自然') || s.includes('生物')) return '△';
+  if (s.includes('Python') || s.includes('程式')) return '{ }';
+  if (s.includes('英文')) return 'Aa';
+  if (s.includes('社會')) return '§';
+  return '∑';
+}
+const heroGlyph = courseSymbol(subject ?? '');
 
 let teacherEntry: CollectionEntry<'teachers'> | undefined;
 if (teacher) {
@@ -91,28 +105,24 @@ const jsonLd = [
   )}
 
   {/* Hero */}
-  <section class="bg-cream/40 paper-grain border-b border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
-      <div class="flex flex-wrap items-center gap-2 text-sm">
-        <span class="inline-flex items-center rounded-md bg-espresso/10 px-2.5 py-1 text-espresso font-medium">
-          {grade}
-        </span>
-        <Tag size="sm">{subject}</Tag>
-        {gradeLevel.map((g) => <Tag size="sm">{g}</Tag>)}
-      </div>
-      <h1 class="mt-5 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
-        {name}
-      </h1>
-      <p class="mt-5 max-w-3xl text-lg text-charcoal/85 leading-relaxed">{summary}</p>
-
-      <div class="mt-8 flex flex-wrap gap-3">
-        <Button href={`/contact?course=${slug}`} variant="primary" size="lg">
-          預約試聽
-        </Button>
-        <Button href="/courses" variant="secondary" size="lg">看其他課程</Button>
-      </div>
+  <PageHero variant="paper" glyph={heroGlyph} tint="caramel">
+    <div slot="eyebrow" class="flex flex-wrap items-center gap-2 text-sm">
+      <span class="inline-flex items-center rounded-md bg-espresso/10 px-2.5 py-1 text-espresso font-medium">
+        {grade}
+      </span>
+      <Tag size="sm">{subject}</Tag>
+      {gradeLevel.map((g) => <Tag size="sm">{g}</Tag>)}
     </div>
-  </section>
+    <Fragment slot="heading">{name}</Fragment>
+    <p class="max-w-3xl text-lg text-charcoal/85 leading-relaxed">{summary}</p>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <Button href={`/contact?course=${slug}`} variant="primary" size="lg">
+        預約試聽
+      </Button>
+      <Button href="/courses" variant="secondary" size="lg">看其他課程</Button>
+    </div>
+  </PageHero>
 
   <section class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
     <div class="grid gap-10 lg:grid-cols-3">

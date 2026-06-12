@@ -6,6 +6,7 @@ import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
 import Timeline from '~/components/Timeline.astro';
 import IconChalk from '~/components/IconChalk.astro';
+import PageHero from '~/components/PageHero.astro';
 import { educationalOrgJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
 
@@ -74,18 +75,13 @@ const jsonLd = [
   </div>
 
   {/* Hero */}
-  <section class="bg-cream/40 paper-grain border-b border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
-      <p class="font-handwriting text-2xl text-espresso">關於我們</p>
-      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
-        像咖啡館老闆一樣，<br />認真對待每一位學生
-      </h1>
-      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
-        賈伯斯數理教室是嘉義東區的地方型精英小班補習機構，由臺大資工碩士 Barney 老師（黃韋誌）領軍，
-        2014 年返鄉創立至今已邁入第 12 年。我們不浮誇、不催促，相信教學是「陪伴」而不是「包裝」。
-      </p>
-    </div>
-  </section>
+  <PageHero variant="photo" eyebrow="關於我們" image={spaceEntrance} imageAlt="賈伯斯數理教室入口">
+    <Fragment slot="heading">像咖啡館老闆一樣，<br />認真對待每一位學生</Fragment>
+    <p class="max-w-3xl text-lg leading-relaxed">
+      賈伯斯數理教室是嘉義東區的地方型精英小班補習機構，由臺大資工碩士 Barney 老師（黃韋誌）領軍，
+      2014 年返鄉創立至今已邁入第 12 年。我們不浮誇、不催促，相信教學是「陪伴」而不是「包裝」。
+    </p>
+  </PageHero>
 
   {/* 創辦故事 */}
   <SectionFadeUp>

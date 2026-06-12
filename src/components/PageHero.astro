@@ -1,0 +1,243 @@
+---
+/**
+ * PageHero — 內頁共用 banner / cover。
+ *
+ * 目的：把所有內頁原本扁平的 `bg-cream/40 paper-grain` 純文字 banner，
+ * 升級成與首頁黑板 hero 同一套「氛圍語言」（粉筆格線 + 雜訊顆粒 + 大字水印 / 實景照），
+ * 但刻意分成三種 variant 維持節奏與變化，不讓內頁全變黑板而稀釋首頁的稀缺感。
+ *
+ * variant：
+ *   - paper（淺色草稿紙，預設）：奶油底 + 極淡 espresso 粉筆格線 + 紙紋 + 雜訊 + 可選大字水印。功能 / 列表頁用。
+ *   - photo（實景照）：既有空間照當底圖 + charcoal 漸層遮罩 + 雜訊，文字轉淺色。故事 / 場域頁用。
+ *   - blackboard（黑板）：同首頁，深色保留給高轉換節點，目前節制使用。
+ *
+ * 內容透過 slot 傳入：
+ *   - slot="heading"（必填）：h1 內文，可含 <br />。
+ *   - 預設 slot：副標、錨點 chips、評分徽章等頁面專屬內容。
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  variant?: 'paper' | 'photo' | 'blackboard';
+  eyebrow?: string;
+  /** 大字水印字符（如 ∑ / ∫ / 師 / “ / ?），僅 paper・blackboard 顯示 */
+  glyph?: string;
+  /** glyph 色調：caramel（金）/ espresso（咖啡）/ sienna（磚紅） */
+  tint?: 'caramel' | 'espresso' | 'sienna';
+  /** photo variant 的底圖 */
+  image?: ImageMetadata;
+  imageAlt?: string;
+  class?: string;
+}
+
+const {
+  variant = 'paper',
+  eyebrow,
+  glyph,
+  tint = 'espresso',
+  image,
+  imageAlt = '',
+  class: cls = '',
+} = Astro.props;
+
+const isPhoto = variant === 'photo';
+---
+
+<section class:list={['ph', `ph--${variant}`, `ph--tint-${tint}`, cls]}>
+  {
+    isPhoto && image && (
+      <Image
+        src={image}
+        alt={imageAlt}
+        class="ph__bg"
+        widths={[768, 1280, 1920]}
+        sizes="100vw"
+        loading="eager"
+      />
+    )
+  }
+
+  {glyph && !isPhoto && (
+    <span class="ph__glyph" aria-hidden="true">{glyph}</span>
+  )}
+
+  <div class="ph__wrap mx-auto max-w-6xl px-4 lg:px-8">
+    <slot name="eyebrow">
+      {eyebrow && <p class="ph__eyebrow font-handwriting">{eyebrow}</p>}
+    </slot>
+    <h1 class="ph__title font-serif"><slot name="heading" /></h1>
+    <div class="ph__body"><slot /></div>
+  </div>
+</section>
+
+<style>
+  .ph {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .ph__wrap {
+    position: relative;
+    z-index: 2;
+    padding-block: clamp(56px, 7vw, 80px);
+  }
+
+  /* ── 共用：雜訊顆粒（與首頁 hero 同一顆粒）─────────── */
+  .ph::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  }
+
+  /* ── 大字水印 ─────────────────────────────────────── */
+  .ph__glyph {
+    position: absolute;
+    z-index: 0;
+    right: clamp(-1rem, 2vw, 3rem);
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-serif-en), var(--font-serif-tc);
+    font-weight: 700;
+    font-size: clamp(11rem, 30vw, 24rem);
+    line-height: 0.8;
+    letter-spacing: -0.02em;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .ph--tint-espresso .ph__glyph { color: rgba(139, 111, 71, 0.07); }
+  .ph--tint-caramel .ph__glyph { color: rgba(200, 161, 101, 0.1); }
+  .ph--tint-sienna .ph__glyph { color: rgba(161, 74, 58, 0.08); }
+
+  /* ── 文字 ─────────────────────────────────────────── */
+  .ph__eyebrow {
+    font-size: 1.5rem; /* ≈ text-2xl */
+    line-height: 1.2;
+    margin: 0;
+  }
+  .ph__title {
+    margin: 0.5rem 0 0;
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: 0.005em;
+    font-size: clamp(2rem, 5.2vw, 3.6rem);
+  }
+  .ph__body { margin-top: 1.5rem; }
+
+  /* ===================================================== */
+  /* variant: paper（淺色草稿紙）                            */
+  /* ===================================================== */
+  .ph--paper {
+    background-color: color-mix(in srgb, var(--color-cream) 40%, var(--color-latte));
+    border-bottom: 1px solid var(--color-cream);
+  }
+  /* 粉筆格線（espresso 淡線），用 radial 暈影遮罩讓中心清晰、邊緣淡出 */
+  .ph--paper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(139, 111, 71, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 111, 71, 0.05) 1px, transparent 1px);
+    background-size: 42px 42px;
+    -webkit-mask-image: radial-gradient(ellipse 95% 85% at 30% 40%, #000 50%, transparent 100%);
+    mask-image: radial-gradient(ellipse 95% 85% at 30% 40%, #000 50%, transparent 100%);
+  }
+  .ph--paper .ph__eyebrow { color: var(--color-espresso); }
+  .ph--paper .ph__title { color: var(--color-charcoal); }
+
+  /* ===================================================== */
+  /* variant: blackboard（黑板）                            */
+  /* ===================================================== */
+  .ph--blackboard {
+    background-color: var(--color-charcoal);
+  }
+  .ph--blackboard::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(250, 250, 247, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(250, 250, 247, 0.045) 1px, transparent 1px);
+    background-size: 46px 46px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 85% at 35% 40%, #000 55%, transparent 100%);
+    mask-image: radial-gradient(ellipse 90% 85% at 35% 40%, #000 55%, transparent 100%);
+  }
+  .ph--blackboard .ph__eyebrow { color: var(--color-caramel); }
+  .ph--blackboard .ph__title { color: var(--color-chalk); }
+  .ph--blackboard .ph__glyph { color: rgba(250, 250, 247, 0.05); }
+
+  /* ===================================================== */
+  /* variant: photo（實景照）                               */
+  /* ===================================================== */
+  .ph--photo {
+    background-color: var(--color-charcoal);
+  }
+  .ph__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 微距感：略放大避免邊緣空隙 */
+    transform: scale(1.02);
+  }
+  /* charcoal 漸層遮罩：左濃右淡，保證左側文字可讀 */
+  .ph--photo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(
+        105deg,
+        rgba(31, 27, 22, 0.92) 0%,
+        rgba(31, 27, 22, 0.74) 42%,
+        rgba(31, 27, 22, 0.46) 100%
+      ),
+      linear-gradient(to top, rgba(31, 27, 22, 0.55), transparent 55%);
+  }
+  .ph--photo .ph__wrap {
+    padding-block: clamp(80px, 11vw, 132px);
+  }
+  .ph--photo .ph__eyebrow { color: var(--color-caramel); }
+  .ph--photo .ph__title { color: var(--color-chalk); }
+
+  /* ── slot 內文在深色 variant 上轉淺色（unlayered 勝過 Tailwind utility）── */
+  .ph--photo .ph__body :global(p),
+  .ph--photo .ph__body :global(li),
+  .ph--photo .ph__body :global(span),
+  .ph--blackboard .ph__body :global(p),
+  .ph--blackboard .ph__body :global(li),
+  .ph--blackboard .ph__body :global(span) {
+    color: rgba(250, 250, 247, 0.82);
+  }
+  .ph--photo .ph__body :global(a),
+  .ph--blackboard .ph__body :global(a) {
+    color: var(--color-caramel);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ph__eyebrow,
+    .ph__title {
+      animation: ph-fade 0.5s var(--ease-brand) both;
+    }
+    .ph__title { animation-delay: 0.08s; }
+  }
+  @keyframes ph-fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>

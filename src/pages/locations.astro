@@ -11,6 +11,8 @@ import { ALL_LOCATIONS } from '~/lib/locations';
 
 import spaceMainClassroom from '~/assets/images/spaces/main-classroom.webp';
 import spaceSelfStudy from '~/assets/images/spaces/self-study.webp';
+import spaceEntrance from '~/assets/images/spaces/entrance.webp';
+import PageHero from '~/components/PageHero.astro';
 
 const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
 
@@ -68,18 +70,13 @@ const jsonLd = [
     <Breadcrumbs items={[{ label: '教室據點' }]} />
   </div>
 
-  <section class="bg-cream/40 paper-grain border-b border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
-      <p class="font-handwriting text-2xl text-espresso">教室據點</p>
-      <h1 class="mt-2 font-serif text-4xl lg:text-5xl font-bold text-charcoal leading-tight">
-        兩個校區，<br class="md:hidden" />一致的教學品質
-      </h1>
-      <p class="mt-5 max-w-2xl text-lg text-charcoal/80 leading-relaxed">
-        賈伯斯數理教室位於嘉義市東區，姊妹品牌忍文理教室位於西區。
-        以下並列兩據點的地址、電話、地圖與實景，方便您就近選擇與安排試聽。
-      </p>
-    </div>
-  </section>
+  <PageHero variant="photo" eyebrow="教室據點" image={spaceEntrance} imageAlt="賈伯斯數理教室入口">
+    <Fragment slot="heading">兩個校區，<br class="md:hidden" />一致的教學品質</Fragment>
+    <p class="max-w-2xl text-lg leading-relaxed">
+      賈伯斯數理教室位於嘉義市東區，姊妹品牌忍文理教室位於西區。
+      以下並列兩據點的地址、電話、地圖與實景，方便您就近選擇與安排試聽。
+    </p>
+  </PageHero>
 
   {
     ALL_LOCATIONS.map((loc, idx) => {

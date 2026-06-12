@@ -10,6 +10,8 @@ import { SITE } from '~/lib/seo';
 import { LOCATIONS } from '~/lib/locations';
 
 import spaceMainClassroom from '~/assets/images/spaces/main-classroom.webp';
+import spaceDiscussion from '~/assets/images/spaces/discussion.webp';
+import PageHero from '~/components/PageHero.astro';
 
 const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
 
@@ -36,18 +38,13 @@ const jsonLd = [
     <Breadcrumbs items={[{ label: '聯絡我們' }]} />
   </div>
 
-  <section class="bg-cream/40 paper-grain border-b border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
-      <p class="font-handwriting text-2xl text-espresso">聯絡我們</p>
-      <h1 class="mt-2 font-serif text-4xl lg:text-5xl font-bold text-charcoal leading-tight">
-        試聽是免費的，<br class="md:hidden" />沒有任何壓力。
-      </h1>
-      <p class="mt-5 max-w-2xl text-lg text-charcoal/80 leading-relaxed">
-        填寫右側表單，我們會在 1 個工作日內以電話或 LINE 聯絡您，安排試聽時段。
-        或直接加 LINE / 撥電話與我們聊聊。
-      </p>
-    </div>
-  </section>
+  <PageHero variant="photo" eyebrow="聯絡我們" image={spaceDiscussion} imageAlt="賈伯斯數理教室討論區">
+    <Fragment slot="heading">試聽是免費的，<br class="md:hidden" />沒有任何壓力。</Fragment>
+    <p class="max-w-2xl text-lg leading-relaxed">
+      填寫右側表單，我們會在 1 個工作日內以電話或 LINE 聯絡您，安排試聽時段。
+      或直接加 LINE / 撥電話與我們聊聊。
+    </p>
+  </PageHero>
 
   <SectionFadeUp>
     <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
