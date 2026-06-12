@@ -172,13 +172,6 @@ const fees = defineCollection({
       earlyBirdNote: z.string(),
       newStudentNote: z.string(),
     }),
-    // 半年繳
-    semiAnnual: z.object({
-      price: z.string(),
-      lessons: z.string(),
-      subjects: z.array(z.string()).default([]),
-      notes: z.array(z.string()).default([]),
-    }),
     // 家教
     tutoring: z.object({ description: z.string(), formula: z.string() }),
     // 套裝
