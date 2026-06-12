@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/PageHero.astro';
 import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import TutorCard from '~/components/TutorCard.astro';
@@ -35,19 +36,15 @@ const jsonLd = [
     <Breadcrumbs items={[{ label: '1對1家教' }]} />
   </div>
 
-  <section class="bg-cream/40 paper-grain border-b border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
-      <p class="font-handwriting text-2xl text-espresso">1 對 1 家教</p>
-      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
-        為一位學生，<br />量身設計一套課
-      </h1>
-      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
-        當小班的節奏仍然不夠貼合，1 對 1 是另一個選項。
-        我們依學生現況、家長期待與時段需求，安排合適的老師與進度規劃，
-        遠端或實體都可以。
-      </p>
+  <PageHero variant="paper" eyebrow="1 對 1 家教" glyph="1" tint="caramel">
+    <Fragment slot="heading">為一位學生，<br />量身設計一套課</Fragment>
+    <p class="max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+      當小班的節奏仍然不夠貼合，1 對 1 是另一個選項。
+      我們依學生現況、家長期待與時段需求，安排合適的老師與進度規劃，
+      遠端或實體都可以。
+    </p>
 
-      <ul class="mt-8 grid gap-3 sm:grid-cols-3 max-w-3xl">
+    <ul class="mt-8 grid gap-3 sm:grid-cols-3 max-w-3xl">
         <li class="rounded-xl border border-cream bg-chalk p-4 flex gap-3">
           <span class="text-espresso shrink-0 mt-0.5"><IconChalk name="users" size={22} /></span>
           <div>
@@ -70,8 +67,7 @@ const jsonLd = [
           </div>
         </li>
       </ul>
-    </div>
-  </section>
+  </PageHero>
 
   <SectionFadeUp>
     <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">

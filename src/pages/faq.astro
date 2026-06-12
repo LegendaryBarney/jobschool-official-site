@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/PageHero.astro';
 import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
@@ -76,31 +77,26 @@ const jsonLd = [
     <Breadcrumbs items={[{ label: '常見問題' }]} />
   </div>
 
-  <section class="bg-cream/40 paper-grain border-b border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
-      <p class="font-handwriting text-2xl text-espresso">常見問題</p>
-      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
-        家長與學生常問的事
-      </h1>
-      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
-        如果你的疑問沒有出現在下方，歡迎透過 <a href="/contact" class="text-espresso underline hover:text-caramel">聯絡表單</a>
-        或 LINE 直接詢問，我們會在 1 個工作日內回覆。
-      </p>
+  <PageHero variant="paper" eyebrow="常見問題" glyph="?" tint="caramel">
+    <Fragment slot="heading">家長與學生常問的事</Fragment>
+    <p class="max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+      如果你的疑問沒有出現在下方，歡迎透過 <a href="/contact" class="text-espresso underline hover:text-caramel">聯絡表單</a>
+      或 LINE 直接詢問，我們會在 1 個工作日內回覆。
+    </p>
 
-      {sortedCategories.length > 0 && (
-        <nav aria-label="FAQ 分類快速跳轉" class="mt-6 flex flex-wrap gap-2 text-sm">
-          {sortedCategories.map((c) => (
-            <a
-              href={`#cat-${encodeURIComponent(c)}`}
-              class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
-            >
-              {c}
-            </a>
-          ))}
-        </nav>
-      )}
-    </div>
-  </section>
+    {sortedCategories.length > 0 && (
+      <nav aria-label="FAQ 分類快速跳轉" class="mt-6 flex flex-wrap gap-2 text-sm">
+        {sortedCategories.map((c) => (
+          <a
+            href={`#cat-${encodeURIComponent(c)}`}
+            class="rounded-full border border-cream bg-chalk px-3 py-1 text-espresso hover:bg-cream transition-colors"
+          >
+            {c}
+          </a>
+        ))}
+      </nav>
+    )}
+  </PageHero>
 
   <SectionFadeUp>
     <div class="mx-auto max-w-4xl px-4 py-12 lg:px-8 lg:py-16 space-y-12">

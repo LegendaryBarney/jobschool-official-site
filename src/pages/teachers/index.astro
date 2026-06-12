@@ -5,6 +5,7 @@ import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import TeacherCard from '~/components/TeacherCard.astro';
 import Button from '~/components/Button.astro';
+import PageHero from '~/components/PageHero.astro';
 import { educationalOrgJsonLd, breadcrumbJsonLd, itemListJsonLd } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
 
@@ -37,18 +38,13 @@ const jsonLd = [
     <Breadcrumbs items={[{ label: '師資介紹' }]} />
   </div>
 
-  <section class="bg-cream/40 paper-grain border-b border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
-      <p class="font-handwriting text-2xl text-espresso">師資介紹</p>
-      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
-        臺、交、高師大、嘉大、<br />市北大資歷的老師，親自帶班
-      </h1>
-      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
-        每位老師都對自己帶的學生負起整個學期的責任，把每個觀念講到學生真的聽得懂。
-        這也是為什麼我們堅持小班——因為「責任」需要時間才能兌現。
-      </p>
-    </div>
-  </section>
+  <PageHero variant="paper" eyebrow="師資介紹" glyph="師" tint="espresso">
+    <Fragment slot="heading">臺、交、高師大、嘉大、<br />市北大資歷的老師，親自帶班</Fragment>
+    <p class="max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+      每位老師都對自己帶的學生負起整個學期的責任，把每個觀念講到學生真的聽得懂。
+      這也是為什麼我們堅持小班——因為「責任」需要時間才能兌現。
+    </p>
+  </PageHero>
 
   <SectionFadeUp>
     <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">

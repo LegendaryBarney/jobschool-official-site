@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/PageHero.astro';
 import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import PostCard from '~/components/PostCard.astro';
@@ -44,18 +45,13 @@ const jsonLd = [
     <Breadcrumbs items={[{ label: '學習筆記' }]} />
   </div>
 
-  <section class="bg-cream/40 paper-grain border-b border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
-      <p class="font-handwriting text-2xl text-espresso">學習筆記</p>
-      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
-        12 年教學現場的觀察與技巧
-      </h1>
-      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
-        我們在這裡分享教學現場的真實觀察、學科解題技巧、學測與分科測驗策略，
-        以及給家長的選擇參考。
-      </p>
-    </div>
-  </section>
+  <PageHero variant="paper" eyebrow="學習筆記" glyph="誌" tint="espresso">
+    <Fragment slot="heading">12 年教學現場的觀察與技巧</Fragment>
+    <p class="max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+      我們在這裡分享教學現場的真實觀察、學科解題技巧、學測與分科測驗策略，
+      以及給家長的選擇參考。
+    </p>
+  </PageHero>
 
   {/* 篩選區（按分類 / 標籤） */}
   <SectionFadeUp class="bg-latte border-b border-cream">

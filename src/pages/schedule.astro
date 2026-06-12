@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import PageHero from '~/components/PageHero.astro';
 import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
@@ -104,24 +105,19 @@ const jsonLd = [
     <Breadcrumbs items={[{ label: '教室課表' }]} />
   </div>
 
-  <section class="bg-cream/40 paper-grain border-b border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-14 lg:px-8 lg:py-20">
-      <p class="font-handwriting text-2xl text-espresso">教室課表</p>
-      <h1 class="mt-2 font-serif text-4xl lg:text-6xl font-bold text-charcoal leading-tight">
-        固定班教師課表
-      </h1>
-      <p class="mt-6 max-w-3xl text-lg text-charcoal/80 leading-relaxed">
-        下列為賈伯斯教室與忍文理教室兩間教室的固定班教師授課日程。家教採個別排課，不列入固定課表，請逕洽課務人員安排。
-        各時段之確切上課時間與科目開班狀況，以教室公告為準。
-      </p>
+  <PageHero variant="paper" eyebrow="教室課表" glyph="週" tint="espresso">
+    <Fragment slot="heading">固定班教師課表</Fragment>
+    <p class="max-w-3xl text-lg text-charcoal/80 leading-relaxed">
+      下列為賈伯斯教室與忍文理教室兩間教室的固定班教師授課日程。家教採個別排課，不列入固定課表，請逕洽課務人員安排。
+      各時段之確切上課時間與科目開班狀況，以教室公告為準。
+    </p>
 
-      <p class="mt-6 text-base text-charcoal/80 leading-relaxed">
-        <a href="/policy" class="text-espresso underline hover:text-caramel"
-          >請假補課規則請見課務說明 →</a
-        >
-      </p>
-    </div>
-  </section>
+    <p class="mt-6 text-base text-charcoal/80 leading-relaxed">
+      <a href="/policy" class="text-espresso underline hover:text-caramel"
+        >請假補課規則請見課務說明 →</a
+      >
+    </p>
+  </PageHero>
 
   {/* ── 課表 ─────────────────────────────────────────── */}
   <SectionFadeUp class="bg-cream/40 paper-grain border-y border-cream">
