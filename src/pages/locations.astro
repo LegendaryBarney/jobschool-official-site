@@ -10,8 +10,8 @@ import { SITE } from '~/lib/seo';
 import { ALL_LOCATIONS } from '~/lib/locations';
 
 import spaceMainClassroom from '~/assets/images/spaces/main-classroom.webp';
-import spaceSelfStudy from '~/assets/images/spaces/self-study.webp';
 import spaceEntrance from '~/assets/images/spaces/entrance.webp';
+import spaceShinobiClassroom from '~/assets/images/spaces/shinobi-classroom.webp';
 import PageHero from '~/components/PageHero.astro';
 
 const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
@@ -27,9 +27,9 @@ const photos: Record<'jobs' | 'shinobi', { image: ImageMetadata; alt: string; ca
     caption: '東區 · 康樂街校區教室實景',
   },
   shinobi: {
-    image: spaceSelfStudy,
-    alt: '忍文理教室（西區杭州一街校區）自習空間實景',
-    caption: '西區 · 杭州一街校區空間實景',
+    image: spaceShinobiClassroom,
+    alt: '忍文理教室（西區杭州一街校區）教室實景，牆面為浮世繪風格壁畫',
+    caption: '西區 · 杭州一街校區教室實景',
   },
 };
 
