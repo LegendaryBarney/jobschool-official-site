@@ -1,5 +1,10 @@
 # NIGHT_RUN_DESIGN — 夜間無人化多 Agent 編排架構設計
 
+> ⛔ **已停用（2026-06-16，業主拍板）**：夜跑自動化已停用。`.claude/scripts/night-run.ps1`
+> 頂部加了 disable guard，即使排程觸發也會立即退出、不做任何事。**`feat/night` 已合併進
+> `main` 並停止滾動使用。** 本文件以下內容保留作為歷史設計參考；要重新啟用需移除該 guard，
+> 並確認 Windows 工作排程器任務存在（見 CLAUDE.md §3）。
+
 > 對象：白天 session 的 orchestrator claude、業主（Barney）。
 > 目的：讓夜跑從「單一 `claude -p` 讀 KICKOFF 跑一下就停」升級為「會規劃、會切割、會平行發包、會逐項驗收、跑到清單清空 / 預算用盡 / 早上 07:00 才停，且未完成項隔晚無痛接續」的多 agent 編排系統。
 > 最高指導原則仍是 `CLAUDE.md`；本文件只描述機制，不改既有紅線。

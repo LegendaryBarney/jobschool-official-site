@@ -48,7 +48,12 @@
 - TypeScript strict 不可關閉；`npm run check` 過了才算完成。
 - 內容修改一律改 `src/content/` 下的 Markdown/MDX/JSON，**不要把文案寫死在元件裡**。
 
-## 3. 夜間自動化機制
+## 3. 夜間自動化機制（⛔ 已停用 2026-06-16）
+
+> **已停用**：業主於 2026-06-16 拍板停用夜跑。`.claude/scripts/night-run.ps1` 頂部已加
+> disable guard（排程觸發也立即退出）；`feat/night` 已合併進 `main` 並停止滾動使用。
+> 要重新啟用：移除該 guard、確認 Windows 工作排程器任務仍在（並重建 `feat/night`）。
+> 以下保留原機制說明作為參考。
 
 業主會用 Windows 工作排程器在凌晨以 headless 模式（`claude -p`）執行本專案的批次工作。
 **此機制已實作**（細節見 `docs/NIGHT_RUN_DESIGN.md` 與 PROGRESS.md §1/§3）：排程 02:00 →
