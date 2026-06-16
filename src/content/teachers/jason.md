@@ -1,7 +1,7 @@
 ---
 name: 陳俊穎
 englishName: Jason
-title: 數學科專任講師
+title: 國中數學講師
 photo: ../../assets/images/teachers/jason.webp
 education:
   - 臺北市立大學 數學系 學士

@@ -1,7 +1,7 @@
 ---
 name: 黃韋誌
 englishName: Barney
-title: 創辦人、老師與主任
+title: 班主任、國中自然/國高中數學/社會/程式講師
 photo: ../../assets/images/teachers/barney.webp
 education:
   - 國立臺灣大學 資訊工程學研究所 碩士

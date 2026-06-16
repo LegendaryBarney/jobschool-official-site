@@ -1,7 +1,7 @@
 ---
 name: 黃中懌
 englishName: Seba
-title: 高中數學專任講師
+title: 高中數學講師
 photo: ../../assets/images/teachers/seba.webp
 education:
   - 國立臺灣大學 材料科學與工程學系 學士
