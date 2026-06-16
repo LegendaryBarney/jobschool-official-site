@@ -6,6 +6,8 @@ interface Item {
   year: string;
   title: string;
   desc?: string;
+  /** 選填：在描述後加一條外部連結（如姊妹品牌官網）。 */
+  link?: { href: string; label: string };
 }
 
 interface Props {
@@ -34,6 +36,16 @@ const { items, class: className = '' } = Astro.props;
       <p class="font-handwriting text-2xl text-espresso leading-none">{it.year}</p>
       <h3 class="mt-1 font-serif text-xl font-bold text-charcoal">{it.title}</h3>
       {it.desc && <p class="mt-2 text-charcoal/80 leading-relaxed">{it.desc}</p>}
+      {it.link && (
+        <a
+          href={it.link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-2 inline-flex items-center gap-1 text-sm font-medium text-espresso underline decoration-caramel/60 underline-offset-2 hover:text-caramel"
+        >
+          {it.link.label} ↗
+        </a>
+      )}
     </li>
   ))}
 </ol>

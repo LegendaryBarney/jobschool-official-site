@@ -66,3 +66,12 @@ prototypes/
 .rwd-shots/
 home-*.jpeg
 verify-*.jpeg
+
+# 圖片產線暫存／原始實拍（中繼檔，不進版控）
+tmp/
+.tmp/
+tmp-img-preview/
+.firecrawl/
+*-deprecated.webp
+schedule-*.png
+refund.png

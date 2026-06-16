@@ -45,9 +45,9 @@ export function localBusinessJsonLd(): JsonLd {
     openingHoursSpecification: [
       {
         '@type': 'OpeningHoursSpecification',
-        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        opens: '14:00',
-        closes: '22:00',
+        dayOfWeek: SITE.hours.days,
+        opens: SITE.hours.opens,
+        closes: SITE.hours.closes,
       },
     ],
     areaServed: {
@@ -82,9 +82,10 @@ export function placeJsonLd(loc: LocationInfo): JsonLd {
   return {
     '@context': 'https://schema.org',
     '@type': isMain ? ['LocalBusiness', 'EducationalOrganization'] : 'LocalBusiness',
-    ...(isMain ? { '@id': `${SITE.url}#organization` } : { '@id': `${SITE.url}/locations#${loc.key}` }),
+    ...(isMain ? { '@id': `${SITE.url}#organization` } : { '@id': `${SITE.url}/contact#${loc.key}` }),
     name: loc.name,
-    url: `${SITE.url}/locations`,
+    url: loc.website ?? `${SITE.url}/contact`,
+    ...(loc.website ? { sameAs: [loc.website] } : {}),
     address: {
       '@type': 'PostalAddress',
       streetAddress: loc.address,

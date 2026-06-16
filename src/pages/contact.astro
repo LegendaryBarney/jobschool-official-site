@@ -1,16 +1,18 @@
 ---
 import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import IconChalk from '~/components/IconChalk.astro';
 import TrialForm from '~/components/TrialForm';
-import { localBusinessJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
+import { localBusinessJsonLd, placeJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
 import { LOCATIONS } from '~/lib/locations';
 
 import spaceMainClassroom from '~/assets/images/spaces/main-classroom.webp';
-import spaceDiscussion from '~/assets/images/spaces/discussion.webp';
+import spaceEntrance from '~/assets/images/spaces/entrance.webp';
+import spaceShinobiEntrance from '~/assets/images/spaces/shinobi-entrance.webp';
 import PageHero from '~/components/PageHero.astro';
 
 const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
@@ -20,8 +22,24 @@ const shinobi = LOCATIONS.shinobi;
 const mapEmbedSrc = jobs.mapEmbedSrc;
 const mapLink = jobs.mapLink;
 
+// 試聽科目「自動對應」課程：選項取自 courses collection 的 subject 欄位（單一資料來源），
+// 編輯 src/content/courses/*.md 的 subject 即會同步到此表單。詳見 docs/CONTENT_EDITING.md。
+// SUBJECT_ORDER 僅控制顯示順序，未列到的科目仍會自動補在後面，最後固定附上「其他」。
+const SUBJECT_ORDER = ['數學', '物理', '化學', '生物', '自然', '社會', '英文', 'Python 程式設計'];
+const courseSubjects = [
+  ...new Set(
+    (await getCollection('courses')).map((c) => c.data.subject).filter((s): s is string => Boolean(s)),
+  ),
+].sort((a, b) => {
+  const ia = SUBJECT_ORDER.indexOf(a);
+  const ib = SUBJECT_ORDER.indexOf(b);
+  return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+});
+const trialSubjects = [...courseSubjects, '其他'];
+
 const jsonLd = [
   localBusinessJsonLd(),
+  placeJsonLd(shinobi),
   breadcrumbJsonLd([
     { label: '首頁', href: SITE.url + '/' },
     { label: '聯絡我們', href: SITE.url + '/contact' },
@@ -38,7 +56,7 @@ const jsonLd = [
     <Breadcrumbs items={[{ label: '聯絡我們' }]} />
   </div>
 
-  <PageHero variant="photo" eyebrow="聯絡我們" image={spaceDiscussion} imageAlt="賈伯斯數理教室討論區">
+  <PageHero variant="photo" eyebrow="聯絡我們" image={spaceEntrance} imageAlt="賈伯斯數理教室入口櫃台與玻璃門招牌">
     <Fragment slot="heading">試聽是免費的，<br class="md:hidden" />沒有任何壓力。</Fragment>
     <p class="max-w-2xl text-lg leading-relaxed">
       填寫右側表單，我們會在 1 個工作日內以電話或 LINE 聯絡您，安排試聽時段。
@@ -152,7 +170,7 @@ const jsonLd = [
               填寫後我們會主動聯絡您。表單僅用於安排試聽，不會用於行銷推播。
             </p>
             <div class="mt-6">
-              <TrialForm client:visible />
+              <TrialForm client:visible subjectOptions={trialSubjects} />
             </div>
           </div>
         </div>
@@ -160,23 +178,117 @@ const jsonLd = [
     </div>
   </SectionFadeUp>
 
-  {/* 姊妹品牌：忍文理教室（完整據點資訊移至 /locations） */}
+  {/* 姊妹品牌：忍文理教室（西區）完整據點。錨點 #locations 供課表/Footer 連入 */}
   <SectionFadeUp class="bg-cream/40 paper-grain border-t border-cream">
-    <div class="mx-auto max-w-6xl px-4 py-10 lg:px-8 lg:py-12">
-      <div class="rounded-xl border border-cream bg-chalk p-6 lg:p-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p class="font-handwriting text-xl text-espresso">另一個校區</p>
-          <p class="mt-1 text-charcoal/80 leading-relaxed">
-            西區家長可就近選擇姊妹品牌 {shinobi.name}（{shinobi.address}）。
-            兩據點的地址、電話、地圖與實景，請見教室據點頁。
-          </p>
+    <div id="locations" class="scroll-mt-24 mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
+      <p class="font-handwriting text-2xl text-espresso">姊妹品牌 · 西區</p>
+      <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
+        {
+          shinobi.website ? (
+            <a
+              href={shinobi.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline decoration-caramel/60 underline-offset-4 hover:text-espresso"
+            >
+              {shinobi.name}
+            </a>
+          ) : (
+            shinobi.name
+          )
+        }
+      </h2>
+      <p class="mt-3 max-w-2xl text-charcoal/80 leading-relaxed">
+        西區家長可就近選擇姊妹品牌 {shinobi.name}，由賈伯斯數理教室於 {shinobi.foundedYear} 年新設，
+        延續同樣的精緻小班理念。兩教室師資互通、課表合併排課，補課可跨區。
+      </p>
+
+      <div class="mt-8 grid gap-6 lg:grid-cols-5">
+        <div class="lg:col-span-3 space-y-6">
+          <figure class="overflow-hidden rounded-xl border border-cream bg-chalk">
+            <div class="aspect-[16/9] overflow-hidden bg-cream">
+              <Image
+                src={spaceShinobiEntrance}
+                alt="忍文理教室（西區杭州一街校區）門面入口，木質拉門與紅色「忍」字招牌"
+                widths={[480, 768, 1024]}
+                sizes="(max-width: 1024px) 100vw, 620px"
+                class="h-full w-full object-cover"
+              />
+            </div>
+            <figcaption class="px-4 py-2.5 text-sm text-charcoal/70">
+              西區 · 杭州一街校區門面入口
+            </figcaption>
+          </figure>
+
+          <div class="rounded-xl overflow-hidden border border-cream bg-cream/60">
+            <div class="aspect-[16/9] bg-cream">
+              <iframe
+                src={shinobi.mapEmbedSrc}
+                title={`${shinobi.name} 位置地圖`}
+                width="100%"
+                height="100%"
+                style="border: 0;"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                allowfullscreen
+              ></iframe>
+            </div>
+            <div class="p-4 text-sm">
+              <a
+                href={shinobi.mapLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-espresso hover:text-caramel font-medium"
+              >
+                在 Google 地圖打開 →
+              </a>
+            </div>
+          </div>
         </div>
-        <a
-          href="/locations"
-          class="inline-flex h-11 shrink-0 items-center rounded-lg bg-caramel px-5 text-sm font-medium text-charcoal hover:-translate-y-px transition-transform"
-        >
-          西區家長請看忍文理教室 →
-        </a>
+
+        <div class="lg:col-span-2 rounded-xl border border-cream bg-chalk p-5 space-y-4">
+          <div class="flex gap-3">
+            <span class="text-espresso shrink-0 mt-0.5">
+              <IconChalk name="flag" size={20} />
+            </span>
+            <div>
+              <p class="text-xs font-semibold tracking-wider text-espresso uppercase">地址</p>
+              <p class="mt-1 text-charcoal">{shinobi.address}</p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-espresso shrink-0 mt-0.5">
+              <IconChalk name="compass" size={20} />
+            </span>
+            <div>
+              <p class="text-xs font-semibold tracking-wider text-espresso uppercase">電話</p>
+              <a href={`tel:${shinobi.phoneTel}`} class="mt-1 block text-charcoal hover:text-espresso">
+                {shinobi.phone}
+              </a>
+              <p class="mt-1 text-xs text-charcoal/55">與賈伯斯共用客服電話</p>
+            </div>
+          </div>
+          {
+            shinobi.website && (
+              <div class="flex gap-3 pt-3 border-t border-cream/80">
+                <span class="text-espresso shrink-0 mt-0.5">
+                  <IconChalk name="spark" size={20} />
+                </span>
+                <div class="flex-1">
+                  <p class="text-xs font-semibold tracking-wider text-espresso uppercase">忍文理官網</p>
+                  <a
+                    href={shinobi.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="mt-2 inline-flex h-10 items-center rounded-lg border border-espresso bg-chalk px-4 text-sm font-medium text-espresso hover:bg-cream transition-colors"
+                  >
+                    前往 shinobicodeschool.com ↗
+                  </a>
+                </div>
+              </div>
+            )
+          }
+        </div>
       </div>
     </div>
   </SectionFadeUp>

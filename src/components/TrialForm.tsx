@@ -29,9 +29,14 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 
 interface TrialFormProps {
   endpoint?: string;
+  /** 科目選項，由頁面從 courses collection 帶入；未傳則用 schema 預設清單。 */
+  subjectOptions?: readonly string[];
 }
 
-export default function TrialForm({ endpoint = '/api/trial-signup' }: TrialFormProps) {
+export default function TrialForm({
+  endpoint = '/api/trial-signup',
+  subjectOptions = SUBJECTS,
+}: TrialFormProps) {
   const [data, setData] = useState<TrialFormData>(initialData);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>('idle');
@@ -208,7 +213,7 @@ export default function TrialForm({ endpoint = '/api/trial-signup' }: TrialFormP
           <span className="ml-2 text-xs text-charcoal/60">（可複選）</span>
         </legend>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {SUBJECTS.map((s) => {
+          {subjectOptions.map((s) => {
             const checked = (data.subjects ?? []).includes(s);
             return (
               <label

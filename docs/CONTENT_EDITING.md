@@ -680,6 +680,66 @@ sitemap({
 
 ---
 
-> **本手冊版本**：v1.1 / 2026-06-05（新增 §10 LP 快速複製 Playbook）
+## 11. 課表、試聽科目、營業時間、忍文理連結（直接改檔，不走 CMS）
+
+以下四類資料不在 Decap CMS 介面裡，直接改對應檔案即可（改完一樣 push feature branch → Vercel preview）。
+
+### 11.1 課表（/schedule）
+
+**改哪裡：** `src/content/schedule/<老師>.json`，一位老師一個檔：
+
+```json
+{
+  "teacher": "黃韋誌(Barney)",      // 顯示名稱
+  "teacherSlug": "barney",          // 對應 src/content/teachers/barney.md，自動帶科目
+  "order": 1,                        // 課表由小到大排序
+  "rooms": [
+    { "room": "賈伯斯", "days": ["週一", "週二", "週四"] },
+    { "room": "忍文理", "days": ["週三", "週五"] }
+  ]
+}
+```
+
+規則：
+- `room` 只能是 `"賈伯斯"` 或 `"忍文理"`；`days` 只能是 `"週一"`～`"週五"`。沒課的天不要列。
+- 同一老師同一天兩教室都上 → 兩個 `rooms` 的 `days` 都放那天，格內會並列「賈伯斯／忍」。
+- 左欄「科目」**自動**取自 `src/content/teachers/<slug>.md` 的 `subjects`；要改科目顯示就改老師檔。
+  也可在某個 `room` 內加 `"subjects": ["高中數學"]` 覆寫該老師在該教室的科目。
+- 新增老師：複製一個現有 json，改 `teacher`/`teacherSlug`/`order`/`rooms`。
+
+### 11.2 試聽科目（/contact 試聽表單）— 自動對應課程，免手動維護
+
+試聽表「想諮詢的科目」勾選項，自動取自 `src/content/courses/*.md` 每門課的 `subject` 去重，最後固定附「其他」。
+
+- 要多/少一個科目 → 讓某課程的 `subject` 用/不用那個科目即可（或新增/下架課程）。
+- 顯示順序在 `src/pages/contact.astro` 最上方的 `SUBJECT_ORDER` 調整；沒列到的自動排後面。
+- 設計目的：杜絕「課程有開但試聽表選不到」「試聽表有但其實沒開」的不一致。
+
+### 11.3 營業時間 — 只改一個地方
+
+`src/lib/seo.ts` 的 `SITE`：
+
+```ts
+openingHours: ['Mo-Sa 15:00-22:00'],                 // 結構化資料
+openingHoursDisplay: '週一至週六 15:00–22:00（週日休）', // 顯示文字
+hours: { opens: '15:00', closes: '22:00', days: [...] }, // JSON-LD
+```
+
+Footer、聯絡頁、JSON-LD 全部引用以上欄位，**不要在各頁另寫時間**。
+（已與 Google 商家同步：商家顯示 15:00 開門。）
+
+### 11.4 忍文理（姊妹品牌）官網連結
+
+網址統一在 `src/lib/locations.ts` 的 `LOCATIONS.shinobi.website`（`https://www.shinobicodeschool.com/`）。
+全站可點的「忍文理教室」（聯絡頁、課表圖例、關於頁里程碑、Footer）都引用它、新分頁開啟。換網址改這一欄即可。
+忍文理的地址、電話、地圖、開設年份也都在這個檔，是單一資料來源。
+
+### 11.5 教室據點
+
+兩教室據點已整併在 **/contact**：賈伯斯（東區）在上半部聯絡區、忍文理（西區）在下方「姊妹品牌 · 西區」區塊（錨點 `#locations`，含地圖與官網連結）。舊的 `/locations` 獨立頁已移除，舊網址自動導向 `/contact`（設定在 `astro.config.mjs` 的 `redirects`）。
+
+---
+
+> **本手冊版本**：v1.2 / 2026-06-13（新增 §11 課表／試聽科目／營業時間／忍文理連結直接改檔）
 > **適用範圍**：賈伯斯數理教室官方網站 v1（Astro 5 + Decap CMS）
 > **更新負責**：每當網站有新增集合 / 流程改動，由工程師更新此手冊；歷次版本見 git 歷史

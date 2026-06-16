@@ -15,6 +15,8 @@ export interface LocationInfo {
   geo?: { lat: number; lng: number };
   parentBrand?: 'jobs';
   foundedYear?: number;
+  /** 對外官方網站（如姊妹品牌忍文理）。提及品牌時的超連結目標。 */
+  website?: string;
   mapEmbedSrc: string;
   mapLink: string;
 }
@@ -48,6 +50,7 @@ export const LOCATIONS: Record<'jobs' | 'shinobi', LocationInfo> = {
     phoneTel: '+886-5-223-0303',
     parentBrand: 'jobs',
     foundedYear: 2023,
+    website: 'https://www.shinobicodeschool.com/',
     ...buildMapUrls(shinobiAddress),
   },
 };

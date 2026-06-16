@@ -16,14 +16,21 @@ export const GRADES = [
   '高三',
 ] as const;
 
+/**
+ * 試聽科目「預設清單」（fallback）。
+ * 實際表單選項由 contact.astro 從 courses collection 的 subject 欄位自動帶入，
+ * 編課程 Markdown 即會同步（見 docs/CONTENT_EDITING.md）。此處僅作為未傳入時的後備，
+ * 因此驗證採開放字串（subjects 為 string 陣列），不再以列舉鎖死。
+ */
 export const SUBJECTS = [
   '數學',
   '物理',
   '化學',
-  '英文',
   '生物',
-  '理化',
-  '英文作文',
+  '自然',
+  '社會',
+  '英文',
+  'Python 程式設計',
   '其他',
 ] as const;
 
@@ -37,7 +44,8 @@ export const TIME_SLOTS = [
 ] as const;
 
 export type Grade = (typeof GRADES)[number];
-export type Subject = (typeof SUBJECTS)[number];
+// 科目為開放字串（選項由課程資料動態帶入），非固定列舉。
+export type Subject = string;
 export type TimeSlot = (typeof TIME_SLOTS)[number];
 
 export const trialSchema = z.object({
@@ -57,8 +65,9 @@ export const trialSchema = z.object({
   school: z.string().max(40, '學校名稱過長').optional().or(z.literal('')),
   grade: z.enum(GRADES, { errorMap: () => ({ message: '請選擇年級' }) }),
   subjects: z
-    .array(z.enum(SUBJECTS))
-    .min(1, '請至少選擇一個諮詢科目'),
+    .array(z.string().min(1).max(20))
+    .min(1, '請至少選擇一個諮詢科目')
+    .max(12, '選擇的科目過多'),
   preferredTime: z
     .enum(TIME_SLOTS, { errorMap: () => ({ message: '請選擇試聽時段' }) })
     .optional(),

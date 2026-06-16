@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import { LOCATIONS } from '~/lib/locations';
-import { getActiveSocials, type SocialKey } from '~/lib/seo';
+import { getActiveSocials, type SocialKey, SITE } from '~/lib/seo';
 
 const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
 
@@ -26,7 +26,6 @@ const siteMap = [
   { href: '/posts', label: '部落格' },
   { href: '/testimonials', label: '學生見證' },
   { href: '/faq', label: '常見問題' },
-  { href: '/locations', label: '教室據點' },
   { href: '/contact', label: '聯絡我們' },
 ];
 
@@ -67,8 +66,7 @@ try {
         <address class="mt-4 not-italic text-sm text-charcoal/80 leading-relaxed">
           <span class="block">嘉義市東區康樂街 10 號</span>
           <span class="block">電話：<a href="tel:+88652230303" class="hover:text-espresso">(05) 223-0303</a></span>
-          <span class="block mt-1">營業時間：週一至週六 14:00–22:00</span>
-          <span class="block">週日休</span>
+          <span class="block mt-1">營業時間：{SITE.openingHoursDisplay}</span>
         </address>
         <a
           href={lineUrl}
@@ -123,12 +121,27 @@ try {
 
         <div class="mt-6 pt-5 border-t border-cream/80">
           <p class="text-xs font-semibold tracking-wider text-espresso uppercase">姊妹品牌</p>
-          <p class="mt-2 text-sm font-medium text-charcoal">{shinobi.name}</p>
+          <p class="mt-2 text-sm font-medium text-charcoal">
+            {
+              shinobi.website ? (
+                <a
+                  href={shinobi.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-espresso underline decoration-caramel/60 underline-offset-2"
+                >
+                  {shinobi.name}
+                </a>
+              ) : (
+                shinobi.name
+              )
+            }
+          </p>
           <address class="not-italic text-xs text-charcoal/70 leading-relaxed">
             {shinobi.address}
             {shinobi.foundedYear && <span class="text-charcoal/50"> · EST. {shinobi.foundedYear}</span>}
           </address>
-          <a href="/locations" class="mt-2 inline-block text-xs text-espresso hover:underline">
+          <a href="/contact#locations" class="mt-2 inline-block text-xs text-espresso hover:underline">
             兩教室據點與地圖 →
           </a>
         </div>
