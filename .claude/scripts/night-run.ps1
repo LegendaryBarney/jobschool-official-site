@@ -26,6 +26,20 @@
 #   啟用排程前必須先完成 `gh auth login` 與（若用 preview）`vercel login`。
 # ============================================================================
 
+# ============================================================================
+# 【已停用 DISABLED — 2026-06-16，業主拍板】
+#   夜跑自動化已停用。即使 Windows 工作排程器仍觸發本腳本，也會在此立即退出，
+#   不啟動 headless claude、不執行任何編排，不會動到 repo。
+#
+#   完全移除請另外到「Windows 工作排程器」刪除/停用對應的排程任務（本 guard
+#   只擋腳本內容，擋不掉排程器的觸發本身——觸發後會跑到這裡空轉即退出）。
+#
+#   要重新啟用：刪除下方這個 guard 區塊（到 `exit 0` 為止），並確認 Windows
+#   工作排程器任務仍在。詳見 docs/NIGHT_RUN_DESIGN.md 頂部與 CLAUDE.md §3。
+# ============================================================================
+Write-Output "[night-run] 已於 2026-06-16 停用：不執行夜跑編排，立即結束。"
+exit 0
+
 $ErrorActionPreference = 'Stop'
 $ProjectDir = 'C:\Users\TedChipDale\Documents\jobs_official_site'
 Set-Location $ProjectDir
