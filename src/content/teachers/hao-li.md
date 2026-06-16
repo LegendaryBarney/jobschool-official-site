@@ -1,7 +1,7 @@
 ---
 name: 陳世倫
 englishName: 豪理
-title: 物理化學科主任
+title: 高中物理化學講師
 photo: ../../assets/images/teachers/haoli.webp
 education:
   - 國立嘉義大學 應用物理學系 學士

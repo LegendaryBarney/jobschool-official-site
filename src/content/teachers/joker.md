@@ -1,7 +1,7 @@
 ---
 name: 葉謹寬
 englishName: Joker
-title: 喬克英文 主任講師
+title: 國高中英文講師
 photo: ../../assets/images/teachers/joker.webp
 education:
   - 國立高雄師範大學 英語學系（在學）

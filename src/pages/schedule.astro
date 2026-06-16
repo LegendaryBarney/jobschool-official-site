@@ -7,6 +7,7 @@ import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
 import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
+import { LOCATIONS } from '~/lib/locations';
 
 // ── 課表：JSON 資料驅動，科目取自 teachers collection ──────
 // 設計目標：客戶用「科目」找老師，而非用老師名字找。
@@ -67,7 +68,7 @@ function buildTeacherRows(): TeacherRow[] {
 const teacherRows = buildTeacherRows();
 
 // 教室對照（圖例與地址說明用）。
-const roomLegend: { key: Room; short: string; label: string; note: string }[] = [
+const roomLegend: { key: Room; short: string; label: string; note: string; href?: string }[] = [
   {
     key: '賈伯斯',
     short: ROOM_SHORT['賈伯斯'],
@@ -79,6 +80,7 @@ const roomLegend: { key: Room; short: string; label: string; note: string }[] = 
     short: ROOM_SHORT['忍文理'],
     label: '忍文理教室',
     note: '嘉義市西區杭州一街 38 號（姊妹品牌）',
+    href: LOCATIONS.shinobi.website,
   },
 ];
 
@@ -132,7 +134,7 @@ const jsonLd = [
       <p class="mt-4 max-w-3xl text-charcoal/80 leading-relaxed">
         下列為兩間教室的固定班教師授課日程。家教採個別排課，不列入固定課表，請逕洽課務人員安排。
         各時段之確切上課時間與科目開班狀況，以教室公告為準。
-        各教室位置請見 <a href="/locations" class="text-espresso underline hover:text-caramel">教室據點 →</a>
+        各教室位置請見 <a href="/contact#locations" class="text-espresso underline hover:text-caramel">教室據點 →</a>
       </p>
 
       {/* 教室圖例：說明格內短標籤對應的教室與地址 */}
@@ -146,7 +148,20 @@ const jsonLd = [
                 </span>
               </dt>
               <dd class="text-charcoal/70">
-                <span class="font-medium text-charcoal">{r.label}</span>
+                {
+                  r.href ? (
+                    <a
+                      href={r.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="font-medium text-charcoal underline decoration-caramel/60 underline-offset-2 hover:text-espresso"
+                    >
+                      {r.label}
+                    </a>
+                  ) : (
+                    <span class="font-medium text-charcoal">{r.label}</span>
+                  )
+                }
                 <span class="ml-1 text-charcoal/60">{r.note}</span>
               </dd>
             </div>

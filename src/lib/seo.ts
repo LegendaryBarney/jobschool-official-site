@@ -118,8 +118,15 @@ export const SITE = {
   phoneDisplay: '(05) 223-0303',
   email: 'contact@jobsedu.com.tw',
   geo: { latitude: 23.4796, longitude: 120.4538 },
-  openingHours: ['Mo-Sa 14:00-22:00'],
-  openingHoursDisplay: '週一至週六 14:00–22:00（週日休）',
+  // 營業時間單一資料來源：Footer 與 JSON-LD 一律引用以下欄位，勿在各頁硬寫。
+  // 與 Google 商家同步（2026-06：商家顯示「Opens 3 PM＝15:00」）。
+  openingHours: ['Mo-Sa 15:00-22:00'],
+  openingHoursDisplay: '週一至週六 15:00–22:00（週日休）',
+  hours: {
+    opens: '15:00',
+    closes: '22:00',
+    days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  },
   founded: 2014,
   socials: {
     instagram:
