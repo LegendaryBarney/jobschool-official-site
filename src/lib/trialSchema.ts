@@ -71,9 +71,36 @@ export const trialSchema = z.object({
   preferredTime: z
     .enum(TIME_SLOTS, { errorMap: () => ({ message: '請選擇試聽時段' }) })
     .optional(),
+  /** 由課程頁帶入的預設課程 slug（選填，後端對 DB 白名單檢核）。 */
+  courseSlug: z.string().max(80, '課程代碼過長').optional().or(z.literal('')),
+  /** 指定想找的老師 slug（選填，後端對 DB 白名單檢核）。 */
+  preferredTeacherSlug: z.string().max(80, '老師代碼過長').optional().or(z.literal('')),
+  /** 希望校區 key（選填；含特殊值 online / discuss，後端對 DB 白名單檢核）。 */
+  preferredLocationKey: z.string().max(40, '校區代碼過長').optional().or(z.literal('')),
   notes: z.string().max(500, '備註長度上限 500 字').optional().or(z.literal('')),
   turnstileToken: z.string().optional(),
 });
 
 export type TrialFormData = z.input<typeof trialSchema>;
 export type TrialFormParsed = z.output<typeof trialSchema>;
+
+/* ------------------------------------------------------------------ */
+/*  表單選項型別與年級→學制對照（client-safe，不依賴 astro:content）       */
+/*  classData.ts（server-only）會 re-export 這些，供後端組裝選項使用。      */
+/* ------------------------------------------------------------------ */
+export type Stage = '國中' | '高中';
+
+export const GRADE_TO_STAGE: Record<string, Stage> = {
+  國一: '國中', 國二: '國中', 國三: '國中',
+  高一: '高中', 高二: '高中', 高三: '高中',
+};
+
+/** 試聽表單的 DB 驅動選項（build 時由 getTrialFormOptions() 組裝）。 */
+export interface TrialFormOptions {
+  grades: string[];
+  subjectsByGrade: Record<Stage, string[]>;
+  allSubjects: string[];
+  teachers: { slug: string; name: string; englishName?: string | null; subjects: string[]; isTutor: boolean }[];
+  courses: { slug: string; name: string; grade: string; subject: string; teacherSlug: string }[];
+  locations: { key: string; name: string }[];
+}

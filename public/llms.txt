@@ -1,6 +1,6 @@
 # 賈伯斯數理教室 (Jobs Math & Science Academy)
 
-> 嘉義在地的精英小班補習機構，由臺大資工碩士領軍，師資來自臺、交、高師大、嘉義大學、臺北市立大學等背景，2014 年創立、品牌已邁入第 12 年，專攻國中至高中數理與相關科目。最後更新：2026-06-12。
+> 嘉義在地的精英小班補習機構，由臺大資工碩士領軍，師資來自臺、交、高師大、嘉義大學、臺北市立大學等背景，2014 年創立、品牌已邁入第 12 年，專攻國中至高中數理與相關科目。最後更新：2026-06-17。
 
 ## 品牌摘要
 
@@ -44,11 +44,11 @@
 
 ## 師資快覽
 
-- [黃韋誌](https://jobsedu.com.tw/teachers/barney) — 創辦人、老師與主任（高中數學、國中數學、國中生物、國中理化、國中社會、高中社會、Python 程式設計）
-- [黃中懌](https://jobsedu.com.tw/teachers/seba) — 高中數學專任講師（高中數學）
-- [陳世倫](https://jobsedu.com.tw/teachers/hao-li) — 物理化學科主任（高中物理、高中化學）
-- [陳俊穎](https://jobsedu.com.tw/teachers/jason) — 數學科專任講師（國中數學、升高中的數學銜接基礎班）
-- [葉謹寬](https://jobsedu.com.tw/teachers/joker) — 喬克英文 主任講師（國中英文、高中英文、英文作文）
+- [黃韋誌](https://jobsedu.com.tw/teachers/barney) — 班主任、國中自然/國高中數學/社會/程式講師（高中數學、國中數學、國中生物、國中理化、國中社會、高中社會、Python 程式設計）
+- [黃中懌](https://jobsedu.com.tw/teachers/seba) — 高中數學講師（高中數學）
+- [陳世倫](https://jobsedu.com.tw/teachers/hao-li) — 高中物理化學講師（高中物理、高中化學）
+- [陳俊穎](https://jobsedu.com.tw/teachers/jason) — 國中數學講師（國中數學、升高中的數學銜接基礎班）
+- [葉謹寬](https://jobsedu.com.tw/teachers/joker) — 國高中英文講師（國中英文、高中英文、英文作文）
 - [林貞君](https://jobsedu.com.tw/teachers/sandra) — 英文作文 1 對 1 遠端家教（高中英文作文、高中英文、國中英文）
 - [陳淑儀](https://jobsedu.com.tw/teachers/chili) — 專職一對一國中和高中英文家教（國中英文、高中英文）
 - [侯恩平](https://jobsedu.com.tw/teachers/louis) — 專職一對一國中數學和理化家教（國中數學、國中理化）

@@ -1,6 +1,5 @@
 ---
 import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
@@ -9,6 +8,7 @@ import TrialForm from '~/components/TrialForm';
 import { localBusinessJsonLd, placeJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
 import { LOCATIONS } from '~/lib/locations';
+import { getTrialFormOptions } from '~/lib/classData';
 
 import spaceMainClassroom from '~/assets/images/spaces/main-classroom.webp';
 import spaceEntrance from '~/assets/images/spaces/entrance.webp';
@@ -22,20 +22,9 @@ const shinobi = LOCATIONS.shinobi;
 const mapEmbedSrc = jobs.mapEmbedSrc;
 const mapLink = jobs.mapLink;
 
-// 試聽科目「自動對應」課程：選項取自 courses collection 的 subject 欄位（單一資料來源），
-// 編輯 src/content/courses/*.md 的 subject 即會同步到此表單。詳見 docs/CONTENT_EDITING.md。
-// SUBJECT_ORDER 僅控制顯示順序，未列到的科目仍會自動補在後面，最後固定附上「其他」。
-const SUBJECT_ORDER = ['數學', '物理', '化學', '生物', '自然', '社會', '英文', 'Python 程式設計'];
-const courseSubjects = [
-  ...new Set(
-    (await getCollection('courses')).map((c) => c.data.subject).filter((s): s is string => Boolean(s)),
-  ),
-].sort((a, b) => {
-  const ia = SUBJECT_ORDER.indexOf(a);
-  const ib = SUBJECT_ORDER.indexOf(b);
-  return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-});
-const trialSubjects = [...courseSubjects, '其他'];
+// 試聽表單選項：由 classData 統一供應（Supabase 優先、content 後備），
+// 含年級 / 科目（依學制級聯）/ 老師 / 課程 / 校區，供 TrialForm 做級聯與後端白名單檢核。
+const trialFormOptions = await getTrialFormOptions();
 
 const jsonLd = [
   localBusinessJsonLd(),
@@ -170,7 +159,7 @@ const jsonLd = [
               填寫後我們會主動聯絡您。表單僅用於安排試聽，不會用於行銷推播。
             </p>
             <div class="mt-6">
-              <TrialForm client:visible subjectOptions={trialSubjects} />
+              <TrialForm client:visible options={trialFormOptions} />
             </div>
           </div>
         </div>
