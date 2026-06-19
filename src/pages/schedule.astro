@@ -23,48 +23,61 @@ const data = await getClassData();
 const WEEKDAY_NUMS = [1, 2, 3, 4, 5] as const;
 
 interface CourseRow {
-  courseSlug: string;
-  courseName: string;
+  // 列鍵 = 學制+科目+老師（同一(科目+人)收成一列，符合業主「課程(科目+人)為列」定義）。
+  rowKey: string;
   subject: string;
   teacherName: string;
   englishName: string | null;
   grade: '國中' | '高中';
+  // 此(科目+人)涵蓋的課程名（如 高一/高二/高三數學三班），供顯示與搜尋。
+  courseNames: string[];
   // 星期(1..5) → 該日授課教室短標籤清單；無授課之星期不入鍵。
   byDay: Map<number, string[]>;
-  // 該課程出現過的教室短標籤（去重，供篩選用）。
+  // 該列出現過的教室短標籤（去重，供篩選用）。
   locations: string[];
+  // 排序用：該列涵蓋課程的最小 order。
+  sortOrder: number;
 }
 
-// 以 courseSlug 聚合 offerings 成「課程列」。
+// 以「學制+科目+老師」聚合 offerings 成「課程列」：
+// 同一位老師、同一科目（同學制）的多個班（如高一/高二/高三數學）收成一列，
+// 避免出現多列一模一樣的「數學 ／ Barney」。各班名以次要標籤呈現、不漏資訊。
 function buildCourseRows(): CourseRow[] {
+  const order = new Map(data.courses.map((c, i) => [c.slug, c.order ?? i]));
   const map = new Map<string, CourseRow>();
   for (const o of data.offerings) {
-    let row = map.get(o.courseSlug);
+    const key = `${o.grade}__${o.subject}__${o.teacherSlug}`;
+    let row = map.get(key);
     if (!row) {
       row = {
-        courseSlug: o.courseSlug,
-        courseName: o.courseName,
+        rowKey: key,
         subject: o.subject,
         teacherName: o.teacherName,
         englishName: o.englishName ?? null,
         grade: o.grade,
+        courseNames: [],
         byDay: new Map<number, string[]>(),
         locations: [],
+        sortOrder: Number.MAX_SAFE_INTEGER,
       };
-      map.set(o.courseSlug, row);
+      map.set(key, row);
     }
+    if (!row.courseNames.includes(o.courseName)) row.courseNames.push(o.courseName);
+    row.sortOrder = Math.min(row.sortOrder, order.get(o.courseSlug) ?? Number.MAX_SAFE_INTEGER);
     const dayList = row.byDay.get(o.weekday) ?? [];
     if (!dayList.includes(o.locationShort)) dayList.push(o.locationShort);
     row.byDay.set(o.weekday, dayList);
     if (!row.locations.includes(o.locationShort)) row.locations.push(o.locationShort);
   }
-  // 依 courses 目錄的 order 排序，找不到者排末。
-  const order = new Map(data.courses.map((c, i) => [c.slug, c.order ?? i]));
-  return [...map.values()].sort(
-    (a, b) =>
-      (order.get(a.courseSlug) ?? Number.MAX_SAFE_INTEGER) -
-      (order.get(b.courseSlug) ?? Number.MAX_SAFE_INTEGER),
-  );
+  // 每列內的班名依課程目錄 order 排序（高一→高二→高三 自然順序）。
+  const nameOrder = new Map(data.courses.map((c) => [c.name, c.order ?? Number.MAX_SAFE_INTEGER]));
+  for (const row of map.values()) {
+    row.courseNames.sort(
+      (a, b) =>
+        (nameOrder.get(a) ?? Number.MAX_SAFE_INTEGER) - (nameOrder.get(b) ?? Number.MAX_SAFE_INTEGER),
+    );
+  }
+  return [...map.values()].sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 const courseRows = buildCourseRows();
@@ -79,8 +92,8 @@ const presentGrades = grouped.map((g) => g.grade);
 
 // 篩選島的可序列化資料。
 const filterRows: ScheduleFilterRow[] = courseRows.map((r) => ({
-  courseSlug: r.courseSlug,
-  courseName: r.courseName,
+  courseSlug: r.rowKey,
+  courseName: r.courseNames.join(' '),
   subject: r.subject,
   teacherName: r.teacherName,
   englishName: r.englishName,
@@ -248,7 +261,7 @@ const jsonLd = [
                       {group.rows.map((row) => (
                         <tr
                           data-course-row
-                          data-course-slug={row.courseSlug}
+                          data-course-slug={row.rowKey}
                           data-grade={row.grade}
                           class="border-b border-cream/70 align-top"
                         >
@@ -264,6 +277,9 @@ const jsonLd = [
                               {row.englishName && (
                                 <span class="ml-1 text-charcoal/45">{row.englishName}</span>
                               )}
+                            </span>
+                            <span class="mt-1 block max-w-[18rem] whitespace-normal text-xs leading-snug text-charcoal/45">
+                              {row.courseNames.join('・')}
                             </span>
                           </th>
                           {WEEKDAY_NUMS.map((n) => {
