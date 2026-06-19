@@ -10,6 +10,7 @@ import {
   type TimeSlot,
   type TrialFormData,
 } from '~/lib/trialSchema';
+import { GRADE_TO_STAGE, type TrialFormOptions } from '~/lib/trialSchema';
 
 type FieldErrors = Partial<Record<keyof TrialFormData, string>>;
 
@@ -21,23 +22,47 @@ const initialData: TrialFormData = {
   grade: undefined as unknown as Grade,
   subjects: [],
   preferredTime: undefined,
+  courseSlug: '',
+  preferredTeacherSlug: '',
+  preferredLocationKey: '',
   notes: '',
   turnstileToken: '',
 };
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
+/** 校區下拉的特殊值（非實體 DB 校區）。後端白名單會額外接受這兩個 key。 */
+const LOCATION_ONLINE = 'online';
+const LOCATION_DISCUSS = 'discuss';
+
 interface TrialFormProps {
   endpoint?: string;
-  /** 科目選項，由頁面從 courses collection 帶入；未傳則用 schema 預設清單。 */
+  /**
+   * DB 驅動的級聯選項（年級 / 科目 / 老師 / 校區）。
+   * 由頁面 frontmatter `await getTrialFormOptions()` 帶入。
+   * 未傳入時退回 schema 預設常數（向後相容、零回歸）。
+   */
+  options?: TrialFormOptions;
+  /** （向後相容）僅傳科目選項；未提供 options 時使用。 */
   subjectOptions?: readonly string[];
+  /** 課程頁帶入的預設課程 slug，連同表單一起送出供後端對應。 */
+  defaultCourseSlug?: string;
+  /** 課程頁帶入的預設勾選科目。 */
+  defaultSubjects?: readonly string[];
 }
 
 export default function TrialForm({
   endpoint = '/api/trial-signup',
+  options,
   subjectOptions = SUBJECTS,
+  defaultCourseSlug,
+  defaultSubjects,
 }: TrialFormProps) {
-  const [data, setData] = useState<TrialFormData>(initialData);
+  const [data, setData] = useState<TrialFormData>(() => ({
+    ...initialData,
+    courseSlug: defaultCourseSlug ?? '',
+    subjects: defaultSubjects ? [...defaultSubjects] : [],
+  }));
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>('idle');
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -47,6 +72,41 @@ export default function TrialForm({
     [],
   );
   const lineUrl = (import.meta.env.PUBLIC_LINE_URL as string | undefined) || '#';
+
+  // 已選年級 → 學制（國中 / 高中）
+  const stage = data.grade ? GRADE_TO_STAGE[data.grade] : undefined;
+
+  // 級聯①：科目選項依學制過濾；未選年級或無 options 時退回開放清單。
+  const subjectChoices = useMemo<string[]>(() => {
+    if (options) {
+      if (stage) return options.subjectsByGrade[stage] ?? options.allSubjects;
+      return options.allSubjects;
+    }
+    return [...subjectOptions];
+  }, [options, stage, subjectOptions]);
+
+  // 級聯②：老師選項依「已選科目 ∩ 老師可教科目」過濾；未選科目時顯示全部（同學制優先）。
+  const teacherChoices = useMemo(() => {
+    if (!options) return [];
+    const picked = data.subjects ?? [];
+    const norm = (s: string) => s.replace(/^(國中|高中|國小)/u, '').trim();
+    const pickedNorm = new Set(picked.map(norm));
+    return options.teachers.filter((t) => {
+      if (pickedNorm.size === 0) return true;
+      const teacherSubjects = t.subjects.map(norm);
+      return teacherSubjects.some((ts) => pickedNorm.has(ts));
+    });
+  }, [options, data.subjects]);
+
+  // 校區選項：DB 實體校區 + 線上 + 再討論。
+  const locationChoices = useMemo(() => {
+    const base = options?.locations ?? [];
+    return [
+      ...base.map((l) => ({ key: l.key, name: l.name })),
+      { key: LOCATION_ONLINE, name: '線上 / 遠端' },
+      { key: LOCATION_DISCUSS, name: '再討論' },
+    ];
+  }, [options]);
 
   function update<K extends keyof TrialFormData>(key: K, value: TrialFormData[K]) {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -59,12 +119,54 @@ export default function TrialForm({
     }
   }
 
+  function onGradeChange(next: Grade) {
+    setData((prev) => {
+      const nextStage = next ? GRADE_TO_STAGE[next] : undefined;
+      // 換年級後，把不屬於新學制的已選科目清掉，避免送出非法選項。
+      let nextSubjects = prev.subjects ?? [];
+      let nextTeacher = prev.preferredTeacherSlug;
+      if (options && nextStage) {
+        const allowed = new Set(options.subjectsByGrade[nextStage] ?? options.allSubjects);
+        nextSubjects = nextSubjects.filter((s) => allowed.has(s));
+        if (nextSubjects.length !== (prev.subjects ?? []).length) nextTeacher = '';
+      }
+      return { ...prev, grade: next, subjects: nextSubjects, preferredTeacherSlug: nextTeacher };
+    });
+    if (errors.grade) {
+      setErrors((prev) => {
+        const n = { ...prev };
+        delete n.grade;
+        return n;
+      });
+    }
+  }
+
   function toggleSubject(s: Subject) {
     const current = data.subjects ?? [];
     const next = current.includes(s)
       ? current.filter((x) => x !== s)
       : [...current, s];
-    update('subjects', next);
+    // 若取消的科目使目前指定的老師失去交集，順手清掉避免非法送出。
+    setData((prev) => {
+      let nextTeacher = prev.preferredTeacherSlug;
+      if (options && nextTeacher) {
+        const norm = (x: string) => x.replace(/^(國中|高中|國小)/u, '').trim();
+        const pickedNorm = new Set(next.map(norm));
+        const teacher = options.teachers.find((t) => t.slug === nextTeacher);
+        const stillValid =
+          next.length === 0 ||
+          (teacher && teacher.subjects.map(norm).some((ts) => pickedNorm.has(ts)));
+        if (!stillValid) nextTeacher = '';
+      }
+      return { ...prev, subjects: next, preferredTeacherSlug: nextTeacher };
+    });
+    if (errors.subjects) {
+      setErrors((prev) => {
+        const n = { ...prev };
+        delete n.subjects;
+        return n;
+      });
+    }
   }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -79,6 +181,15 @@ export default function TrialForm({
         if (key && !fieldErrors[key]) fieldErrors[key] = issue.message;
       }
       setErrors(fieldErrors);
+      // 聚焦第一個錯誤欄位，並保留所有已填資料。
+      const firstKey = Object.keys(fieldErrors)[0];
+      if (firstKey) {
+        requestAnimationFrame(() => {
+          document
+            .querySelector<HTMLElement>(`[data-field="${firstKey}"]`)
+            ?.focus?.();
+        });
+      }
       return;
     }
 
@@ -94,7 +205,7 @@ export default function TrialForm({
         throw new Error(json.error || '送出失敗，請稍後再試');
       }
       setStatus('success');
-      setData(initialData);
+      setData({ ...initialData, courseSlug: defaultCourseSlug ?? '' });
     } catch (err) {
       setStatus('error');
       setSubmitError(err instanceof Error ? err.message : '送出失敗，請稍後再試');
@@ -123,6 +234,8 @@ export default function TrialForm({
   }
 
   const submitting = status === 'submitting';
+  const grades: readonly string[] = options?.grades ?? GRADES;
+  const subjectsDisabled = Boolean(options) && !data.grade;
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
@@ -130,6 +243,7 @@ export default function TrialForm({
         <Field label="姓名" required error={errors.name}>
           <input
             type="text"
+            data-field="name"
             autoComplete="name"
             value={data.name}
             onChange={(e) => update('name', e.target.value)}
@@ -141,6 +255,7 @@ export default function TrialForm({
         <Field label="電話（手機）" required error={errors.phone}>
           <input
             type="tel"
+            data-field="phone"
             inputMode="numeric"
             autoComplete="tel"
             placeholder="09xxxxxxxx"
@@ -158,6 +273,7 @@ export default function TrialForm({
         >
           <input
             type="email"
+            data-field="email"
             autoComplete="email"
             inputMode="email"
             placeholder="parent@example.com"
@@ -168,9 +284,10 @@ export default function TrialForm({
           />
         </Field>
 
-        <Field label="就讀學校" error={errors.school as string | undefined}>
+        <Field label="就讀學校（選填）" error={errors.school as string | undefined}>
           <input
             type="text"
+            data-field="school"
             placeholder="例：嘉義高中"
             value={data.school ?? ''}
             onChange={(e) => update('school', e.target.value)}
@@ -180,25 +297,27 @@ export default function TrialForm({
 
         <Field label="年級" required error={errors.grade}>
           <select
+            data-field="grade"
             value={data.grade ?? ''}
-            onChange={(e) => update('grade', e.target.value as Grade)}
+            onChange={(e) => onGradeChange(e.target.value as Grade)}
             className="form-input"
             aria-invalid={Boolean(errors.grade)}
           >
             <option value="">請選擇</option>
-            {GRADES.map((g) => (
+            {grades.map((g) => (
               <option key={g} value={g}>{g}</option>
             ))}
           </select>
         </Field>
 
-        <Field label="希望試聽時段" error={errors.preferredTime}>
+        <Field label="希望試聽時段（選填）" error={errors.preferredTime}>
           <select
+            data-field="preferredTime"
             value={data.preferredTime ?? ''}
             onChange={(e) => update('preferredTime', (e.target.value || undefined) as TimeSlot | undefined)}
             className="form-input"
           >
-            <option value="">請選擇（可不選）</option>
+            <option value="">不指定</option>
             {TIME_SLOTS.map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
@@ -206,42 +325,116 @@ export default function TrialForm({
         </Field>
       </div>
 
-      <fieldset>
-        <legend className="block text-sm font-medium text-charcoal mb-2">
-          想諮詢的科目
-          <span className="text-sienna ml-1">*</span>
-          <span className="ml-2 text-xs text-charcoal/60">（可複選）</span>
+      {/* 諮詢科目：依年級學制級聯過濾的複選 chips */}
+      <fieldset data-field="subjects">
+        <legend className="flex flex-wrap items-baseline gap-x-2 text-sm font-medium text-charcoal mb-2">
+          <span>
+            想諮詢的科目
+            <span className="text-sienna ml-1">*</span>
+          </span>
+          <span className="text-xs text-charcoal/55">（可複選）</span>
+          {options && stage && (
+            <span className="text-xs text-espresso/80">已依「{stage}」課程顯示</span>
+          )}
         </legend>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {subjectOptions.map((s) => {
-            const checked = (data.subjects ?? []).includes(s);
-            return (
-              <label
-                key={s}
-                className={`cursor-pointer select-none rounded-md border px-3 py-2 text-sm transition-colors ${
-                  checked
-                    ? 'border-caramel bg-caramel/15 text-charcoal'
-                    : 'border-cream bg-chalk text-charcoal/80 hover:border-espresso/40'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  className="sr-only"
-                  checked={checked}
-                  onChange={() => toggleSubject(s)}
-                />
-                {s}
-              </label>
-            );
-          })}
-        </div>
+
+        {subjectsDisabled ? (
+          <p className="rounded-md border border-dashed border-cream bg-cream/30 px-3 py-3 text-sm text-charcoal/60">
+            請先選擇年級，我們會列出對應的科目。
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {subjectChoices.map((s) => {
+              const checked = (data.subjects ?? []).includes(s);
+              return (
+                <label
+                  key={s}
+                  className={`group relative cursor-pointer select-none rounded-lg border px-3 py-2.5 text-sm transition-all duration-200 ease-[var(--ease-brand)] ${
+                    checked
+                      ? 'border-caramel bg-caramel/15 text-charcoal shadow-sm ring-1 ring-caramel/40'
+                      : 'border-cream bg-chalk text-charcoal/80 hover:-translate-y-px hover:border-espresso/40 hover:shadow-sm'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={checked}
+                    onChange={() => toggleSubject(s)}
+                  />
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      aria-hidden="true"
+                      className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border text-[10px] leading-none transition-colors ${
+                        checked
+                          ? 'border-caramel bg-caramel text-charcoal'
+                          : 'border-espresso/30 bg-transparent text-transparent'
+                      }`}
+                    >
+                      ✓
+                    </span>
+                    {s}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        )}
         {errors.subjects && (
           <p className="mt-1.5 text-xs text-sienna">{errors.subjects}</p>
         )}
       </fieldset>
 
-      <Field label="備註" error={errors.notes as string | undefined}>
+      {/* 進階（選填）：想找的老師 / 希望校區 — 僅在有 DB 選項時顯示 */}
+      {options && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field
+            label="想找的老師（選填）"
+            error={errors.preferredTeacherSlug as string | undefined}
+            hint={
+              (data.subjects ?? []).length > 0
+                ? '已依您選的科目過濾'
+                : '可先選科目再挑老師，或保持不指定'
+            }
+          >
+            <select
+              data-field="preferredTeacherSlug"
+              value={data.preferredTeacherSlug ?? ''}
+              onChange={(e) => update('preferredTeacherSlug', e.target.value)}
+              className="form-input"
+            >
+              <option value="">不指定</option>
+              {teacherChoices.map((t) => (
+                <option key={t.slug} value={t.slug}>
+                  {t.name}
+                  {t.englishName ? `（${t.englishName}）` : ''}
+                  {t.isTutor ? ' · 1對1家教' : ''}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field
+            label="希望校區（選填）"
+            error={errors.preferredLocationKey as string | undefined}
+          >
+            <select
+              data-field="preferredLocationKey"
+              value={data.preferredLocationKey ?? ''}
+              onChange={(e) => update('preferredLocationKey', e.target.value)}
+              className="form-input"
+            >
+              <option value="">不指定</option>
+              {locationChoices.map((l) => (
+                <option key={l.key} value={l.key}>{l.name}</option>
+              ))}
+            </select>
+          </Field>
+        </div>
+      )}
+
+      <Field label="備註（選填）" error={errors.notes as string | undefined}>
         <textarea
+          data-field="notes"
           rows={3}
           maxLength={500}
           placeholder="想特別告訴我們的事，例如：學習狀況、希望解決的問題"

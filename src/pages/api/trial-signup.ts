@@ -1,5 +1,10 @@
 import type { APIRoute } from 'astro';
 import { trialSchema, type TrialFormParsed } from '~/lib/trialSchema';
+import { getTrialFormOptions } from '~/lib/classData';
+import { getSupabaseAdmin } from '~/lib/supabase';
+
+/** 校區下拉的特殊值（非實體 DB 校區），白名單須額外接受。 */
+const SPECIAL_LOCATION_KEYS = ['online', 'discuss'];
 
 // SSR endpoint（hybrid 模式下，個別頁面標記 prerender = false 即可）
 export const prerender = false;
@@ -308,6 +313,18 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  // DB 白名單檢核：subjects / preferredTeacherSlug / courseSlug / preferredLocationKey
+  // 必須屬於合法選項。取不到白名單（未設 Supabase / content 後備）時亦能比對，
+  // 因 getTrialFormOptions() 在無 DB 時改讀 content collections。
+  const whitelistError = await validateAgainstWhitelist(parsed.data);
+  if (whitelistError) {
+    return jsonResponse(
+      400,
+      { ok: false, error: 'INVALID_INPUT' satisfies ErrorCode, detail: whitelistError },
+      origin,
+    );
+  }
+
   // Turnstile 驗證
   const turnstileOk = await verifyTurnstile(parsed.data.turnstileToken, ip === 'unknown' ? null : ip);
   if (!turnstileOk) {
@@ -328,7 +345,10 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // 成功：未來如需資料庫，補 Vercel KV / Postgres 即可
+  // 寫入 Supabase（service_role）。未設 key → noop 降級；寫入失敗只記 log 不阻擋回應。
+  await persistSignup(parsed.data, request);
+
+  // 成功
   return jsonResponse(
     200,
     {
@@ -338,12 +358,94 @@ export const POST: APIRoute = async ({ request }) => {
         mailResult.mode === 'noop'
           ? '已收到，將由人工處理（目前環境未設定寄信服務）'
           : '已收到，將於 1 個工作日內聯絡您',
-      // 提示後續可加 DB
-      note: '目前僅以 email 通知；未來如需保存查詢，建議補 Vercel KV / Postgres。',
     },
     origin,
   );
 };
+
+/* ------------------------------------------------------------------ */
+/*  DB 白名單檢核                                                      */
+/* ------------------------------------------------------------------ */
+/**
+ * 對照 getTrialFormOptions() 的合法選項，檢核使用者送出的 subjects / 老師 /
+ * 課程 / 校區是否都存在。回傳 null 表通過；回傳字串表第一個違規原因。
+ * 取白名單失敗（極端情況）時採寬鬆放行，避免擋掉正常送單（email 仍會通知）。
+ */
+async function validateAgainstWhitelist(d: TrialFormParsed): Promise<string | null> {
+  let options;
+  try {
+    options = await getTrialFormOptions();
+  } catch (err) {
+    console.warn('[trial-signup] 取白名單失敗，略過 DB 白名單檢核', err);
+    return null;
+  }
+
+  // 科目：依年級學制過濾後的合法科目（含 allSubjects 後備）。
+  const norm = (s: string) => s.replace(/^(國中|高中|國小)/u, '').trim();
+  const validSubjects = new Set(options.allSubjects.map(norm));
+  for (const s of d.subjects ?? []) {
+    if (!validSubjects.has(norm(s))) return `不合法的科目：${s}`;
+  }
+
+  if (d.preferredTeacherSlug && d.preferredTeacherSlug !== '') {
+    if (!options.teachers.some((t) => t.slug === d.preferredTeacherSlug)) {
+      return `不合法的老師：${d.preferredTeacherSlug}`;
+    }
+  }
+
+  if (d.courseSlug && d.courseSlug !== '') {
+    if (!options.courses.some((c) => c.slug === d.courseSlug)) {
+      return `不合法的課程：${d.courseSlug}`;
+    }
+  }
+
+  if (d.preferredLocationKey && d.preferredLocationKey !== '') {
+    const validLoc =
+      options.locations.some((l) => l.key === d.preferredLocationKey) ||
+      SPECIAL_LOCATION_KEYS.includes(d.preferredLocationKey);
+    if (!validLoc) return `不合法的校區：${d.preferredLocationKey}`;
+  }
+
+  return null;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Supabase 寫入（trial_signups）                                    */
+/* ------------------------------------------------------------------ */
+async function persistSignup(d: TrialFormParsed, request: Request): Promise<void> {
+  const sb = getSupabaseAdmin();
+  if (!sb) {
+    console.warn('[trial-signup] SUPABASE_SERVICE_ROLE_KEY 未設定，跳過 DB 寫入（noop 模式）');
+    return;
+  }
+  // turnstileToken 不入庫（屬一次性驗證 token）。
+  const { turnstileToken: _drop, ...payload } = d;
+  const row = {
+    name: d.name,
+    phone: d.phone,
+    email: d.email && d.email !== '' ? d.email : null,
+    school: d.school && d.school !== '' ? d.school : null,
+    grade: d.grade,
+    subjects: d.subjects ?? [],
+    course_slug: d.courseSlug && d.courseSlug !== '' ? d.courseSlug : null,
+    preferred_teacher_slug:
+      d.preferredTeacherSlug && d.preferredTeacherSlug !== '' ? d.preferredTeacherSlug : null,
+    preferred_location_key:
+      d.preferredLocationKey && d.preferredLocationKey !== '' ? d.preferredLocationKey : null,
+    preferred_time: d.preferredTime ?? null,
+    notes: d.notes && d.notes !== '' ? d.notes : null,
+    source: request.headers.get('referer') ?? 'web',
+    raw: payload,
+  };
+  try {
+    const { error } = await sb.from('trial_signups').insert(row);
+    if (error) {
+      console.error('[trial-signup] Supabase insert 失敗（不阻擋回應）', error.message);
+    }
+  } catch (err) {
+    console.error('[trial-signup] Supabase insert 例外（不阻擋回應）', err);
+  }
+}
 
 /* ------------------------------------------------------------------ */
 /*  OPTIONS（CORS preflight）                                         */

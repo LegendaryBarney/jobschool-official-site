@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>賈伯斯數理教室官網 — 全站稽核報告 2026-06-17</title>
+<style>
+  :root{
+    --latte:#F5EFE6; --cream:#EAE0D0; --espresso:#8B6F47; --charcoal:#1F1B16;
+    --chalk:#FAFAF7; --caramel:#C8A165; --sienna:#A14A3A;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--latte);color:var(--charcoal);
+    font-family:"Noto Sans TC","Inter",system-ui,"PingFang TC","Microsoft JhengHei",sans-serif;
+    line-height:1.75;font-size:16px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  header.hero{background:var(--charcoal);color:var(--latte);padding:54px 0 46px}
+  header.hero h1{font-family:"Noto Serif TC",serif;font-weight:700;font-size:34px;margin:0 0 10px;line-height:1.2}
+  header.hero .sub{color:var(--caramel);font-size:15px;letter-spacing:.5px}
+  header.hero .meta{margin-top:18px;font-size:14px;color:#cdbfa9;line-height:1.9}
+  h2{font-family:"Noto Serif TC",serif;font-weight:700;font-size:25px;margin:46px 0 8px;
+     border-bottom:2px solid var(--cream);padding-bottom:8px}
+  h3{font-size:19px;margin:30px 0 6px;color:var(--espresso)}
+  p{margin:.5em 0}
+  a{color:var(--espresso)}
+  .lead{font-size:16px;color:#3d362c}
+  .grid-stats{display:flex;flex-wrap:wrap;gap:14px;margin:22px 0}
+  .stat{flex:1 1 150px;background:var(--chalk);border:1px solid var(--cream);border-radius:12px;
+    padding:16px 18px;text-align:center}
+  .stat .n{font-family:"Noto Serif TC",serif;font-size:30px;font-weight:700}
+  .stat.block .n{color:var(--sienna)} .stat.crit .n{color:#b5471f}
+  .stat.mid .n{color:var(--espresso)} .stat.low .n{color:var(--caramel)} .stat.ok .n{color:#4a7c59}
+  .stat .l{font-size:13px;color:#6b5d4a;margin-top:2px}
+  .badge{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;
+    padding:2px 10px;color:#fff;white-space:nowrap;vertical-align:middle}
+  .b-block{background:#7a1f12} .b-crit{background:var(--sienna)} .b-mid{background:var(--espresso)}
+  .b-low{background:var(--caramel);color:var(--charcoal)} .b-ok{background:#4a7c59}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14.5px;background:var(--chalk)}
+  th,td{border:1px solid var(--cream);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:var(--cream);font-weight:700}
+  td.pg{white-space:nowrap;font-family:ui-monospace,monospace;font-size:13px;color:var(--espresso)}
+  .ev{background:#efe7d8;border-left:3px solid var(--caramel);padding:2px 8px;border-radius:0 4px 4px 0;
+    font-size:13.5px;color:#4a4034;display:inline-block;margin-top:3px}
+  .fix{color:#4a7c59;font-weight:600}
+  .callout{background:#f6ede0;border:1px solid var(--cream);border-left:5px solid var(--sienna);
+    border-radius:8px;padding:14px 18px;margin:16px 0}
+  .callout.warn{border-left-color:var(--caramel)}
+  .callout.ok{border-left-color:#4a7c59}
+  .callout h3{margin-top:0}
+  ol li,ul li{margin:5px 0}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px;margin:18px 0}
+  .shot{background:var(--chalk);border:1px solid var(--cream);border-radius:12px;overflow:hidden}
+  .shot .cap{padding:10px 14px;font-size:14px}
+  .shot .cap b{font-size:15px}
+  .pair{display:flex;gap:10px;padding:12px 12px 0}
+  .pair figure{flex:1;margin:0;text-align:center}
+  .pair img{width:100%;height:auto;border:1px solid var(--cream);border-radius:6px;cursor:zoom-in;
+    background:#fff;max-height:420px;object-fit:contain;object-position:top}
+  .pair figcaption{font-size:12px;color:#6b5d4a;margin-top:4px}
+  .toc{columns:2;font-size:14.5px;background:var(--chalk);border:1px solid var(--cream);
+    border-radius:10px;padding:16px 22px;margin:20px 0}
+  .toc a{display:block;padding:2px 0}
+  footer{background:var(--charcoal);color:#cdbfa9;padding:30px 0;margin-top:50px;font-size:13px}
+  /* lightbox */
+  #lb{position:fixed;inset:0;background:rgba(20,16,12,.92);display:none;align-items:flex-start;
+    justify-content:center;z-index:99;overflow:auto;padding:24px}
+  #lb img{max-width:1000px;width:100%;height:auto;border-radius:6px}
+  #lb.open{display:flex}
+  @media(max-width:640px){.toc{columns:1}header.hero h1{font-size:26px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <h1>賈伯斯數理教室官網 — 全站稽核報告</h1>
+  <div class="sub">以「挑剔的業主」視角逐頁檢視：資訊正確性 · 一致性 · 易用性 · 視覺品質</div>
+  <div class="meta">
+    稽核日期：2026-06-17　·　稽核站點：<a style="color:#e9c98a" href="https://jobsofficialsite.vercel.app/">jobsofficialsite.vercel.app</a>（production / DNS 未對外）<br>
+    範圍：34 個內容頁面（首頁、課程 13、師資 8、家教 4、課表、收費、退費、FAQ、隱私、貼文 4、見證、關於、聯絡）<br>
+    方法：6 路平行內容稽核（curl 抓 live HTML 逐字比對）＋ 12 頁桌機 1440 / 手機 390 截圖（Playwright，含捲動觸發 reveal）<br>
+    唯一真相來源：<a style="color:#e9c98a" href="../SOURCE_OF_TRUTH.md">docs/SOURCE_OF_TRUTH.md</a>（本次彙整，整合 TEACHER_FACTS / info_rement / known_errors / policy.json / 品牌規範）
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<h2 id="summary">一、總評</h2>
+<p class="lead">整體底子<strong>紮實</strong>：之前清過的事實地雷（清大物理、交大/嘉大應數、Chilli、離職老師、半年繳、舊月繳價、「11 節」試聽錯字）<strong>全數零殘留</strong>，課表五位老師的教室/星期 100% 正確，見證的「老師×科目」邏輯也全對。課程內頁排版（標題層級、項目符號、行距）這個 known_errors 老問題已改善。視覺調性溫潤、咖啡館感到位，配色守在品牌 token 內。</p>
+<p class="lead">但仍有 <strong>1 個阻斷 + 4 個嚴重</strong>等級問題會直接傷害信任或營收，必須白天優先處理；另有一批一致性／易用性中度問題。下表為嚴重度分佈。</p>
+<div class="grid-stats">
+  <div class="stat block"><div class="n">1</div><div class="l">阻斷 Blocker</div></div>
+  <div class="stat crit"><div class="n">4</div><div class="l">嚴重 Critical</div></div>
+  <div class="stat mid"><div class="n">11</div><div class="l">中 Major</div></div>
+  <div class="stat low"><div class="n">11</div><div class="l">輕 Minor</div></div>
+  <div class="stat ok"><div class="n">9</div><div class="l">通過確認區</div></div>
+</div>
+
+<div class="callout">
+  <h3>🔴 必須優先修（阻斷＋嚴重）</h3>
+  <ol>
+    <li><b>Python 課程價格標錯</b>：<code>/courses/python-programming</code> 與首頁/Barney 卡片標 <b>9,300</b>，應為 <b>10,800</b>（少收 1,500/季）。</li>
+    <li><b>「教材費另計」打臉自己</b>：13 個課程頁都寫「教材費另計」，但收費頁與真相來源都是「<b>不另收教材費</b>」。網站講兩套。</li>
+    <li><b>關於頁 Barney 學歷是舊錯誤</b>：寫「畢業於臺大數學系」——這正是 TEACHER_FACTS 已更正掉的錯誤學歷（正解：交大資工學士＋臺大資工碩士）。</li>
+    <li><b>Sandra 學歷誤植</b>：家教頁與索引寫「師大英語系」，應為<b>淡江大學英語系</b>，且易與 Joker 的高師大混淆＝竄改學歷風險。</li>
+    <li><b>師資頁廣告不實語</b>：<code>/teachers</code> banner「每位老師都對自己帶的學生負起整個學期的責任」踩中禁語（人員流動是常態，易構成不實）。</li>
+  </ol>
+</div>
+
+<div class="toc">
+  <strong>目錄</strong>
+  <a href="#truth">二、唯一真相來源 & 需你拍板的模糊點</a>
+  <a href="#findings">三、問題清單（依嚴重度）</a>
+  <a href="#gallery">四、逐頁截圖（桌機／手機）</a>
+  <a href="#pass">五、通過確認區（可放心）</a>
+</div>
+
+<h2 id="truth">二、唯一真相來源 &amp; 需你拍板的模糊點</h2>
+<p>已把分散在 <code>TEACHER_FACTS.md</code>、<code>info_rement.md</code>、<code>known_errors.md</code>、<code>policy.json</code>、品牌規範裡的事實整併為單一檔：<a href="../SOURCE_OF_TRUTH.md"><b>docs/SOURCE_OF_TRUTH.md</b></a>。以下是<strong>內部互相矛盾、需你一句話定案</strong>的點（其餘已照真相來源判讀）：</p>
+<table>
+  <tr><th>#</th><th>模糊／衝突點</th><th>各來源說法</th><th>我的判讀（待你確認）</th></tr>
+  <tr><td>A</td><td>到底收不收教材費？</td><td>13 個課程頁：「教材費另計」 ✕ 收費頁＋真相來源：「不另收教材費」</td><td>採「<b>不另收</b>」，課程頁全部刪掉「教材費另計」</td></tr>
+  <tr><td>B</td><td>Python / 資科 季繳價</td><td>站上 9,300 ✕ info_rement／真相來源 10,800</td><td>採 <b>10,800</b>（每週 3hr / 12 節）</td></tr>
+  <tr><td>C</td><td>物理化學老師對外名稱</td><td>師資卡/內頁用本名「陳世倫」；見證/課程用品牌名「豪理」；info_rement 另提「Allen」</td><td>全站統一用 <b>豪理</b>（卡片副標補一次本名即可）</td></tr>
+  <tr><td>D</td><td>Barney 學士學歷口徑</td><td>about 頁：「臺大數學系」(舊錯) ✕ 真相來源：交大資工學士＋臺大資工碩士</td><td>移除「臺大數學系」，改 <b>交大資工學士、臺大資工碩士</b></td></tr>
+  <tr><td>E</td><td>Sandra 學歷</td><td>站上：師大英語系 ✕ 真相來源：淡江大學英語系</td><td>採 <b>淡江大學英語系</b></td></tr>
+  <tr><td>F</td><td>忍文理門牌</td><td>info_rement：西區杭州一街 38 號（站上一致）</td><td>站上正確，<b>請你確認門牌無誤</b></td></tr>
+  <tr><td>G</td><td>Louis 學歷／年資</td><td>未公開（站上留白）</td><td>是否公開？目前版型會有空欄感</td></tr>
+  <tr><td>H</td><td>Joker 年資 6 年 vs 2025 畢業</td><td>並呈易被家長質疑</td><td>調降數字，或註明「含國高中時期家教/助教」</td></tr>
+  <tr><td>I</td><td>導覽列 active 底線跟隨</td><td>known_errors 列為待修；本次瀏覽器自動化被鎖，<b>未能逐頁點擊驗證</b></td><td>建議白天人工點一輪確認是否已修</td></tr>
+</table>
+
+<h2 id="findings">三、問題清單（依嚴重度）</h2>
+
+<h3><span class="badge b-block">阻斷</span> 一定要修</h3>
+<table>
+  <tr><th>頁面</th><th>類別</th><th>問題與證據</th><th>建議</th></tr>
+  <tr>
+    <td class="pg">/courses/python-programming<br>＋首頁/Barney 卡</td><td>價格錯誤</td>
+    <td>Python 標「<b>9,300 元 / 12 節</b>」，真相來源為 <b>10,800</b>，少收 1,500/季。家長會拿來對帳。<br><span class="ev">「學費 9,300 元 / 12 節（每節 3 小時）」</span></td>
+    <td class="fix">改 10,800；連動查 /fees、/schedule、teachers/barney 是否同步。</td>
+  </tr>
+</table>
+
+<h3><span class="badge b-crit">嚴重</span> 信任／合規風險</h3>
+<table>
+  <tr><th>頁面</th><th>類別</th><th>問題與證據</th><th>建議</th></tr>
+  <tr>
+    <td class="pg">全部 13 個<br>/courses/*</td><td>收費矛盾</td>
+    <td>班級資訊區塊一律寫「<b>教材費另計</b>」，與收費頁＋真相來源「不另收教材費」直接衝突。<br><span class="ev">課程頁：「教材費另計」 ／ 收費頁：「本班不另收教材費或其他費用」</span></td>
+    <td class="fix">課程頁全站移除「教材費另計」，改「不另收教材費」或刪欄。</td>
+  </tr>
+  <tr>
+    <td class="pg">/about</td><td>事實錯誤</td>
+    <td>創辦故事寫「Barney 老師畢業於<b>臺大數學系</b>，後取得臺大資工碩士」。「臺大數學系」正是 TEACHER_FACTS 已更正掉的舊錯誤學歷。<br><span class="ev">「畢業於臺大數學系，後取得臺大資工碩士」</span></td>
+    <td class="fix">改為「臺中一中、交大資工學士、臺大資工碩士」口徑。</td>
+  </tr>
+  <tr>
+    <td class="pg">/tutors/sandra-english-composition<br>＋/tutors 索引</td><td>學歷誤植</td>
+    <td>Sandra 寫「<b>師大英語系</b>畢業」，真相來源為淡江大學英語系。拉高/竄改學歷且與 Joker「高師大」混淆。<br><span class="ev">「由 Sandra 老師（林貞君，師大英語系畢業、8 年家教資歷）」</span></td>
+    <td class="fix">索引＋內頁兩處改「淡江大學英語系」。</td>
+  </tr>
+  <tr>
+    <td class="pg">/teachers（banner）</td><td>廣告不實</td>
+    <td>「每位老師都對自己帶的學生<b>負起整個學期的責任</b>」踩中禁語（人員流動為常態，承諾整學期不實）。<br><span class="ev">「每位老師都對自己帶的學生負起整個學期的責任，把每個觀念講到學生真的聽得懂。」</span></td>
+    <td class="fix">刪除整學期承諾，改描述教學方法即可。</td>
+  </tr>
+</table>
+
+<h3><span class="badge b-mid">中</span> 一致性／易用性</h3>
+<table>
+  <tr><th>頁面</th><th>類別</th><th>問題與證據</th><th>建議</th></tr>
+  <tr><td class="pg">/teachers</td><td>定位混淆</td>
+    <td>5 位小班老師與 3 位純 1v1 家教（Chili/Louis/Sandra）混在<b>同一網格、卡片長相一致、無分區標題</b>，家長可能誤以為可報名小班，預約後才發現「沒這個班」。</td>
+    <td class="fix">加分區標題（小班授課團隊／1對1家教團隊）或於 1v1 卡片加徽章。</td></tr>
+  <tr><td class="pg">/teachers 首頁卡<br>/teachers/jason</td><td>科目缺漏/矛盾</td>
+    <td>Barney 卡片漏「國中社會/高中社會/Python」；Jason 卡片＋內頁皆缺「國小自然手作班」，但<b>試聽規則卻單列該班</b>＝資訊斷裂。</td>
+    <td class="fix">補齊或確認停開並同步真相來源。</td></tr>
+  <tr><td class="pg">全站</td><td>稱呼不一致</td>
+    <td>豪理在師資卡/內頁是本名「陳世倫」，見證／課程頁是「豪理老師」——家長易誤認兩個人。</td>
+    <td class="fix">統一品牌名「豪理」，卡片副標補本名一次。</td></tr>
+  <tr><td class="pg">/courses/*（13 頁）</td><td>模板不齊</td>
+    <td>4 頁（社會×2、搶救班、Python）有「課程定位/適合對象」段、無「學期安排」；其餘 9 頁相反。欄位不統一。</td>
+    <td class="fix">統一欄位骨架（適合對象/教學重點/學期安排/試聽/班級資訊）。</td></tr>
+  <tr><td class="pg">社會×2、Python、搶救班、選課貼文</td><td>招生語氣</td>
+    <td>以成績級分當門檻招生（「學測社會 12 級分以上」「月考低於 70 分」），違反「不針對單一成績區間」原則。</td>
+    <td class="fix">改為依程度給不同速度/難度的相對表述。</td></tr>
+  <tr><td class="pg">/about</td><td>人數話術</td>
+    <td>把精緻班釘死「6-10 人」。應強調 2–14 人、依程度分極小/精緻/小班（首頁「每班 2–14 人」可當範本）。</td>
+    <td class="fix">精緻班改「約 6–10 人」並淡化，或統一用區間。</td></tr>
+  <tr><td class="pg">/contact</td><td>聯絡缺口</td>
+    <td>Email <code>contact@jobsedu.com.tw</code> 只存在 JSON-LD，<b>頁面上沒有可見/可點的 mailto</b>，等於訪客找不到 Email。</td>
+    <td class="fix">聯絡區補可見且可點的 Email，或明示僅用 LINE/電話。</td></tr>
+  <tr><td class="pg">/contact</td><td>表單/無障礙</td>
+    <td>必填欄位無原生 <code>required</code>／<code>aria-required</code>（只靠 label 的「*」）；<code>tel:</code> 同頁同時有 <code>+886-5-223-0303</code> 與 <code>+88652230303</code> 兩種寫法（含連字號者部分撥號器解析失敗）。</td>
+    <td class="fix">加 required/aria-required；tel 統一無分隔格式。</td></tr>
+  <tr><td class="pg">/schedule</td><td>說明不符畫面</td>
+    <td>表頭「科目與教師」、頁尾說「左欄為各教師所授科目與姓名」，但左欄<b>只有姓名、沒有科目</b>；也未體現「同日同教室＝該師所有科目都上」。</td>
+    <td class="fix">左欄補科目，或拿掉「科目」字樣改純日程表。</td></tr>
+  <tr><td class="pg">/schedule（手機）</td><td>RWD</td>
+    <td>課表 <code>min-w-[680px]</code> 在 390px 需橫向捲動，易漏看週四/週五。</td>
+    <td class="fix">手機改卡片式（每師一張），或加「←左右滑動→」提示。</td></tr>
+  <tr><td class="pg">/policy（手機）</td><td>RWD</td>
+    <td>補課券表是 Markdown 直出的裸 <code>table</code>，<b>無 overflow-x-auto</b>（收費頁三張表都有），390px 易溢出。</td>
+    <td class="fix">補水平捲動包裝或改卡片式。</td></tr>
+</table>
+
+<h3><span class="badge b-low">輕</span> 打磨</h3>
+<table>
+  <tr><th>頁面</th><th>類別</th><th>問題</th></tr>
+  <tr><td class="pg">/courses/gsat-math-sprint</td><td>師資混淆</td><td>授課掛 Seba，教材署名「Barney 老師整理」，誰在教不清楚。</td></tr>
+  <tr><td class="pg">/courses/high-physics、high-chemistry</td><td>時段衝突</td><td>排週一/週二場次，與課表「豪理＝三四五」不符。</td></tr>
+  <tr><td class="pg">/courses/*（13 頁）</td><td>見證錯位</td><td>頁尾固定 3 則見證每頁複製，與該頁科目常不符（Python 頁掛物理見證）。</td></tr>
+  <tr><td class="pg">/tutors（Louis）</td><td>文案缺字</td><td>Louis 寫「1 小時試聽」，其餘三位寫「1 小時<b>免費</b>試聽」，獨缺「免費」。</td></tr>
+  <tr><td class="pg">全站 footer</td><td>死連結</td><td>「Cookie 設定」為 <code>href="#"</code>，點擊無作用。</td></tr>
+  <tr><td class="pg">/fees</td><td>呈現一致性</td><td>優規退費表只有「4 堂」列標百分比（67%），其餘只給分數；市府表 vs 優規表是「取代」還是「疊加」未說明。</td></tr>
+  <tr><td class="pg">/teachers/louis</td><td>版型空欄</td><td>唯一無「年資/學歷」區塊的內頁，8 頁一致版型中顯突兀（屬刻意未公開，待 G 決策）。</td></tr>
+  <tr><td class="pg">/posts</td><td>無效篩選</td><td>年份過濾只有 2026 單一選項，形同虛設。</td></tr>
+  <tr><td class="pg">英作貼文 × 見證</td><td>套版感</td><td>「9→16 分」數字在貼文與陳同學見證撞號，易看成樣板。</td></tr>
+  <tr><td class="pg">全站動效</td><td>技術風險</td><td>scroll-reveal 區塊初始 <code>opacity:0</code>，靠捲動觸發；無 JS／爬蟲／列印時整段內容不可見（首次截圖全空白即此故）。建議加 reduced-motion / no-JS fallback。</td></tr>
+  <tr><td class="pg">/courses（索引）</td><td>文案校對</td><td>列表頁主標文案請人工校對一次（疑有贅字）。</td></tr>
+</table>
+
+<h2 id="gallery">四、逐頁截圖（桌機 1440 / 手機 390）</h2>
+<p style="font-size:14px;color:#6b5d4a">點圖可放大。截圖已捲動觸發 reveal 動畫，呈現完整內容。</p>
+<div class="gallery" id="gal"></div>
+
+<h2 id="pass">五、通過確認區（可放心）</h2>
+<div class="callout ok">
+<ul>
+  <li><b>事實地雷全清</b>：清大物理／交大應數／嘉大應數／Chilli／Xenia／趙明德／半年繳／18,600／一冊／舊月繳價 ── 全站<b>零殘留</b>。</li>
+  <li><b>價格與試聽</b>：季繳 9,300（3hr）、4,650（國中生物 1.5hr）正確；試聽 1 節／2 節分類正確，無「11 節」錯字。</li>
+  <li><b>課表</b>：五位老師（Barney/Seba/Jason/Joker/豪理）的教室×星期 100% 正確；Sandra/Louis/Chili 未誤入課表。</li>
+  <li><b>退費</b>：市府四階（90/80/50/0）數字正確；舊生優規表 11/12 起遞減、11 堂起不退，與規則一致。</li>
+  <li><b>考試名詞</b>：會考／學測／分科測驗用法正確，「指考」僅作 2021 前歷史說明。</li>
+  <li><b>見證邏輯</b>：老師×科目全部合理（Barney＝國中自然非高中化學、Jason＝銜接班非物理、物理化學＝豪理）。</li>
+  <li><b>禁用詞</b>：保證／絕對／最強／秒懂等掃描乾淨（命中皆為否定語境或 CSS 100%）。</li>
+  <li><b>機構事實</b>：兩教室地址、營業時間（一至六 15:00–22:00）、「12 年」口徑、5 大學歷標籤、首頁雙 CTA 皆正確一致。</li>
+  <li><b>排版老問題已改善</b>：課程內頁標題層級明顯、重點有項目符號、行距足夠（known_errors §format 已不復現）。</li>
+</ul>
+</div>
+
+</div>
+
+<div id="lb"><img alt="放大檢視"></div>
+<footer><div class="wrap">© 賈伯斯數理教室 — 內部稽核文件 · 2026-06-17 · 由 Claude Code 全站稽核產生，截圖存於 ./screenshots/</div></footer>
+
+<script>
+const pages = [
+  ["home","首頁","暖色咖啡館調性、編號式區塊清楚；師資/見證/CTA 齊備"],
+  ["about","關於","教室實景＋四理念＋12 年時間軸，質感佳；注意 Barney 學歷錯誤"],
+  ["courses","課程列表","國中/高中分組、編號卡片＋縮圖，編輯誌感；主標需校對"],
+  ["course-detail","課程內頁","標題層級、項目符號、側欄價格清楚（排版老問題已修）"],
+  ["teachers","師資列表","8 卡有照片、整齊；但小班與 1v1 未分區"],
+  ["teacher-detail","師資內頁","學歷/年資/科目欄位完整，版型穩"],
+  ["tutors","家教","『為一位學生量身設計』＋4 家教卡，一致"],
+  ["schedule","課表","固定班課表＋兩教室標籤；左欄缺科目、手機需橫捲"],
+  ["fees","收費","結構化長頁＋表格，資訊密度高但清楚"],
+  ["faq","FAQ","問答完整、語氣溫潤"],
+  ["testimonials","見證","『12 年的真實回饋』＋星等卡片，可信"],
+  ["contact","聯絡","試聽表單＋雙教室地圖；缺可見 Email"]
+];
+const gal=document.getElementById('gal');
+pages.forEach(([k,t,d])=>{
+  const el=document.createElement('div');el.className='shot';
+  el.innerHTML=`<div class="pair">
+    <figure><img loading="lazy" src="screenshots/${k}-desktop.png" alt="${t} 桌機"><figcaption>桌機 1440</figcaption></figure>
+    <figure><img loading="lazy" src="screenshots/${k}-mobile.png" alt="${t} 手機"><figcaption>手機 390</figcaption></figure>
+  </div><div class="cap"><b>${t}</b><br><span style="color:#6b5d4a;font-size:13px">${d}</span></div>`;
+  gal.appendChild(el);
+});
+const lb=document.getElementById('lb'),lbi=lb.querySelector('img');
+document.addEventListener('click',e=>{
+  if(e.target.tagName==='IMG'&&e.target.closest('.pair')){lbi.src=e.target.src;lb.classList.add('open');}
+  else if(e.target===lb||e.target===lbi){lb.classList.remove('open');}
+});
+</script>
+</body>
+</html>

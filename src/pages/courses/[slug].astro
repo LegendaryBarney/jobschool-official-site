@@ -15,6 +15,7 @@ import {
   breadcrumbJsonLd,
 } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
+import { getTrialFormOptions } from '~/lib/classData';
 
 export async function getStaticPaths() {
   const courses = await getCollection('courses');
@@ -68,6 +69,10 @@ if (teacher) {
 
 const description =
   seoDescription ?? `${grade}${subject}小班 — ${name}｜${summary.slice(0, 80)}`;
+
+// 試聽表單選項（統一資料來源），並以本課程帶入預設：勾選本課程科目、附課程 slug。
+const trialFormOptions = await getTrialFormOptions();
+const defaultSubjects = subject ? [subject] : [];
 
 const jsonLd = [
   courseJsonLd({ name, summary, subject, grade, gradeLevel, schedule, priceRange, slug }),
@@ -271,7 +276,12 @@ const jsonLd = [
           </p>
         </div>
         <div class="rounded-xl bg-chalk border border-cream p-5 lg:p-7">
-          <TrialForm client:visible />
+          <TrialForm
+            client:visible
+            options={trialFormOptions}
+            defaultCourseSlug={slug}
+            defaultSubjects={defaultSubjects}
+          />
         </div>
       </div>
     </div>
