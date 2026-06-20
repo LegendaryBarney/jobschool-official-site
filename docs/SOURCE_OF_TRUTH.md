@@ -3,6 +3,17 @@
 > 本檔由 2026-06-16 全站稽核彙整，整合 `docs/TEACHER_FACTS.md`、`info_rement.md`、`known_errors.md`、`src/content/fees/policy.json`、`BRAND_GUIDELINES.md`。
 > 衝突解決優先序：`info_rement.md`（業主直述）> `TEACHER_FACTS.md` > 舊 Weebly/姊妹校官網 > `BRAND_GUIDELINES.md`（部分已過時，見 §9）。
 
+## 0. 業主已拍板決議（2026-06-21）
+
+- **教材費**：一律**不另收**（課程頁先前「教材費另計」已全數移除）。
+- **物理化學老師對外稱呼**：全站統一用**本名 陳世倫**；「豪理」僅留為內部別名（`hao-li.md` 的 `englishName`，不對外顯示），勿用 Allen。
+- **Barney 學歷**：交大資工系學士＋臺大資工所碩士（about 頁「臺大數學系」舊錯誤已修）。
+- **Sandra 學歷**：**淡江大學 英語學系 學士**（先前誤植「師大」已全數修正）。
+- **Python／資科季繳價**：**10,800 元 / 12 節**（先前誤植 9,300 已修）。
+- **忍文理門牌**：嘉義市西區杭州一街 38 號（完整名稱，確認無誤）。
+- **Louis 學歷／年資**：暫不公開。
+- **導覽列 active 底線**：經實機驗證**已正常**跟隨當前頁（`Nav.astro` client 端 `syncNavActive`），`known_errors` 該條為過時記載。
+
 ## 1. 品牌與機構
 
 - 正式名稱：**賈伯斯數理教室**

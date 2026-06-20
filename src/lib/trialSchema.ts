@@ -34,13 +34,11 @@ export const SUBJECTS = [
   '其他',
 ] as const;
 
+// 固定班實際只在「週一至週五 18:00–21:00」上課；不列不可能排課的下午/週末時段。
+// 家教或其他需求走「時段再討論」。
 export const TIME_SLOTS = [
-  '平日下午',
-  '平日晚上',
-  '週六上午',
-  '週六下午',
-  '週日上午',
-  '週日下午',
+  '平日 18:00–21:00',
+  '時段再討論',
 ] as const;
 
 export type Grade = (typeof GRADES)[number];

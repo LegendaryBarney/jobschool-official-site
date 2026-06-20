@@ -4,7 +4,23 @@
 > 即可知道：做到哪、有哪些設置、業主拍板了什麼、下一步、待決策。
 > 記憶另存於 `~/.claude/projects/<本專案>/memory/`（索引 MEMORY.md，每 session 自動載入）。
 
-最後更新：2026-06-07（內容更新批上線；業主新增更正處理中）
+最後更新：2026-06-20（Supabase 課表/試聽資料庫上線；課表改課程列+filter；試聽表級聯檢核 — 已上 production）
+
+---
+
+## 🆕 2026-06-20 — Supabase 統一資料源 + 課表/試聽改版（已上 main/production）
+
+業主要求：建 DB 存老師出席/課程、試聽表依 DB 提供與檢核選項、課表依「課程(科目+人)」為列加 filter。
+
+- **Supabase 專案**：`jobs-official-site`（id `cciflmurpbnbjvbeunty`，org jobschool，東京區，$0/月）。
+  表：locations / teachers / courses / teacher_availability / trial_signups + view `class_offerings`（RLS：參考表 anon 可讀，trial_signups 僅 service_role）。連線/模型詳見記憶 `project_supabase.md`。
+  業主已把 `PUBLIC_SUPABASE_URL` / `PUBLIC_SUPABASE_ANON_KEY`（publishable）/ `SUPABASE_SERVICE_ROLE_KEY` 填入 Vercel(Production+Preview)。
+- **資料層** `src/lib/{supabase,classData}.ts`：**DB 優先、`src/content` 後備**（無金鑰也能 build）。型別/GRADE_TO_STAGE 放 `trialSchema.ts`（client-safe），避免 astro:content 進前端 bundle。
+- **課表** `/schedule`：每列＝(學制+科目+老師) 聚合（同科目同老師多班收一列，班名列為次標籤），欄＝週一~五、格＝教室；`ScheduleFilter` 島（科目/老師/教室/學制/搜尋，漸進增強）。
+- **試聽表** `TrialForm`：年級→學制→科目→老師 級聯＋校區欄；`/api/trial-signup` 對 DB 白名單二次檢核並寫入 `trial_signups`（無 service key 則優雅降級為只寄信）。
+- 已驗：check/build 綠；Chrome 1440/390 實測 production（課表 DB-backed、filter 正常、表單級聯與課表同源對齊、無破版）。PR #20+#21 已併 main。
+- **已知小瑕疵（業主指示不修）**：試聽科目把 Jason「升高中的數學銜接基礎班」歸到「高中」(字串含「高中」)。
+- **未入版控**：`docs/ux-review-2026-06-16/screenshots/`（44MB）與 `.audit_tmp/` 暫存，留本機。
 
 ---
 
