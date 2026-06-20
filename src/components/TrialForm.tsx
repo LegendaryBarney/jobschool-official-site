@@ -35,6 +35,37 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 const LOCATION_ONLINE = 'online';
 const LOCATION_DISCUSS = 'discuss';
 
+/**
+ * 送出成功後發送「試聽名單」轉換事件給 GA4（generate_lead）與 Meta Pixel（Lead）。
+ * 缺對應追蹤腳本（未設 PUBLIC_GA_ID / PUBLIC_META_PIXEL_ID）時靜默略過，
+ * 任何錯誤都不影響使用者送出流程。這是衡量廣告投放 CPL/ROAS 的關鍵事件。
+ */
+function trackLeadConversion(data: TrialFormData): void {
+  if (typeof window === 'undefined') return;
+  const subjects = (data.subjects ?? []).join(',');
+  try {
+    const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
+    if (typeof gtag === 'function') {
+      gtag('event', 'generate_lead', {
+        event_category: 'trial',
+        grade: data.grade,
+        subjects,
+        course: data.courseSlug || undefined,
+      });
+    }
+  } catch {
+    /* 追蹤失敗不阻擋流程 */
+  }
+  try {
+    const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
+    if (typeof fbq === 'function') {
+      fbq('track', 'Lead', { content_name: 'trial_signup', content_category: subjects });
+    }
+  } catch {
+    /* 追蹤失敗不阻擋流程 */
+  }
+}
+
 interface TrialFormProps {
   endpoint?: string;
   /**
@@ -205,6 +236,7 @@ export default function TrialForm({
         throw new Error(json.error || '送出失敗，請稍後再試');
       }
       setStatus('success');
+      trackLeadConversion(result.data);
       setData({ ...initialData, courseSlug: defaultCourseSlug ?? '' });
     } catch (err) {
       setStatus('error');

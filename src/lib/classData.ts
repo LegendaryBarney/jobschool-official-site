@@ -46,19 +46,21 @@ export interface ClassCourse {
   order: number;
 }
 
-/** 課表一格的最小單位：某課程在某星期、某教室開課。 */
+/** 課表一格的最小單位：某老師某科目在某星期某教室某時段開課。 */
 export interface Offering {
-  courseSlug: string;
-  courseName: string;
+  subject: string; // 純科目名（數學/英文/英文作文…）
   grade: '國中' | '高中';
-  subject: string;
   teacherSlug: string;
   teacherName: string;
   englishName?: string | null;
   weekday: number; // 1=週一 … 7=週日
+  startTime: string; // 'HH:MM'（固定班一律 18:00–21:00）
+  endTime: string;
   locationKey: string;
   locationName: string;
   locationShort: string;
+  /** 對應課程班名（如 高一/高二/高三數學三班）；無對應課程則為空。 */
+  courseNames: string[];
 }
 
 export interface ClassData {
@@ -117,10 +119,13 @@ async function loadFromSupabase(): Promise<ClassData | null> {
         teacherSlug: c.teacher_slug, trialLessons: c.trial_lessons, order: c.display_order,
       })),
       offerings: (off.data ?? []).map((o) => ({
-        courseSlug: o.course_slug, courseName: o.course_name, grade: o.grade, subject: o.subject,
+        subject: o.subject, grade: o.grade,
         teacherSlug: o.teacher_slug, teacherName: o.teacher_name, englishName: o.english_name,
-        weekday: o.weekday, locationKey: o.location_key, locationName: o.location_name,
-        locationShort: o.location_short,
+        weekday: o.weekday,
+        startTime: String(o.start_time ?? '18:00').slice(0, 5),
+        endTime: String(o.end_time ?? '21:00').slice(0, 5),
+        locationKey: o.location_key, locationName: o.location_name, locationShort: o.location_short,
+        courseNames: o.course_names ?? [],
       })),
     };
   } catch (err) {
@@ -193,32 +198,65 @@ async function loadFromContent(): Promise<ClassData> {
     availByTeacher.set(slug, list);
   }
 
+  // 課程班名查找：teacher|grade|subject → [班名]（依 order）。
+  const courseNamesByKey = new Map<string, string[]>();
+  for (const c of [...courses].sort((a, b) => a.order - b.order)) {
+    const k = `${c.teacherSlug}|${c.grade}|${c.subject}`;
+    courseNamesByKey.set(k, [...(courseNamesByKey.get(k) ?? []), c.name]);
+  }
+
+  // 每位固定班老師可教的 (科目, 學制) 集合 = 解析 teacher.subjects ∪ 課程目錄。
   const locByKey = new Map(locations.map((l) => [l.key, l]));
   const offerings: Offering[] = [];
-  for (const course of courses) {
-    const teacher = teacherBySlug.get(course.teacherSlug);
-    const avail = availByTeacher.get(course.teacherSlug);
-    if (!teacher || !avail) continue; // 無固定班出席（如家教）→ 不入課表
-    for (const a of avail) {
-      const loc = locByKey.get(a.locationKey);
-      if (!loc) continue;
-      offerings.push({
-        courseSlug: course.slug,
-        courseName: course.name,
-        grade: course.grade,
-        subject: course.subject,
-        teacherSlug: course.teacherSlug,
-        teacherName: teacher.name,
-        englishName: teacher.englishName,
-        weekday: a.weekday,
-        locationKey: loc.key,
-        locationName: loc.name,
-        locationShort: loc.shortLabel,
-      });
+  for (const [slug, avail] of availByTeacher) {
+    const teacher = teacherBySlug.get(slug);
+    if (!teacher) continue;
+    const subjSet = new Map<string, { subject: string; grade: '國中' | '高中' }>();
+    for (const raw of teacher.subjects) {
+      const parsed = parseTeacherSubject(raw);
+      if (parsed) subjSet.set(`${parsed.grade}|${parsed.subject}`, parsed);
+    }
+    for (const c of courses) {
+      if (c.teacherSlug === slug) subjSet.set(`${c.grade}|${c.subject}`, { subject: c.subject, grade: c.grade });
+    }
+    for (const { subject, grade } of subjSet.values()) {
+      const courseNames = courseNamesByKey.get(`${slug}|${grade}|${subject}`) ?? [];
+      for (const a of avail) {
+        const loc = locByKey.get(a.locationKey);
+        if (!loc) continue;
+        offerings.push({
+          subject,
+          grade,
+          teacherSlug: slug,
+          teacherName: teacher.name,
+          englishName: teacher.englishName,
+          weekday: a.weekday,
+          startTime: '18:00',
+          endTime: '21:00',
+          locationKey: loc.key,
+          locationName: loc.name,
+          locationShort: loc.shortLabel,
+          courseNames,
+        });
+      }
     }
   }
 
   return { source: 'content', locations, teachers, courses, offerings };
+}
+
+/**
+ * 把 teacher.subjects 一筆（可能含學制前綴或特殊命名）解析成 {純科目, 學制}。
+ * 無法判斷學制者回 null（不亂猜）。固定班時段一律 18:00–21:00。
+ */
+function parseTeacherSubject(raw: string): { subject: string; grade: '國中' | '高中' } | null {
+  const s = raw.trim();
+  if (s.includes('Python')) return { subject: 'Python 程式設計', grade: '國中' };
+  if (s.includes('英文作文')) return { subject: '英文作文', grade: '高中' };
+  if (s.includes('銜接')) return { subject: '數學', grade: '國中' };
+  const grade = s.startsWith('高中') ? '高中' : s.startsWith('國中') ? '國中' : null;
+  if (!grade) return null;
+  return { subject: s.replace(/^(國中|高中)/, '').trim() || s, grade };
 }
 
 /* ------------------------------------------------------------------ */
@@ -230,15 +268,9 @@ export type { TrialFormOptions } from './trialSchema';
 
 export async function getTrialFormOptions(): Promise<TrialFormOptions> {
   const data = await getClassData();
+  // 科目選項「以課表(offerings)為唯一來源」→ 試聽表與課表保證一致。
   const subjectsByGrade: Record<'國中' | '高中', Set<string>> = { 國中: new Set(), 高中: new Set() };
-  for (const c of data.courses) subjectsByGrade[c.grade].add(c.subject);
-  // 家教科目（無固定班）也納入：依老師可教科目補進對應學制
-  for (const t of data.teachers) {
-    for (const s of t.subjects) {
-      if (s.includes('國中') || s.includes('國小')) subjectsByGrade['國中'].add(normalizeSubject(s));
-      else if (s.includes('高中')) subjectsByGrade['高中'].add(normalizeSubject(s));
-    }
-  }
+  for (const o of data.offerings) subjectsByGrade[o.grade].add(o.subject);
   const allSubjects = [...new Set([...subjectsByGrade['國中'], ...subjectsByGrade['高中']])];
 
   return {
@@ -249,9 +281,4 @@ export async function getTrialFormOptions(): Promise<TrialFormOptions> {
     courses: data.courses.map((c) => ({ slug: c.slug, name: c.name, grade: c.grade, subject: c.subject, teacherSlug: c.teacherSlug })),
     locations: data.locations.map((l) => ({ key: l.key, name: l.name })),
   };
-}
-
-/** 把「高中英文」「國中數學」之類含學制前綴的科目，化簡為純科目名。 */
-function normalizeSubject(s: string): string {
-  return s.replace(/^(國中|高中|國小)/, '').trim() || s;
 }

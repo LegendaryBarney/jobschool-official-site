@@ -43,7 +43,12 @@ interface CourseRow {
 // 同一位老師、同一科目（同學制）的多個班（如高一/高二/高三數學）收成一列，
 // 避免出現多列一模一樣的「數學 ／ Barney」。各班名以次要標籤呈現、不漏資訊。
 function buildCourseRows(): CourseRow[] {
-  const order = new Map(data.courses.map((c, i) => [c.slug, c.order ?? i]));
+  // 排序鍵：teacher|grade|subject → 對應課程的最小 order（無課程者排末）。
+  const order = new Map<string, number>();
+  for (const c of data.courses) {
+    const k = `${c.teacherSlug}|${c.grade}|${c.subject}`;
+    order.set(k, Math.min(order.get(k) ?? Number.MAX_SAFE_INTEGER, c.order ?? Number.MAX_SAFE_INTEGER));
+  }
   const map = new Map<string, CourseRow>();
   for (const o of data.offerings) {
     const key = `${o.grade}__${o.subject}__${o.teacherSlug}`;
@@ -58,12 +63,11 @@ function buildCourseRows(): CourseRow[] {
         courseNames: [],
         byDay: new Map<number, string[]>(),
         locations: [],
-        sortOrder: Number.MAX_SAFE_INTEGER,
+        sortOrder: order.get(`${o.teacherSlug}|${o.grade}|${o.subject}`) ?? Number.MAX_SAFE_INTEGER,
       };
       map.set(key, row);
     }
-    if (!row.courseNames.includes(o.courseName)) row.courseNames.push(o.courseName);
-    row.sortOrder = Math.min(row.sortOrder, order.get(o.courseSlug) ?? Number.MAX_SAFE_INTEGER);
+    for (const cn of o.courseNames) if (!row.courseNames.includes(cn)) row.courseNames.push(cn);
     const dayList = row.byDay.get(o.weekday) ?? [];
     if (!dayList.includes(o.locationShort)) dayList.push(o.locationShort);
     row.byDay.set(o.weekday, dayList);
@@ -77,7 +81,10 @@ function buildCourseRows(): CourseRow[] {
         (nameOrder.get(a) ?? Number.MAX_SAFE_INTEGER) - (nameOrder.get(b) ?? Number.MAX_SAFE_INTEGER),
     );
   }
-  return [...map.values()].sort((a, b) => a.sortOrder - b.sortOrder);
+  // 排序：先 sortOrder（有課程者在前、依目錄序），同分再依科目名穩定排列。
+  return [...map.values()].sort(
+    (a, b) => a.sortOrder - b.sortOrder || a.subject.localeCompare(b.subject, 'zh-Hant'),
+  );
 }
 
 const courseRows = buildCourseRows();
@@ -143,8 +150,8 @@ const jsonLd = [
     <Fragment slot="heading">課程授課日程</Fragment>
     <p class="max-w-3xl text-lg text-charcoal/80 leading-relaxed">
       下列以「課程（科目＋老師）」為單位，呈現賈伯斯教室與忍文理教室的固定班授課日程。
+      <strong class="font-semibold text-charcoal">固定班上課時間一律為週一至週五 18:00–21:00。</strong>
       家教採個別排課，不列入固定課表，請逕洽課務人員安排。
-      各時段之確切上課時間與科目開班狀況，以教室公告為準。
     </p>
 
     <p class="mt-6 text-base text-charcoal/80 leading-relaxed">
@@ -278,9 +285,11 @@ const jsonLd = [
                                 <span class="ml-1 text-charcoal/45">{row.englishName}</span>
                               )}
                             </span>
-                            <span class="mt-1 block max-w-[18rem] whitespace-normal text-xs leading-snug text-charcoal/45">
-                              {row.courseNames.join('・')}
-                            </span>
+                            {row.courseNames.length > 0 && (
+                              <span class="mt-1 block max-w-[18rem] whitespace-normal text-xs leading-snug text-charcoal/45">
+                                {row.courseNames.join('・')}
+                              </span>
+                            )}
                           </th>
                           {WEEKDAY_NUMS.map((n) => {
                             const dayRooms = row.byDay.get(n) ?? [];

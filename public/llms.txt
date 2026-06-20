@@ -1,6 +1,6 @@
 # 賈伯斯數理教室 (Jobs Math & Science Academy)
 
-> 嘉義在地的精英小班補習機構，由臺大資工碩士領軍，師資來自臺、交、高師大、嘉義大學、臺北市立大學等背景，2014 年創立、品牌已邁入第 12 年，專攻國中至高中數理與相關科目。最後更新：2026-06-19。
+> 嘉義在地的精英小班補習機構，由臺大資工碩士領軍，師資來自臺、交、高師大、嘉義大學、臺北市立大學等背景，2014 年創立、品牌已邁入第 12 年，專攻國中至高中數理與相關科目。最後更新：2026-06-20。
 
 ## 品牌摘要
 
@@ -65,7 +65,7 @@
 - [國中自然小班](https://jobsedu.com.tw/courses/junior-science) — 國中 · 自然 · 9,300 元 / 12 節（每節 3 小時）
 - [國中生物小班](https://jobsedu.com.tw/courses/junior-biology) — 國中 · 生物 · 4,650 元 / 12 節（每節 1.5 小時）
 - [升高中數學基礎搶救班](https://jobsedu.com.tw/courses/pre-high-math-rescue) — 國中 · 數學 · 9,300 元 / 12 節（每節 3 小時）
-- [Python 程式設計小班](https://jobsedu.com.tw/courses/python-programming) — 國中 · Python 程式設計 · 9,300 元 / 12 節（每節 3 小時）
+- [Python 程式設計小班](https://jobsedu.com.tw/courses/python-programming) — 國中 · Python 程式設計 · 10,800 元 / 12 節（每節 3 小時）
 - [國中社會小班](https://jobsedu.com.tw/courses/junior-social-studies) — 國中 · 社會 · 9,300 元 / 12 節（每節 3 小時）
 - [高中社會小班](https://jobsedu.com.tw/courses/senior-social-studies) — 高中 · 社會 · 9,300 元 / 12 節（每節 3 小時）
 

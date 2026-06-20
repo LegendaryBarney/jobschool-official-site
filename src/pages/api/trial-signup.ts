@@ -388,8 +388,17 @@ async function validateAgainstWhitelist(d: TrialFormParsed): Promise<string | nu
   }
 
   if (d.preferredTeacherSlug && d.preferredTeacherSlug !== '') {
-    if (!options.teachers.some((t) => t.slug === d.preferredTeacherSlug)) {
+    const teacher = options.teachers.find((t) => t.slug === d.preferredTeacherSlug);
+    if (!teacher) {
       return `不合法的老師：${d.preferredTeacherSlug}`;
+    }
+    // 交叉核實：指定老師必須確實教授所選科目之一（以課表/DB 為準）。
+    const picked = (d.subjects ?? []).map(norm);
+    if (picked.length > 0) {
+      const teaches = teacher.subjects.map(norm);
+      if (!picked.some((s) => teaches.includes(s))) {
+        return `所選老師（${teacher.name}）未教授所選科目`;
+      }
     }
   }
 
