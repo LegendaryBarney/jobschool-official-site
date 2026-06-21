@@ -102,13 +102,13 @@ const filterRows: ScheduleFilterRow[] = courseRows.map((r) => ({
   courseSlug: r.rowKey,
   courseName: r.courseNames.join(' '),
   subject: r.subject,
-  teacherName: r.teacherName,
+  teacherName: r.englishName ?? r.teacherName,
   englishName: r.englishName,
   grade: r.grade,
   locations: r.locations,
 }));
 const subjectOptions = [...new Set(courseRows.map((r) => r.subject))];
-const teacherOptions = [...new Set(courseRows.map((r) => r.teacherName))];
+const teacherOptions = [...new Set(courseRows.map((r) => r.englishName ?? r.teacherName))];
 const locationOptions = [...new Set(courseRows.flatMap((r) => r.locations))];
 
 // 教室對照（圖例與篩選短標籤）：取自 data.locations。
@@ -277,13 +277,7 @@ const jsonLd = [
                             class="px-4 py-4 text-left font-normal whitespace-nowrap"
                           >
                             <span class="block max-w-[18rem] whitespace-normal font-serif text-base font-bold leading-snug text-charcoal">
-                              {row.subject}
-                            </span>
-                            <span class="mt-1 block text-sm text-charcoal/70">
-                              {row.teacherName}
-                              {row.englishName && (
-                                <span class="ml-1 text-charcoal/45">{row.englishName}</span>
-                              )}
+                              {(row.englishName ?? row.teacherName)}{row.grade}{row.subject}
                             </span>
                             {row.courseNames.length > 0 && (
                               <span class="mt-1 block max-w-[18rem] whitespace-normal text-xs leading-snug text-charcoal/45">
@@ -300,7 +294,7 @@ const jsonLd = [
                                     {dayRooms.map((rm) => (
                                       <span
                                         class="inline-flex items-center justify-center rounded-full bg-caramel/20 px-2.5 py-1 text-xs font-bold text-espresso"
-                                        aria-label={`${row.subject}（${row.teacherName}）${WEEKDAY_LABELS[n]}於${shortToLabel.get(rm) ?? rm}授課`}
+                                        aria-label={`${row.englishName ?? row.teacherName}${row.grade}${row.subject} ${WEEKDAY_LABELS[n]}於${shortToLabel.get(rm) ?? rm}授課`}
                                       >
                                         {rm}
                                       </span>
