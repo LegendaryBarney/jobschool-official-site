@@ -15,8 +15,8 @@ if (!entry) {
 const fees = entry.data;
 
 const sections = [
-  { id: 'overview', label: '收費方式總覽' },
-  { id: 'quarterly', label: '季繳' },
+  { id: 'quarterly', label: '季繳費用' },
+  { id: 'overview', label: '其他收費方式' },
   { id: 'tutoring', label: '家教計費' },
   { id: 'package', label: '套裝與客製化' },
   { id: 'payment', label: '繳費方式' },
@@ -67,33 +67,14 @@ const jsonLd = [
 
   <SectionFadeUp>
     <div class="mx-auto max-w-4xl px-4 py-12 lg:px-8 lg:py-16 brand-prose">
-      <!-- A. 收費方式總覽 -->
-      <section id="overview" class="scroll-mt-24" aria-labelledby="h-overview">
-        <h2 id="h-overview" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
-          <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
-          收費方式總覽
-        </h2>
-        <p class="mt-4 text-charcoal/85 leading-relaxed">
-          本班課程收費會依課程性質調整，主要分為以下五種形式：
-        </p>
-        <ul class="mt-4 space-y-3 list-none pl-0" role="list">
-          {fees.methods.map((m) => (
-            <li class="rounded-xl border border-cream bg-chalk px-5 py-4">
-              <span class="font-serif text-lg font-bold text-charcoal">{m.name}</span>
-              <p class="mt-1 text-charcoal/80 leading-relaxed">{m.summary}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <!-- B. 季繳詳解 -->
-      <section id="quarterly" class="scroll-mt-24 mt-14" aria-labelledby="h-quarterly">
+      <!-- A. 季繳詳解（最常見，置頂） -->
+      <section id="quarterly" class="scroll-mt-24" aria-labelledby="h-quarterly">
         <h2 id="h-quarterly" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
           <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
           季繳
         </h2>
         <p class="mt-4 text-charcoal/85 leading-relaxed">
-          季繳為佔大宗的收費方式，一次收取 12 堂課的費用。適用科目包括：
+          季繳是本班佔大宗的收費方式，多數小班課程皆採此制，一次收取 12 堂課的費用。適用科目包括：
         </p>
         <ul class="mt-3 list-disc pl-6 text-charcoal/85 leading-relaxed space-y-1">
           {fees.quarterly.subjects.map((s) => (<li>{s}</li>))}
@@ -134,6 +115,25 @@ const jsonLd = [
 
         <h3 class="mt-8 font-serif text-xl font-bold text-charcoal">新生中途入班計費</h3>
         <p class="mt-2 text-charcoal/85 leading-relaxed">{fees.quarterly.newStudentNote}</p>
+      </section>
+
+      <!-- B. 其他收費方式 -->
+      <section id="overview" class="scroll-mt-24 mt-14" aria-labelledby="h-overview">
+        <h2 id="h-overview" class="font-serif text-2xl lg:text-3xl font-bold text-charcoal flex items-center gap-3">
+          <span class="inline-block h-2 w-8 rounded-full bg-caramel" aria-hidden="true"></span>
+          其他收費方式
+        </h2>
+        <p class="mt-4 text-charcoal/85 leading-relaxed">
+          除了上方的季繳，本班也依課程性質提供下列收費方式：
+        </p>
+        <ul class="mt-4 space-y-3 list-none pl-0" role="list">
+          {fees.methods.filter((m) => m.name !== '季繳').map((m) => (
+            <li class="rounded-xl border border-cream bg-chalk px-5 py-4">
+              <span class="font-serif text-lg font-bold text-charcoal">{m.name}</span>
+              <p class="mt-1 text-charcoal/80 leading-relaxed">{m.summary}</p>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <!-- C. 家教計費 -->
