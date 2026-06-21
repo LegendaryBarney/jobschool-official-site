@@ -28,7 +28,7 @@ interface CourseRow {
   subject: string;
   teacherName: string;
   englishName: string | null;
-  grade: '國中' | '高中';
+  grade: '國小' | '國中' | '高中';
   // 此(科目+人)涵蓋的課程名（如 高一/高二/高三數學三班），供顯示與搜尋。
   courseNames: string[];
   // 星期(1..5) → 該日授課教室短標籤清單；無授課之星期不入鍵。
@@ -90,7 +90,7 @@ function buildCourseRows(): CourseRow[] {
 const courseRows = buildCourseRows();
 
 // 學制分組：國中在前、高中在後（僅保留有列者）。
-const GRADE_ORDER: ('國中' | '高中')[] = ['國中', '高中'];
+const GRADE_ORDER: ('國小' | '國中' | '高中')[] = ['國小', '國中', '高中'];
 const grouped = GRADE_ORDER.map((grade) => ({
   grade,
   rows: courseRows.filter((r) => r.grade === grade),

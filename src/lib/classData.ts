@@ -1,5 +1,5 @@
 import { getSupabaseRead } from './supabase';
-import { GRADE_TO_STAGE, type TrialFormOptions } from './trialSchema';
+import { GRADE_TO_STAGE, GRADES, type TrialFormOptions } from './trialSchema';
 
 /**
  * 課表 / 師資 / 課程 / 校區的單一資料來源。
@@ -39,7 +39,7 @@ export interface ClassTeacher {
 export interface ClassCourse {
   slug: string;
   name: string;
-  grade: '國中' | '高中';
+  grade: '國小' | '國中' | '高中';
   subject: string;
   teacherSlug: string;
   trialLessons: number;
@@ -49,7 +49,7 @@ export interface ClassCourse {
 /** 課表一格的最小單位：某老師某科目在某星期某教室某時段開課。 */
 export interface Offering {
   subject: string; // 純科目名（數學/英文/英文作文…）
-  grade: '國中' | '高中';
+  grade: '國小' | '國中' | '高中';
   teacherSlug: string;
   teacherName: string;
   englishName?: string | null;
@@ -211,7 +211,7 @@ async function loadFromContent(): Promise<ClassData> {
   for (const [slug, avail] of availByTeacher) {
     const teacher = teacherBySlug.get(slug);
     if (!teacher) continue;
-    const subjSet = new Map<string, { subject: string; grade: '國中' | '高中' }>();
+    const subjSet = new Map<string, { subject: string; grade: '國小' | '國中' | '高中' }>();
     for (const raw of teacher.subjects) {
       const parsed = parseTeacherSubject(raw);
       if (parsed) subjSet.set(`${parsed.grade}|${parsed.subject}`, parsed);
@@ -249,7 +249,7 @@ async function loadFromContent(): Promise<ClassData> {
  * 把 teacher.subjects 一筆（可能含學制前綴或特殊命名）解析成 {純科目, 學制}。
  * 無法判斷學制者回 null（不亂猜）。固定班時段一律 18:00–21:00。
  */
-function parseTeacherSubject(raw: string): { subject: string; grade: '國中' | '高中' } | null {
+function parseTeacherSubject(raw: string): { subject: string; grade: '國小' | '國中' | '高中' } | null {
   const s = raw.trim();
   if (s.includes('Python')) return { subject: 'Python 程式設計', grade: '國中' };
   if (s.includes('英文作文')) return { subject: '英文作文', grade: '高中' };
@@ -269,13 +269,13 @@ export type { TrialFormOptions } from './trialSchema';
 export async function getTrialFormOptions(): Promise<TrialFormOptions> {
   const data = await getClassData();
   // 科目選項「以課表(offerings)為唯一來源」→ 試聽表與課表保證一致。
-  const subjectsByGrade: Record<'國中' | '高中', Set<string>> = { 國中: new Set(), 高中: new Set() };
+  const subjectsByGrade: Record<'國小' | '國中' | '高中', Set<string>> = { 國小: new Set(), 國中: new Set(), 高中: new Set() };
   for (const o of data.offerings) subjectsByGrade[o.grade].add(o.subject);
-  const allSubjects = [...new Set([...subjectsByGrade['國中'], ...subjectsByGrade['高中']])];
+  const allSubjects = [...new Set([...subjectsByGrade['國小'], ...subjectsByGrade['國中'], ...subjectsByGrade['高中']])];
 
   return {
-    grades: ['國一', '國二', '國三', '高一', '高二', '高三'],
-    subjectsByGrade: { 國中: [...subjectsByGrade['國中']], 高中: [...subjectsByGrade['高中']] },
+    grades: [...GRADES],
+    subjectsByGrade: { 國小: [...subjectsByGrade['國小']], 國中: [...subjectsByGrade['國中']], 高中: [...subjectsByGrade['高中']] },
     allSubjects,
     teachers: data.teachers.map((t) => ({ slug: t.slug, name: t.name, englishName: t.englishName, subjects: t.subjects, isTutor: t.isTutor })),
     courses: data.courses.map((c) => ({ slug: c.slug, name: c.name, grade: c.grade, subject: c.subject, teacherSlug: c.teacherSlug })),

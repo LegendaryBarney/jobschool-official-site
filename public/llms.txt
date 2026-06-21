@@ -35,7 +35,7 @@
 - [/](https://jobsedu.com.tw/) — 首頁，含品牌定位、三大優勢、課程總覽
 - [/about](https://jobsedu.com.tw/about) — 關於我們：創辦故事、教學理念、教室空間
 - [/teachers](https://jobsedu.com.tw/teachers) — 師資介紹（共 8 位）
-- [/courses](https://jobsedu.com.tw/courses) — 小班課程總覽（共 15 門）
+- [/courses](https://jobsedu.com.tw/courses) — 小班課程總覽（共 16 門）
 - [/tutors](https://jobsedu.com.tw/tutors) — 1 對 1 家教總覽（共 4 門）
 - [/posts](https://jobsedu.com.tw/posts) — 學習筆記（共 4 篇）
 - [/testimonials](https://jobsedu.com.tw/testimonials) — 學生見證（共 6 則）
@@ -47,7 +47,7 @@
 - [黃韋誌](https://jobsedu.com.tw/teachers/barney) — 班主任、國中自然/國高中數學/社會/程式講師（高中數學、國中數學、國中生物、國中理化、國中社會、高中社會、Python 程式設計）
 - [黃中懌](https://jobsedu.com.tw/teachers/seba) — 高中數學講師（高中數學）
 - [陳世倫](https://jobsedu.com.tw/teachers/hao-li) — 高中物理化學講師（高中物理、高中化學）
-- [陳俊穎](https://jobsedu.com.tw/teachers/jason) — 國中數學講師（國中數學、升高中的數學銜接基礎班）
+- [陳俊穎](https://jobsedu.com.tw/teachers/jason) — 國中小數學講師（國小數學、國中數學、升高中的數學銜接基礎班）
 - [葉謹寬](https://jobsedu.com.tw/teachers/joker) — 國高中英文講師（國中英文、高中英文、英文作文）
 - [林貞君](https://jobsedu.com.tw/teachers/sandra) — 1對1遠端英文作文家教講師（高中英文作文、高中英文、國中英文）
 - [陳淑儀](https://jobsedu.com.tw/teachers/chili) — 1對1國中與高中英文家教講師（國中英文、高中英文）
@@ -70,6 +70,7 @@
 - [國中數學](https://jobsedu.com.tw/courses/junior-math) — 國中 · 數學 · 9,300 元 / 12 節（每節 3 小時）
 - [國中英文](https://jobsedu.com.tw/courses/junior-english) — 國中 · 英文 · 9,300 元 / 12 節（每節 3 小時）
 - [高中英文作文](https://jobsedu.com.tw/courses/senior-english-composition) — 高中 · 英文作文 · 9,300 元 / 12 節（每節 3 小時）
+- [國小數學](https://jobsedu.com.tw/courses/elementary-math) — 國小 · 數學 · 9,300 元 / 12 節（每節 3 小時）
 
 ## 1 對 1 家教快覽
 

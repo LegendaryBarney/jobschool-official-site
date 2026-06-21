@@ -34,7 +34,7 @@ const courses = defineCollection({
   schema: ({ image }) =>
     z.object({
       name: z.string(),
-      grade: z.enum(['國中', '高中']),
+      grade: z.enum(['國小', '國中', '高中']),
       gradeLevel: z.array(z.string()).default([]),
       subject: z.string(),
       teacher: z.string().optional().describe('reference slug to teachers collection'),
