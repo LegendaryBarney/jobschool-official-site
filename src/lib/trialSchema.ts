@@ -8,6 +8,12 @@ import { z } from 'zod';
  */
 
 export const GRADES = [
+  '國小一',
+  '國小二',
+  '國小三',
+  '國小四',
+  '國小五',
+  '國小六',
   '國一',
   '國二',
   '國三',
@@ -86,9 +92,10 @@ export type TrialFormParsed = z.output<typeof trialSchema>;
 /*  表單選項型別與年級→學制對照（client-safe，不依賴 astro:content）       */
 /*  classData.ts（server-only）會 re-export 這些，供後端組裝選項使用。      */
 /* ------------------------------------------------------------------ */
-export type Stage = '國中' | '高中';
+export type Stage = '國小' | '國中' | '高中';
 
 export const GRADE_TO_STAGE: Record<string, Stage> = {
+  國小一: '國小', 國小二: '國小', 國小三: '國小', 國小四: '國小', 國小五: '國小', 國小六: '國小',
   國一: '國中', 國二: '國中', 國三: '國中',
   高一: '高中', 高二: '高中', 高三: '高中',
 };

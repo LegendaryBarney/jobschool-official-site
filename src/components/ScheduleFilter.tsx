@@ -20,7 +20,7 @@ export interface ScheduleFilterRow {
   subject: string;
   teacherName: string;
   englishName?: string | null;
-  grade: '國中' | '高中';
+  grade: '國小' | '國中' | '高中';
   /** 已出現過的教室短標籤（去重） */
   locations: string[];
 }
@@ -31,7 +31,7 @@ interface ScheduleFilterProps {
   teachers: string[];
   /** 教室短標籤清單，如 ['賈伯斯','忍'] */
   locations: string[];
-  grades: ('國中' | '高中')[];
+  grades: ('國小' | '國中' | '高中')[];
 }
 
 const ALL = '';
