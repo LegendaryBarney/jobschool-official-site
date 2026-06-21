@@ -397,7 +397,7 @@ chest-up composition, background is a small teaching corner with a few colorful 
 on the wall (not too busy), natural light, 4:5 portrait, editorial style, warm tones
 ```
 
-### 3.8 joker（葉謹寬）— 高師大英語在學、嘉中 2025 畢業、6 年資歷
+### 3.8 joker（葉謹寬）— 高師大英語畢業、嘉中 2025 畢業、6 年資歷
 
 **中文**：
 ```
