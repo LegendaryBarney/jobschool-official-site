@@ -25,7 +25,7 @@
 | [teacher-jason.md](teachers/teacher-jason.md) | `public/images/teachers/teacher-jason.webp` | Jason 老師 — 嘉大應數、強調陪伴 | 4:5 |
 | [teacher-sandra.md](teachers/teacher-sandra.md) | `public/images/teachers/teacher-sandra.webp` | Sandra 老師 — 師大英語、英文作文 | 4:5 |
 | [teacher-chili.md](teachers/teacher-chili.md) | `public/images/teachers/teacher-chili.webp` | 陳淑儀（chili）— 義守職能治療、國高中英文 | 4:5 |
-| [teacher-joker.md](teachers/teacher-joker.md) | `public/images/teachers/teacher-joker.webp` | 葉謹寬（joker）— 高師大英語在學、嘉中校友 | 4:5 |
+| [teacher-joker.md](teachers/teacher-joker.md) | `public/images/teachers/teacher-joker.webp` | 葉謹寬（joker）— 高師大英語畢業、嘉中校友 | 4:5 |
 
 ## Courses（14 張）
 
