@@ -1,10 +1,14 @@
 import type { APIRoute } from 'astro';
-import { trialSchema, type TrialFormParsed } from '~/lib/trialSchema';
+import { trialSchema, GRADE_TO_STAGE, type TrialFormParsed, type TrialFormOptions } from '~/lib/trialSchema';
 import { getTrialFormOptions } from '~/lib/classData';
 import { getSupabaseAdmin } from '~/lib/supabase';
 
-/** 校區下拉的特殊值（非實體 DB 校區），白名單須額外接受。 */
-const SPECIAL_LOCATION_KEYS = ['online', 'discuss'];
+const WEEKDAY_LABELS = ['', '週一', '週二', '週三', '週四', '週五', '週六', '週日'] as const;
+
+/** 解析家長關係：選「其他」時取自填文字。 */
+function relationText(d: TrialFormParsed): string {
+  return d.relation === '其他' ? (d.relationOther?.trim() || '其他') : d.relation;
+}
 
 // SSR endpoint（hybrid 模式下，個別頁面標記 prerender = false 即可）
 export const prerender = false;
@@ -117,7 +121,7 @@ interface SendMailResult {
   error?: string;
 }
 
-async function sendNotifications(data: TrialFormParsed): Promise<SendMailResult> {
+async function sendNotifications(data: TrialFormParsed, options: TrialFormOptions | null): Promise<SendMailResult> {
   const apiKey = process.env.RESEND_API_KEY ?? import.meta.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn('[trial-signup] RESEND_API_KEY 未設定，已收到表單但不寄信（noop 模式）');
@@ -136,33 +140,17 @@ async function sendNotifications(data: TrialFormParsed): Promise<SendMailResult>
     const { Resend } = await import('resend');
     const resend = new Resend(String(apiKey));
 
-    // 業主通知信
-    const ownerHtml = renderOwnerEmail(data);
+    // 業主通知信（表單已無 email 欄位，故不再寄家長自動回覆）。
+    const ownerHtml = renderOwnerEmail(data, options);
     const ownerRes = await resend.emails.send({
       from: `賈伯斯數理教室 <${fromAddr}>`,
       to: [toAddr],
       subject: `【試聽申請】${data.name} / ${data.grade} / ${data.phone}`,
       html: ownerHtml,
-      replyTo: data.email && data.email !== '' ? data.email : undefined,
     });
     if (ownerRes.error) {
       console.error('[trial-signup] Resend owner email error', ownerRes.error);
       return { ok: false, mode: 'sent', error: ownerRes.error.message };
-    }
-
-    // 家長/學生自動回覆
-    if (data.email && data.email !== '') {
-      const replyHtml = renderAutoReplyEmail(data);
-      const replyRes = await resend.emails.send({
-        from: `賈伯斯數理教室 <${fromAddr}>`,
-        to: [data.email],
-        subject: '【賈伯斯數理教室】已收到您的試聽申請',
-        html: replyHtml,
-      });
-      if (replyRes.error) {
-        // 自動回覆失敗不阻擋業主通知，只記 log
-        console.warn('[trial-signup] Resend auto-reply error', replyRes.error);
-      }
     }
 
     return { ok: true, mode: 'sent' };
@@ -170,6 +158,12 @@ async function sendNotifications(data: TrialFormParsed): Promise<SendMailResult>
     console.error('[trial-signup] Resend send exception', err);
     return { ok: false, mode: 'sent', error: err instanceof Error ? err.message : 'unknown' };
   }
+}
+
+/** locationKey → 顯示名稱（取不到 options 時退回 key）。 */
+function locationLabel(key: string, options: TrialFormOptions | null): string {
+  const loc = options?.locations.find((l) => l.key === key);
+  return loc ? `${loc.name}` : key;
 }
 
 function escapeHtml(str: string): string {
@@ -181,15 +175,13 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#39;');
 }
 
-function renderOwnerEmail(d: TrialFormParsed): string {
+function renderOwnerEmail(d: TrialFormParsed, options: TrialFormOptions | null): string {
   const rows: Array<[string, string]> = [
-    ['姓名', d.name],
-    ['電話', d.phone],
-    ['Email', d.email && d.email !== '' ? d.email : '（未填）'],
-    ['就讀學校', d.school && d.school !== '' ? d.school : '（未填）'],
+    ['學生姓名', d.name],
+    ['家長電話', d.phone],
+    ['家長關係', relationText(d)],
+    ['就讀學校', d.school],
     ['年級', d.grade],
-    ['諮詢科目', (d.subjects ?? []).join('、')],
-    ['希望時段', d.preferredTime ?? '（未指定）'],
     ['備註', d.notes && d.notes !== '' ? d.notes : '（無）'],
   ];
   const tr = rows
@@ -198,29 +190,27 @@ function renderOwnerEmail(d: TrialFormParsed): string {
         `<tr><td style="padding:6px 12px;background:#F5EFE6;color:#3E342B;font-weight:600;width:120px;">${escapeHtml(k)}</td><td style="padding:6px 12px;color:#1F1A16;">${escapeHtml(v)}</td></tr>`,
     )
     .join('');
+
+  // 選課明細：每科一列（科目 / 星期 / 地點）。Python 等自帶完整命名者不加年級前綴。
+  const subjectLabel = (subject: string) => (subject.includes('Python') ? subject : `${d.grade}${subject}`);
+  const selRows = d.selections
+    .map(
+      (s) =>
+        `<tr><td style="padding:6px 12px;border-bottom:1px solid #E8DFD2;color:#1F1A16;">${escapeHtml(subjectLabel(s.subject))}</td><td style="padding:6px 12px;border-bottom:1px solid #E8DFD2;color:#1F1A16;">${escapeHtml(WEEKDAY_LABELS[s.weekday] ?? String(s.weekday))}</td><td style="padding:6px 12px;border-bottom:1px solid #E8DFD2;color:#1F1A16;">${escapeHtml(locationLabel(s.locationKey, options))}</td></tr>`,
+    )
+    .join('');
+
   return `<!doctype html><html><body style="font-family:'Noto Sans TC',sans-serif;background:#F5EFE6;padding:24px;">
   <div style="max-width:560px;margin:0 auto;background:#FFFEFB;border:1px solid #E8DFD2;border-radius:12px;padding:24px;">
     <h1 style="font-family:'Noto Serif TC',serif;color:#3E342B;font-size:22px;margin:0 0 16px;">新試聽申請</h1>
     <p style="color:#1F1A16;line-height:1.6;margin:0 0 16px;">收到一筆新的試聽預約，請於 1 個工作日內聯絡。</p>
     <table style="width:100%;border-collapse:collapse;font-size:14px;">${tr}</table>
+    <h2 style="font-family:'Noto Serif TC',serif;color:#3E342B;font-size:16px;margin:20px 0 8px;">試聽科目與時段</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <tr><th style="padding:6px 12px;text-align:left;background:#F5EFE6;color:#3E342B;">科目</th><th style="padding:6px 12px;text-align:left;background:#F5EFE6;color:#3E342B;">星期</th><th style="padding:6px 12px;text-align:left;background:#F5EFE6;color:#3E342B;">地點</th></tr>
+      ${selRows}
+    </table>
     <p style="color:#7A6F62;font-size:12px;margin:20px 0 0;">送出時間：${escapeHtml(new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }))}</p>
-  </div>
-  </body></html>`;
-}
-
-function renderAutoReplyEmail(d: TrialFormParsed): string {
-  return `<!doctype html><html><body style="font-family:'Noto Sans TC',sans-serif;background:#F5EFE6;padding:24px;">
-  <div style="max-width:560px;margin:0 auto;background:#FFFEFB;border:1px solid #E8DFD2;border-radius:12px;padding:28px;">
-    <h1 style="font-family:'Noto Serif TC',serif;color:#3E342B;font-size:24px;margin:0 0 12px;">已收到您的試聽申請</h1>
-    <p style="color:#1F1A16;line-height:1.7;margin:0 0 12px;">${escapeHtml(d.name)} 您好，</p>
-    <p style="color:#1F1A16;line-height:1.7;margin:0 0 12px;">感謝您填寫試聽預約表單。我們會於 <strong>1 個工作日內</strong>透過電話 ${escapeHtml(d.phone)} 或您指定的方式與您聯絡，確認試聽時段與相關細節。</p>
-    <p style="color:#1F1A16;line-height:1.7;margin:0 0 12px;">若想更快收到課程資訊，歡迎加入我們的 LINE 官方帳號。</p>
-    <hr style="border:none;border-top:1px solid #E8DFD2;margin:20px 0;" />
-    <p style="color:#7A6F62;font-size:13px;line-height:1.7;margin:0;">
-      賈伯斯數理教室<br/>
-      嘉義市東區康樂街 10 號 · (05) 223-0303<br/>
-      <a href="https://jobsedu.com.tw" style="color:#C8A165;">jobsedu.com.tw</a>
-    </p>
   </div>
   </body></html>`;
 }
@@ -313,10 +303,17 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // DB 白名單檢核：subjects / preferredTeacherSlug / courseSlug / preferredLocationKey
-  // 必須屬於合法選項。取不到白名單（未設 Supabase / content 後備）時亦能比對，
-  // 因 getTrialFormOptions() 在無 DB 時改讀 content collections。
-  const whitelistError = await validateAgainstWhitelist(parsed.data);
+  // 取 DB 驅動選項（Supabase 優先、content 後備）。供白名單檢核與寄信標籤共用。
+  let options: TrialFormOptions | null = null;
+  try {
+    options = await getTrialFormOptions();
+  } catch (err) {
+    console.warn('[trial-signup] 取選項失敗，略過 DB 白名單檢核', err);
+  }
+
+  // DB 白名單檢核：每筆 selection 的 (科目, 星期, 地點) 必須是該年級學制下真實存在
+  // 且 published 的開課（class_offerings 投影）。取不到 options 時寬鬆放行（仍寄信入庫）。
+  const whitelistError = validateAgainstWhitelist(parsed.data, options);
   if (whitelistError) {
     return jsonResponse(
       400,
@@ -335,29 +332,24 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // 寄信（若無 RESEND_API_KEY 則進入 noop 優雅降級）
-  const mailResult = await sendNotifications(parsed.data);
-  if (!mailResult.ok) {
-    return jsonResponse(
-      502,
-      { ok: false, error: 'EMAIL_FAILED' satisfies ErrorCode, detail: mailResult.error },
-      origin,
-    );
-  }
-
-  // 寫入 Supabase（service_role）。未設 key → noop 降級；寫入失敗只記 log 不阻擋回應。
+  // 先寫入 Supabase（service_role）—— 名單為第一優先，絕不可因寄信失敗而遺失。
+  // 未設 key → noop 降級；寫入失敗只記 log 不阻擋回應。一科一列。
   await persistSignup(parsed.data, request);
 
-  // 成功
+  // 再寄信通知（best-effort）。寄信失敗（如 Resend 寄件網域未驗證）只記 log，
+  // 不讓家長看到「送出失敗」——名單已進 DB，業主可從後台補聯絡。
+  const mailResult = await sendNotifications(parsed.data, options);
+  if (!mailResult.ok) {
+    console.error('[trial-signup] 寄信失敗但名單已入庫，回應仍視為成功', mailResult.error);
+  }
+
+  // 成功（名單已入庫即算成功）
   return jsonResponse(
     200,
     {
       ok: true,
-      mode: mailResult.mode,
-      message:
-        mailResult.mode === 'noop'
-          ? '已收到，將由人工處理（目前環境未設定寄信服務）'
-          : '已收到，將於 1 個工作日內聯絡您',
+      mode: mailResult.ok ? mailResult.mode : 'mail_failed',
+      message: '已收到，將於 1 個工作日內聯絡您',
     },
     origin,
   );
@@ -367,52 +359,35 @@ export const POST: APIRoute = async ({ request }) => {
 /*  DB 白名單檢核                                                      */
 /* ------------------------------------------------------------------ */
 /**
- * 對照 getTrialFormOptions() 的合法選項，檢核使用者送出的 subjects / 老師 /
- * 課程 / 校區是否都存在。回傳 null 表通過；回傳字串表第一個違規原因。
- * 取白名單失敗（極端情況）時採寬鬆放行，避免擋掉正常送單（email 仍會通知）。
+ * 對照 getTrialFormOptions() 的 availability（已過濾 published 的開課聯集），檢核每筆
+ * selection 的 (科目, 星期, 地點) 在該年級學制下確實存在。回傳 null 表通過；回傳字串
+ * 表第一個違規原因。取不到 options 時採寬鬆放行，避免擋掉正常送單（仍寄信入庫）。
  */
-async function validateAgainstWhitelist(d: TrialFormParsed): Promise<string | null> {
-  let options;
-  try {
-    options = await getTrialFormOptions();
-  } catch (err) {
-    console.warn('[trial-signup] 取白名單失敗，略過 DB 白名單檢核', err);
-    return null;
-  }
+function validateAgainstWhitelist(d: TrialFormParsed, options: TrialFormOptions | null): string | null {
+  if (!options) return null;
 
-  // 科目：依年級學制過濾後的合法科目（含 allSubjects 後備）。
-  const norm = (s: string) => s.replace(/^(國中|高中|國小)/u, '').trim();
-  const validSubjects = new Set(options.allSubjects.map(norm));
-  for (const s of d.subjects ?? []) {
-    if (!validSubjects.has(norm(s))) return `不合法的科目：${s}`;
-  }
+  const stage = GRADE_TO_STAGE[d.grade];
+  if (!stage) return `不合法的年級：${d.grade}`;
 
-  if (d.preferredTeacherSlug && d.preferredTeacherSlug !== '') {
-    const teacher = options.teachers.find((t) => t.slug === d.preferredTeacherSlug);
-    if (!teacher) {
-      return `不合法的老師：${d.preferredTeacherSlug}`;
-    }
-    // 交叉核實：指定老師必須確實教授所選科目之一（以課表/DB 為準）。
-    const picked = (d.subjects ?? []).map(norm);
-    if (picked.length > 0) {
-      const teaches = teacher.subjects.map(norm);
-      if (!picked.some((s) => teaches.includes(s))) {
-        return `所選老師（${teacher.name}）未教授所選科目`;
-      }
+  // 該學制下合法的 (科目|地點|星期) 組合集合。
+  const validCombo = new Set(
+    options.availability
+      .filter((a) => a.grade === stage)
+      .map((a) => `${a.subject}|${a.locationKey}|${a.weekday}`),
+  );
+
+  for (const s of d.selections) {
+    const key = `${s.subject}|${s.locationKey}|${s.weekday}`;
+    if (!validCombo.has(key)) {
+      return `不合法的選課：${stage}${s.subject} / ${WEEKDAY_LABELS[s.weekday] ?? s.weekday} / ${locationLabel(s.locationKey, options)}`;
     }
   }
 
+  // 課程歸因 slug（選填）若有帶，需存在。
   if (d.courseSlug && d.courseSlug !== '') {
     if (!options.courses.some((c) => c.slug === d.courseSlug)) {
       return `不合法的課程：${d.courseSlug}`;
     }
-  }
-
-  if (d.preferredLocationKey && d.preferredLocationKey !== '') {
-    const validLoc =
-      options.locations.some((l) => l.key === d.preferredLocationKey) ||
-      SPECIAL_LOCATION_KEYS.includes(d.preferredLocationKey);
-    if (!validLoc) return `不合法的校區：${d.preferredLocationKey}`;
   }
 
   return null;
@@ -427,27 +402,31 @@ async function persistSignup(d: TrialFormParsed, request: Request): Promise<void
     console.warn('[trial-signup] SUPABASE_SERVICE_ROLE_KEY 未設定，跳過 DB 寫入（noop 模式）');
     return;
   }
-  // turnstileToken 不入庫（屬一次性驗證 token）。
+  // turnstileToken 不入庫（屬一次性驗證 token）。整筆申請的 payload 留存 raw（每列複製，無妨）。
   const { turnstileToken: _drop, ...payload } = d;
-  const row = {
+  const submissionId = crypto.randomUUID();
+  const relation = relationText(d);
+  const source = request.headers.get('referer') ?? 'web';
+
+  // 一筆申請含多科 → 各科在 trial_signups 各自一列（聯絡資訊重覆不省）。
+  const rows = d.selections.map((s) => ({
+    submission_id: submissionId,
     name: d.name,
     phone: d.phone,
-    email: d.email && d.email !== '' ? d.email : null,
-    school: d.school && d.school !== '' ? d.school : null,
+    parent_relation: relation,
+    school: d.school,
     grade: d.grade,
-    subjects: d.subjects ?? [],
+    subject: s.subject,
+    weekday: s.weekday,
+    location_key: s.locationKey,
     course_slug: d.courseSlug && d.courseSlug !== '' ? d.courseSlug : null,
-    preferred_teacher_slug:
-      d.preferredTeacherSlug && d.preferredTeacherSlug !== '' ? d.preferredTeacherSlug : null,
-    preferred_location_key:
-      d.preferredLocationKey && d.preferredLocationKey !== '' ? d.preferredLocationKey : null,
-    preferred_time: d.preferredTime ?? null,
     notes: d.notes && d.notes !== '' ? d.notes : null,
-    source: request.headers.get('referer') ?? 'web',
+    source,
     raw: payload,
-  };
+  }));
+
   try {
-    const { error } = await sb.from('trial_signups').insert(row);
+    const { error } = await sb.from('trial_signups').insert(rows);
     if (error) {
       console.error('[trial-signup] Supabase insert 失敗（不阻擋回應）', error.message);
     }

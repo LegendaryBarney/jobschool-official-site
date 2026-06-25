@@ -1,5 +1,5 @@
 import { getSupabaseRead } from './supabase';
-import { GRADE_TO_STAGE, GRADES, type TrialFormOptions } from './trialSchema';
+import { GRADES, type TrialFormOptions } from './trialSchema';
 
 /**
  * 課表 / 師資 / 課程 / 校區的單一資料來源。
@@ -273,12 +273,28 @@ export async function getTrialFormOptions(): Promise<TrialFormOptions> {
   for (const o of data.offerings) subjectsByGrade[o.grade].add(o.subject);
   const allSubjects = [...new Set([...subjectsByGrade['國小'], ...subjectsByGrade['國中'], ...subjectsByGrade['高中']])];
 
+  // availability：每個 (學制, 科目) 的「星期×地點」聯集（去重；不外露老師）。
+  // 來源 offerings 已是 published 課堂粒度 → 試聽 bullet 與課表保證一致。
+  const availMap = new Map<string, TrialFormOptions['availability'][number]>();
+  for (const o of data.offerings) {
+    const key = `${o.grade}|${o.subject}|${o.locationKey}|${o.weekday}`;
+    if (availMap.has(key)) continue;
+    availMap.set(key, {
+      grade: o.grade,
+      subject: o.subject,
+      locationKey: o.locationKey,
+      locationName: o.locationName,
+      locationShort: o.locationShort,
+      weekday: o.weekday,
+    });
+  }
+
   return {
     grades: [...GRADES],
     subjectsByGrade: { 國小: [...subjectsByGrade['國小']], 國中: [...subjectsByGrade['國中']], 高中: [...subjectsByGrade['高中']] },
     allSubjects,
-    teachers: data.teachers.map((t) => ({ slug: t.slug, name: t.name, englishName: t.englishName, subjects: t.subjects, isTutor: t.isTutor })),
+    availability: [...availMap.values()],
     courses: data.courses.map((c) => ({ slug: c.slug, name: c.name, grade: c.grade, subject: c.subject, teacherSlug: c.teacherSlug })),
-    locations: data.locations.map((l) => ({ key: l.key, name: l.name })),
+    locations: data.locations.map((l) => ({ key: l.key, name: l.name, shortLabel: l.shortLabel })),
   };
 }
