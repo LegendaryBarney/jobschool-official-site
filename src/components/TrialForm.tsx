@@ -3,54 +3,67 @@ import { Turnstile } from '@marsidev/react-turnstile';
 import {
   trialSchema,
   GRADES,
-  SUBJECTS,
-  TIME_SLOTS,
+  RELATIONS,
+  GRADE_TO_STAGE,
   type Grade,
-  type Subject,
-  type TimeSlot,
+  type Relation,
   type TrialFormData,
+  type TrialFormOptions,
 } from '~/lib/trialSchema';
-import { GRADE_TO_STAGE, type TrialFormOptions } from '~/lib/trialSchema';
 
-type FieldErrors = Partial<Record<keyof TrialFormData, string>>;
+const WEEKDAY_LABELS = ['', '週一', '週二', '週三', '週四', '週五', '週六', '週日'] as const;
 
-const initialData: TrialFormData = {
-  name: '',
-  phone: '',
-  email: '',
-  school: '',
-  grade: undefined as unknown as Grade,
-  subjects: [],
-  preferredTime: undefined,
-  courseSlug: '',
-  preferredTeacherSlug: '',
-  preferredLocationKey: '',
-  notes: '',
-  turnstileToken: '',
-};
+/** 一筆「選課」的草稿狀態（locationFilter 僅 UI 篩選用，不送出）。 */
+interface DraftSelection {
+  subject: string;
+  weekday: number | null;
+  locationKey: string | null;
+  locationFilter: string; // '' = 全部地點
+}
 
+interface FormState {
+  name: string;
+  phone: string;
+  relation: '' | Relation;
+  relationOther: string;
+  school: string;
+  grade: '' | Grade;
+  selections: DraftSelection[];
+  notes: string;
+  courseSlug: string;
+  turnstileToken: string;
+}
+
+type TopErrors = Partial<Record<'name' | 'phone' | 'relation' | 'relationOther' | 'school' | 'grade' | 'selections', string>>;
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
-/** 校區下拉的特殊值（非實體 DB 校區）。後端白名單會額外接受這兩個 key。 */
-const LOCATION_ONLINE = 'online';
-const LOCATION_DISCUSS = 'discuss';
+function emptySelection(subject = ''): DraftSelection {
+  return { subject, weekday: null, locationKey: null, locationFilter: '' };
+}
+
+/**
+ * 科目顯示名：一般科目加學制前綴（例「高中數學」），但本身已含完整命名者
+ * （如「Python 程式設計」）不加前綴，避免「高中Python 程式設計」這種拗口字串。
+ */
+function subjectLabel(stage: string | undefined, subject: string): string {
+  if (subject.includes('Python')) return subject;
+  return stage ? `${stage}${subject}` : subject;
+}
 
 /**
  * 送出成功後發送「試聽名單」轉換事件給 GA4（generate_lead）與 Meta Pixel（Lead）。
- * 缺對應追蹤腳本（未設 PUBLIC_GA_ID / PUBLIC_META_PIXEL_ID）時靜默略過，
- * 任何錯誤都不影響使用者送出流程。這是衡量廣告投放 CPL/ROAS 的關鍵事件。
+ * 缺對應追蹤腳本時靜默略過；任何錯誤都不影響送出流程。
  */
-function trackLeadConversion(data: TrialFormData): void {
+function trackLeadConversion(d: { grade: string; subjects: string; courseSlug?: string }): void {
   if (typeof window === 'undefined') return;
-  const subjects = (data.subjects ?? []).join(',');
   try {
     const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
     if (typeof gtag === 'function') {
       gtag('event', 'generate_lead', {
         event_category: 'trial',
-        grade: data.grade,
-        subjects,
-        course: data.courseSlug || undefined,
+        grade: d.grade,
+        subjects: d.subjects,
+        course: d.courseSlug || undefined,
       });
     }
   } catch {
@@ -59,7 +72,7 @@ function trackLeadConversion(data: TrialFormData): void {
   try {
     const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
     if (typeof fbq === 'function') {
-      fbq('track', 'Lead', { content_name: 'trial_signup', content_category: subjects });
+      fbq('track', 'Lead', { content_name: 'trial_signup', content_category: d.subjects });
     }
   } catch {
     /* 追蹤失敗不阻擋流程 */
@@ -68,33 +81,37 @@ function trackLeadConversion(data: TrialFormData): void {
 
 interface TrialFormProps {
   endpoint?: string;
-  /**
-   * DB 驅動的級聯選項（年級 / 科目 / 老師 / 校區）。
-   * 由頁面 frontmatter `await getTrialFormOptions()` 帶入。
-   * 未傳入時退回 schema 預設常數（向後相容、零回歸）。
-   */
+  /** DB 驅動的級聯選項（年級 / 科目 / (科目→星期×地點) / 校區）。 */
   options?: TrialFormOptions;
-  /** （向後相容）僅傳科目選項；未提供 options 時使用。 */
-  subjectOptions?: readonly string[];
-  /** 課程頁帶入的預設課程 slug，連同表單一起送出供後端對應。 */
+  /** 課程頁帶入的預設課程 slug，連同表單送出供後端歸因。 */
   defaultCourseSlug?: string;
-  /** 課程頁帶入的預設勾選科目。 */
+  /** 課程頁帶入的預設科目（會先建立對應的選課卡，待使用者選年級與星期/地點）。 */
   defaultSubjects?: readonly string[];
 }
 
 export default function TrialForm({
   endpoint = '/api/trial-signup',
   options,
-  subjectOptions = SUBJECTS,
   defaultCourseSlug,
   defaultSubjects,
 }: TrialFormProps) {
-  const [data, setData] = useState<TrialFormData>(() => ({
-    ...initialData,
+  const [form, setForm] = useState<FormState>(() => ({
+    name: '',
+    phone: '',
+    relation: '',
+    relationOther: '',
+    school: '',
+    grade: '',
+    selections:
+      defaultSubjects && defaultSubjects.length > 0
+        ? defaultSubjects.map((s) => emptySelection(s))
+        : [emptySelection()],
+    notes: '',
     courseSlug: defaultCourseSlug ?? '',
-    subjects: defaultSubjects ? [...defaultSubjects] : [],
+    turnstileToken: '',
   }));
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const [errors, setErrors] = useState<TopErrors>({});
+  const [selErrors, setSelErrors] = useState<Record<number, string>>({});
   const [status, setStatus] = useState<Status>('idle');
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -104,121 +121,168 @@ export default function TrialForm({
   );
   const lineUrl = (import.meta.env.PUBLIC_LINE_URL as string | undefined) || '#';
 
-  // 已選年級 → 學制（國中 / 高中）
-  const stage = data.grade ? GRADE_TO_STAGE[data.grade] : undefined;
+  const stage = form.grade ? GRADE_TO_STAGE[form.grade] : undefined;
 
-  // 級聯①：科目選項依學制過濾；未選年級或無 options 時退回開放清單。
+  // 科目選項依年級學制過濾。
   const subjectChoices = useMemo<string[]>(() => {
-    if (options) {
-      if (stage) return options.subjectsByGrade[stage] ?? options.allSubjects;
-      return options.allSubjects;
-    }
-    return [...subjectOptions];
-  }, [options, stage, subjectOptions]);
+    if (!options || !stage) return [];
+    return options.subjectsByGrade[stage] ?? options.allSubjects;
+  }, [options, stage]);
 
-  // 級聯②：老師選項依「已選科目 ∩ 老師可教科目」過濾；未選科目時顯示全部（同學制優先）。
-  const teacherChoices = useMemo(() => {
-    if (!options) return [];
-    const picked = data.subjects ?? [];
-    const norm = (s: string) => s.replace(/^(國中|高中|國小)/u, '').trim();
-    const pickedNorm = new Set(picked.map(norm));
-    return options.teachers.filter((t) => {
-      if (pickedNorm.size === 0) return true;
-      const teacherSubjects = t.subjects.map(norm);
-      return teacherSubjects.some((ts) => pickedNorm.has(ts));
-    });
-  }, [options, data.subjects]);
+  const usedSubjects = useMemo(
+    () => new Set(form.selections.map((s) => s.subject).filter(Boolean)),
+    [form.selections],
+  );
 
-  // 校區選項：DB 實體校區 + 線上 + 再討論。
-  const locationChoices = useMemo(() => {
-    const base = options?.locations ?? [];
-    return [
-      ...base.map((l) => ({ key: l.key, name: l.name })),
-      { key: LOCATION_ONLINE, name: '線上 / 遠端' },
-      { key: LOCATION_DISCUSS, name: '再討論' },
-    ];
-  }, [options]);
+  const locationOrder = useMemo(
+    () => new Map((options?.locations ?? []).map((l, i) => [l.key, i])),
+    [options],
+  );
 
-  function update<K extends keyof TrialFormData>(key: K, value: TrialFormData[K]) {
-    setData((prev) => ({ ...prev, [key]: value }));
-    if (errors[key]) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next[key];
-        return next;
-      });
-    }
+  /** 取某科目（含可選地點篩選）的「星期×地點」格：rows=星期、cols=地點、可選格=cellSet。 */
+  function gridFor(subject: string, locationFilter: string) {
+    if (!options || !stage || !subject) return null;
+    let cells = options.availability.filter((a) => a.grade === stage && a.subject === subject);
+    const allLocations = uniqueLocations(cells);
+    if (locationFilter) cells = cells.filter((c) => c.locationKey === locationFilter);
+    const locations = uniqueLocations(cells).sort(
+      (a, b) => (locationOrder.get(a.key) ?? 99) - (locationOrder.get(b.key) ?? 99),
+    );
+    const weekdays = [...new Set(cells.map((c) => c.weekday))].sort((a, b) => a - b);
+    const cellSet = new Set(cells.map((c) => `${c.locationKey}|${c.weekday}`));
+    return { locations, weekdays, cellSet, allLocations };
   }
 
-  function onGradeChange(next: Grade) {
-    setData((prev) => {
-      const nextStage = next ? GRADE_TO_STAGE[next] : undefined;
-      // 換年級後，把不屬於新學制的已選科目清掉，避免送出非法選項。
-      let nextSubjects = prev.subjects ?? [];
-      let nextTeacher = prev.preferredTeacherSlug;
-      if (options && nextStage) {
-        const allowed = new Set(options.subjectsByGrade[nextStage] ?? options.allSubjects);
-        nextSubjects = nextSubjects.filter((s) => allowed.has(s));
-        if (nextSubjects.length !== (prev.subjects ?? []).length) nextTeacher = '';
+  function uniqueLocations(cells: TrialFormOptions['availability']) {
+    const m = new Map<string, { key: string; short: string; name: string }>();
+    for (const c of cells) {
+      if (!m.has(c.locationKey)) m.set(c.locationKey, { key: c.locationKey, short: c.locationShort, name: c.locationName });
+    }
+    return [...m.values()].sort((a, b) => (locationOrder.get(a.key) ?? 99) - (locationOrder.get(b.key) ?? 99));
+  }
+
+  /* -------------------- 欄位更新 -------------------- */
+  function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    if (key in errors) setErrors((prev) => ({ ...prev, [key]: undefined }));
+  }
+
+  function onGradeChange(next: '' | Grade) {
+    setForm((prev) => {
+      const ns = next ? GRADE_TO_STAGE[next] : undefined;
+      const allowed = new Set(ns && options ? options.subjectsByGrade[ns] ?? options.allSubjects : []);
+      // 換年級 → 學制可能變，星期/地點一律重選；科目若不屬新學制則清空。
+      const selections = prev.selections.map((c) =>
+        c.subject && allowed.has(c.subject)
+          ? { ...c, weekday: null, locationKey: null, locationFilter: '' }
+          : emptySelection(),
+      );
+      return { ...prev, grade: next, selections };
+    });
+    setSelErrors({});
+    setErrors((p) => ({ ...p, grade: undefined, selections: undefined }));
+  }
+
+  function patchSelection(i: number, patch: Partial<DraftSelection>) {
+    setForm((prev) => {
+      const selections = prev.selections.slice();
+      selections[i] = { ...selections[i]!, ...patch };
+      return { ...prev, selections };
+    });
+    setSelErrors((prev) => {
+      const n = { ...prev };
+      delete n[i];
+      return n;
+    });
+  }
+
+  function onSubjectChange(i: number, subject: string) {
+    // 換科目 → 星期/地點/地點篩選一律重置。
+    patchSelection(i, { subject, weekday: null, locationKey: null, locationFilter: '' });
+  }
+
+  function onLocationFilterChange(i: number, locationFilter: string) {
+    setForm((prev) => {
+      const selections = prev.selections.slice();
+      const cur = selections[i]!;
+      // 篩選地點若與目前已選格的地點不同，清掉已選星期/地點。
+      const clearPick = Boolean(locationFilter) && cur.locationKey !== null && cur.locationKey !== locationFilter;
+      selections[i] = {
+        ...cur,
+        locationFilter,
+        weekday: clearPick ? null : cur.weekday,
+        locationKey: clearPick ? null : cur.locationKey,
+      };
+      return { ...prev, selections };
+    });
+  }
+
+  function onPickCell(i: number, locationKey: string, weekday: number) {
+    patchSelection(i, { locationKey, weekday });
+  }
+
+  function addSubjectCard() {
+    setForm((prev) => ({ ...prev, selections: [...prev.selections, emptySelection()] }));
+  }
+
+  function removeSubjectCard(i: number) {
+    setForm((prev) => ({ ...prev, selections: prev.selections.filter((_, idx) => idx !== i) }));
+    setSelErrors((prev) => {
+      const n: Record<number, string> = {};
+      for (const [k, v] of Object.entries(prev)) {
+        const idx = Number(k);
+        if (idx < i) n[idx] = v;
+        else if (idx > i) n[idx - 1] = v;
       }
-      return { ...prev, grade: next, subjects: nextSubjects, preferredTeacherSlug: nextTeacher };
+      return n;
     });
-    if (errors.grade) {
-      setErrors((prev) => {
-        const n = { ...prev };
-        delete n.grade;
-        return n;
-      });
-    }
   }
 
-  function toggleSubject(s: Subject) {
-    const current = data.subjects ?? [];
-    const next = current.includes(s)
-      ? current.filter((x) => x !== s)
-      : [...current, s];
-    // 若取消的科目使目前指定的老師失去交集，順手清掉避免非法送出。
-    setData((prev) => {
-      let nextTeacher = prev.preferredTeacherSlug;
-      if (options && nextTeacher) {
-        const norm = (x: string) => x.replace(/^(國中|高中|國小)/u, '').trim();
-        const pickedNorm = new Set(next.map(norm));
-        const teacher = options.teachers.find((t) => t.slug === nextTeacher);
-        const stillValid =
-          next.length === 0 ||
-          (teacher && teacher.subjects.map(norm).some((ts) => pickedNorm.has(ts)));
-        if (!stillValid) nextTeacher = '';
-      }
-      return { ...prev, subjects: next, preferredTeacherSlug: nextTeacher };
-    });
-    if (errors.subjects) {
-      setErrors((prev) => {
-        const n = { ...prev };
-        delete n.subjects;
-        return n;
-      });
-    }
-  }
-
+  /* -------------------- 送出 -------------------- */
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitError(null);
 
-    const result = trialSchema.safeParse(data);
+    // 1) 逐卡檢核（科目/星期/地點皆需到位）。
+    const nextSelErrors: Record<number, string> = {};
+    form.selections.forEach((c, i) => {
+      if (!c.subject) nextSelErrors[i] = '請選擇科目';
+      else if (c.weekday == null || !c.locationKey) nextSelErrors[i] = '請在下表選擇一個試聽星期與地點';
+    });
+
+    // 2) 組 payload 走共用 schema 檢核其餘欄位。
+    const payload: TrialFormData = {
+      name: form.name,
+      phone: form.phone,
+      relation: (form.relation || undefined) as Relation,
+      relationOther: form.relation === '其他' ? form.relationOther : '',
+      school: form.school,
+      grade: form.grade as Grade,
+      selections: form.selections
+        .filter((c) => c.subject && c.weekday != null && c.locationKey)
+        .map((c) => ({ subject: c.subject, weekday: c.weekday as number, locationKey: c.locationKey as string })),
+      courseSlug: form.courseSlug,
+      notes: form.notes,
+      turnstileToken: form.turnstileToken,
+    };
+
+    const result = trialSchema.safeParse(payload);
+    const nextErrors: TopErrors = {};
     if (!result.success) {
-      const fieldErrors: FieldErrors = {};
+      // 只收 top-level 欄位錯誤（含 selections 的 min/重覆訊息）；逐卡細節走 selErrors。
       for (const issue of result.error.issues) {
-        const key = issue.path[0] as keyof TrialFormData | undefined;
-        if (key && !fieldErrors[key]) fieldErrors[key] = issue.message;
+        const key = issue.path[0] as keyof TopErrors | undefined;
+        if (key && !nextErrors[key]) nextErrors[key] = issue.message;
       }
-      setErrors(fieldErrors);
-      // 聚焦第一個錯誤欄位，並保留所有已填資料。
-      const firstKey = Object.keys(fieldErrors)[0];
-      if (firstKey) {
+    }
+
+    if (Object.keys(nextSelErrors).length > 0 || Object.keys(nextErrors).length > 0) {
+      setSelErrors(nextSelErrors);
+      setErrors(nextErrors);
+      const firstTop = Object.keys(nextErrors)[0];
+      if (firstTop) {
         requestAnimationFrame(() => {
-          document
-            .querySelector<HTMLElement>(`[data-field="${firstKey}"]`)
-            ?.focus?.();
+          document.querySelector<HTMLElement>(`[data-field="${firstTop}"]`)?.focus?.();
         });
       }
       return;
@@ -232,12 +296,13 @@ export default function TrialForm({
         body: JSON.stringify(result.data),
       });
       const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
-      if (!res.ok || !json.ok) {
-        throw new Error(json.error || '送出失敗，請稍後再試');
-      }
+      if (!res.ok || !json.ok) throw new Error(json.error || '送出失敗，請稍後再試');
       setStatus('success');
-      trackLeadConversion(result.data);
-      setData({ ...initialData, courseSlug: defaultCourseSlug ?? '' });
+      trackLeadConversion({
+        grade: form.grade,
+        subjects: payload.selections.map((s) => s.subject).join(','),
+        courseSlug: form.courseSlug,
+      });
     } catch (err) {
       setStatus('error');
       setSubmitError(err instanceof Error ? err.message : '送出失敗，請稍後再試');
@@ -267,71 +332,84 @@ export default function TrialForm({
 
   const submitting = status === 'submitting';
   const grades: readonly string[] = options?.grades ?? GRADES;
-  const subjectsDisabled = Boolean(options) && !data.grade;
+  const subjectsLocked = !form.grade;
+  const allSubjectsUsed = subjectChoices.length > 0 && subjectChoices.every((s) => usedSubjects.has(s));
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
       <div className="grid gap-4 md:grid-cols-2">
-        <Field label="姓名" required error={errors.name}>
+        <Field label="學生姓名" required error={errors.name}>
           <input
             type="text"
             data-field="name"
             autoComplete="name"
-            value={data.name}
-            onChange={(e) => update('name', e.target.value)}
+            value={form.name}
+            onChange={(e) => updateField('name', e.target.value)}
             className="form-input"
             aria-invalid={Boolean(errors.name)}
           />
         </Field>
 
-        <Field label="電話（手機）" required error={errors.phone}>
+        <Field label="家長電話（手機）" required error={errors.phone}>
           <input
             type="tel"
             data-field="phone"
             inputMode="numeric"
             autoComplete="tel"
             placeholder="09xxxxxxxx"
-            value={data.phone}
-            onChange={(e) => update('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
+            value={form.phone}
+            onChange={(e) => updateField('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
             className="form-input"
             aria-invalid={Boolean(errors.phone)}
           />
         </Field>
 
-        <Field
-          label="Email（選填）"
-          error={errors.email as string | undefined}
-          hint="留下 Email 我們會自動回覆確認信"
-        >
-          <input
-            type="email"
-            data-field="email"
-            autoComplete="email"
-            inputMode="email"
-            placeholder="parent@example.com"
-            value={data.email ?? ''}
-            onChange={(e) => update('email', e.target.value)}
+        <Field label="家長與學生關係" required error={errors.relation}>
+          <select
+            data-field="relation"
+            value={form.relation}
+            onChange={(e) => updateField('relation', e.target.value as '' | Relation)}
             className="form-input"
-            aria-invalid={Boolean(errors.email)}
-          />
+            aria-invalid={Boolean(errors.relation)}
+          >
+            <option value="">請選擇</option>
+            {RELATIONS.map((r) => (
+              <option key={r} value={r}>{r === '其他' ? '其他（自填）' : r}</option>
+            ))}
+          </select>
         </Field>
 
-        <Field label="就讀學校（選填）" error={errors.school as string | undefined}>
-          <input
-            type="text"
-            data-field="school"
-            placeholder="例：嘉義高中"
-            value={data.school ?? ''}
-            onChange={(e) => update('school', e.target.value)}
-            className="form-input"
-          />
-        </Field>
+        {form.relation === '其他' ? (
+          <Field label="關係（自填）" required error={errors.relationOther}>
+            <input
+              type="text"
+              data-field="relationOther"
+              placeholder="例：祖父、監護人"
+              value={form.relationOther}
+              onChange={(e) => updateField('relationOther', e.target.value)}
+              className="form-input"
+              aria-invalid={Boolean(errors.relationOther)}
+            />
+          </Field>
+        ) : (
+          <Field label="就讀學校" required error={errors.school} hint="已畢業不確定填原校即可">
+            <input
+              type="text"
+              data-field="school"
+              placeholder="例：嘉義高中"
+              value={form.school}
+              onChange={(e) => updateField('school', e.target.value)}
+              className="form-input"
+              aria-invalid={Boolean(errors.school)}
+            />
+          </Field>
+        )}
 
         <Field label="年級" required error={errors.grade}>
           <select
             data-field="grade"
-            value={data.grade ?? ''}
-            onChange={(e) => onGradeChange(e.target.value as Grade)}
+            value={form.grade}
+            onChange={(e) => onGradeChange(e.target.value as '' | Grade)}
             className="form-input"
             aria-invalid={Boolean(errors.grade)}
           >
@@ -342,136 +420,173 @@ export default function TrialForm({
           </select>
         </Field>
 
-        <Field label="希望試聽時段（選填）" error={errors.preferredTime}>
-          <select
-            data-field="preferredTime"
-            value={data.preferredTime ?? ''}
-            onChange={(e) => update('preferredTime', (e.target.value || undefined) as TimeSlot | undefined)}
-            className="form-input"
-          >
-            <option value="">不指定</option>
-            {TIME_SLOTS.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </Field>
+        {/* relation==='其他' 時，就讀學校改放這格以維持兩欄排版 */}
+        {form.relation === '其他' && (
+          <Field label="就讀學校" required error={errors.school} hint="已畢業不確定填原校即可">
+            <input
+              type="text"
+              data-field="school"
+              placeholder="例：嘉義高中"
+              value={form.school}
+              onChange={(e) => updateField('school', e.target.value)}
+              className="form-input"
+              aria-invalid={Boolean(errors.school)}
+            />
+          </Field>
+        )}
       </div>
 
-      {/* 諮詢科目：依年級學制級聯過濾的複選 chips */}
-      <fieldset data-field="subjects">
+      {/* 選課：每科 = 科目 + 星期×地點單選 */}
+      <fieldset data-field="selections">
         <legend className="flex flex-wrap items-baseline gap-x-2 text-sm font-medium text-charcoal mb-2">
           <span>
-            想諮詢的科目
+            想試聽的科目與時段
             <span className="text-sienna ml-1">*</span>
           </span>
-          <span className="text-xs text-charcoal/55">（可複選）</span>
-          {options && stage && (
-            <span className="text-xs text-espresso/80">已依「{stage}」課程顯示</span>
-          )}
+          {stage && <span className="text-xs text-espresso/80">已依「{stage}」課程顯示</span>}
         </legend>
 
-        {subjectsDisabled ? (
+        {subjectsLocked ? (
           <p className="rounded-md border border-dashed border-cream bg-cream/30 px-3 py-3 text-sm text-charcoal/60">
-            請先選擇年級，我們會列出對應的科目。
+            請先選擇年級，我們會列出對應的科目與上課星期/地點。
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {subjectChoices.map((s) => {
-              const checked = (data.subjects ?? []).includes(s);
+          <div className="space-y-4">
+            {form.selections.map((card, i) => {
+              const grid = card.subject ? gridFor(card.subject, card.locationFilter) : null;
+              const subjectOptionsForCard = subjectChoices.filter(
+                (s) => s === card.subject || !usedSubjects.has(s),
+              );
               return (
-                <label
-                  key={s}
-                  className={`group relative cursor-pointer select-none rounded-lg border px-3 py-2.5 text-sm transition-all duration-200 ease-[var(--ease-brand)] ${
-                    checked
-                      ? 'border-caramel bg-caramel/15 text-charcoal shadow-sm ring-1 ring-caramel/40'
-                      : 'border-cream bg-chalk text-charcoal/80 hover:-translate-y-px hover:border-espresso/40 hover:shadow-sm'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className="sr-only"
-                    checked={checked}
-                    onChange={() => toggleSubject(s)}
-                  />
-                  <span className="flex items-center gap-1.5">
-                    <span
-                      aria-hidden="true"
-                      className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border text-[10px] leading-none transition-colors ${
-                        checked
-                          ? 'border-caramel bg-caramel text-charcoal'
-                          : 'border-espresso/30 bg-transparent text-transparent'
-                      }`}
-                    >
-                      ✓
-                    </span>
-                    {s}
-                  </span>
-                </label>
+                <div key={i} className="rounded-xl border border-cream bg-chalk/60 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1">
+                      <label className="block text-xs font-medium text-charcoal/70 mb-1">
+                        科目 {form.selections.length > 1 ? `#${i + 1}` : ''}
+                      </label>
+                      <select
+                        value={card.subject}
+                        onChange={(e) => onSubjectChange(i, e.target.value)}
+                        className="form-input"
+                        aria-invalid={Boolean(selErrors[i])}
+                      >
+                        <option value="">請選擇科目</option>
+                        {subjectOptionsForCard.map((s) => (
+                          <option key={s} value={s}>{subjectLabel(stage, s)}</option>
+                        ))}
+                      </select>
+                    </div>
+                    {grid && grid.allLocations.length > 1 && (
+                      <div className="w-32 shrink-0">
+                        <label className="block text-xs font-medium text-charcoal/70 mb-1">地點（選填）</label>
+                        <select
+                          value={card.locationFilter}
+                          onChange={(e) => onLocationFilterChange(i, e.target.value)}
+                          className="form-input"
+                        >
+                          <option value="">全部</option>
+                          {grid.allLocations.map((l) => (
+                            <option key={l.key} value={l.key}>{l.short}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                    {form.selections.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeSubjectCard(i)}
+                        className="mt-6 shrink-0 rounded-md border border-cream px-2 py-1.5 text-xs text-charcoal/60 hover:border-sienna/50 hover:text-sienna transition-colors"
+                        aria-label={`移除科目 ${i + 1}`}
+                      >
+                        移除
+                      </button>
+                    )}
+                  </div>
+
+                  {/* 星期×地點單選表 */}
+                  {card.subject && grid && (
+                    grid.weekdays.length === 0 ? (
+                      <p className="mt-3 text-sm text-charcoal/55">此科目目前無可預約的固定班時段，請改選其他科目或於備註說明。</p>
+                    ) : (
+                      <div className="mt-3 overflow-x-auto">
+                        <p className="mb-1.5 text-xs text-charcoal/60">請點選一個想試聽的星期與地點（單選）：</p>
+                        <table className="w-full border-collapse text-sm">
+                          <thead>
+                            <tr>
+                              <th className="border border-cream bg-cream/40 px-2 py-1.5 text-left font-medium text-charcoal/70">星期</th>
+                              {grid.locations.map((l) => (
+                                <th key={l.key} className="border border-cream bg-cream/40 px-2 py-1.5 text-center font-medium text-charcoal/70" title={l.name}>
+                                  {l.short}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {grid.weekdays.map((wd) => (
+                              <tr key={wd}>
+                                <th className="border border-cream bg-chalk px-2 py-1.5 text-left font-normal text-charcoal/80">
+                                  {WEEKDAY_LABELS[wd]}
+                                </th>
+                                {grid.locations.map((l) => {
+                                  const available = grid.cellSet.has(`${l.key}|${wd}`);
+                                  const picked = card.locationKey === l.key && card.weekday === wd;
+                                  return (
+                                    <td key={l.key} className="border border-cream p-0 text-center">
+                                      {available ? (
+                                        <button
+                                          type="button"
+                                          aria-pressed={picked}
+                                          onClick={() => onPickCell(i, l.key, wd)}
+                                          className={`flex h-9 w-full items-center justify-center transition-colors ${
+                                            picked
+                                              ? 'bg-caramel text-charcoal font-semibold'
+                                              : 'bg-chalk text-espresso hover:bg-caramel/15'
+                                          }`}
+                                        >
+                                          {picked ? '✓' : '◯'}
+                                        </button>
+                                      ) : (
+                                        <span className="block h-9 w-full bg-cream/20" aria-hidden="true" />
+                                      )}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )
+                  )}
+                  {selErrors[i] && <p className="mt-1.5 text-xs text-sienna">{selErrors[i]}</p>}
+                </div>
               );
             })}
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={addSubjectCard}
+                disabled={allSubjectsUsed}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-espresso/40 bg-chalk px-3 py-2 text-sm font-medium text-espresso hover:bg-cream transition-colors disabled:opacity-50 disabled:hover:bg-chalk"
+              >
+                ＋ 新增科目
+              </button>
+              {allSubjectsUsed && <span className="text-xs text-charcoal/50">已涵蓋此年級所有可選科目</span>}
+            </div>
           </div>
         )}
-        {errors.subjects && (
-          <p className="mt-1.5 text-xs text-sienna">{errors.subjects}</p>
-        )}
+        {errors.selections && <p className="mt-1.5 text-xs text-sienna">{errors.selections}</p>}
       </fieldset>
 
-      {/* 進階（選填）：想找的老師 / 希望校區 — 僅在有 DB 選項時顯示 */}
-      {options && (
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field
-            label="想找的老師（選填）"
-            error={errors.preferredTeacherSlug as string | undefined}
-            hint={
-              (data.subjects ?? []).length > 0
-                ? '已依您選的科目過濾'
-                : '可先選科目再挑老師，或保持不指定'
-            }
-          >
-            <select
-              data-field="preferredTeacherSlug"
-              value={data.preferredTeacherSlug ?? ''}
-              onChange={(e) => update('preferredTeacherSlug', e.target.value)}
-              className="form-input"
-            >
-              <option value="">不指定</option>
-              {teacherChoices.map((t) => (
-                <option key={t.slug} value={t.slug}>
-                  {t.name}
-                  {t.englishName ? `（${t.englishName}）` : ''}
-                  {t.isTutor ? ' · 1對1家教' : ''}
-                </option>
-              ))}
-            </select>
-          </Field>
-
-          <Field
-            label="希望校區（選填）"
-            error={errors.preferredLocationKey as string | undefined}
-          >
-            <select
-              data-field="preferredLocationKey"
-              value={data.preferredLocationKey ?? ''}
-              onChange={(e) => update('preferredLocationKey', e.target.value)}
-              className="form-input"
-            >
-              <option value="">不指定</option>
-              {locationChoices.map((l) => (
-                <option key={l.key} value={l.key}>{l.name}</option>
-              ))}
-            </select>
-          </Field>
-        </div>
-      )}
-
-      <Field label="備註（選填）" error={errors.notes as string | undefined}>
+      <Field label="備註（選填）">
         <textarea
           data-field="notes"
           rows={3}
           maxLength={500}
           placeholder="想特別告訴我們的事，例如：學習狀況、希望解決的問題"
-          value={data.notes ?? ''}
-          onChange={(e) => update('notes', e.target.value)}
+          value={form.notes}
+          onChange={(e) => updateField('notes', e.target.value)}
           className="form-input"
         />
       </Field>
@@ -480,9 +595,9 @@ export default function TrialForm({
         <div className="pt-1">
           <Turnstile
             siteKey={turnstileSiteKey}
-            onSuccess={(token: string) => update('turnstileToken', token)}
-            onError={() => update('turnstileToken', '')}
-            onExpire={() => update('turnstileToken', '')}
+            onSuccess={(token: string) => updateField('turnstileToken', token)}
+            onError={() => updateField('turnstileToken', '')}
+            onExpire={() => updateField('turnstileToken', '')}
             options={{ theme: 'light', size: 'flexible' }}
           />
         </div>

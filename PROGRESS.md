@@ -17,7 +17,7 @@
   業主已把 `PUBLIC_SUPABASE_URL` / `PUBLIC_SUPABASE_ANON_KEY`（publishable）/ `SUPABASE_SERVICE_ROLE_KEY` 填入 Vercel(Production+Preview)。
 - **資料層** `src/lib/{supabase,classData}.ts`：**DB 優先、`src/content` 後備**（無金鑰也能 build）。型別/GRADE_TO_STAGE 放 `trialSchema.ts`（client-safe），避免 astro:content 進前端 bundle。
 - **課表** `/schedule`：每列＝(學制+科目+老師) 聚合（同科目同老師多班收一列，班名列為次標籤），欄＝週一~五、格＝教室；`ScheduleFilter` 島（科目/老師/教室/學制/搜尋，漸進增強）。
-- **試聽表** `TrialForm`：年級→學制→科目→老師 級聯＋校區欄；`/api/trial-signup` 對 DB 白名單二次檢核並寫入 `trial_signups`（無 service key 則優雅降級為只寄信）。
+- **試聽表** `TrialForm`（2026-06-21 改版）：學生姓名/家長電話/家長關係(父母或自填)/就讀學校(必填)/年級(小四~高三)＋**選課卡**（每科：科目依學制過濾 → 該年級該科「星期×地點」開課聯集的**單選 bullet 表**，不外露老師；可選地點篩選；可加科目不可重覆）。`availability` 由 `class_offerings`（published）聚合餵前端。`/api/trial-signup` 改檢核每筆 selection 的 (科目,星期,地點) 屬合法開課，並**一科一列**寫入 `trial_signups`（含 submission_id 群組鍵）；表單已無 email 故不寄家長自動回覆。
 - 已驗：check/build 綠；Chrome 1440/390 實測 production（課表 DB-backed、filter 正常、表單級聯與課表同源對齊、無破版）。PR #20+#21 已併 main。
 - **已知小瑕疵（業主指示不修）**：試聽科目把 Jason「升高中的數學銜接基礎班」歸到「高中」(字串含「高中」)。
 - **未入版控**：`docs/ux-review-2026-06-16/screenshots/`（44MB）與 `.audit_tmp/` 暫存，留本機。
