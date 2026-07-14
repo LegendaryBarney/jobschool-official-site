@@ -2,8 +2,8 @@
  * JSON-LD 結構化資料工廠函式
  * 涵蓋：LocalBusiness、EducationalOrganization、Course、Person、Article、FAQPage、Review、Breadcrumb
  */
-import { SITE, getActiveSocials } from './seo';
-import { LOCATIONS, type LocationInfo } from './locations';
+import { SITE, getActiveSocials, serviceArea } from './seo';
+import { LOCATIONS, LOCATION_DATA, type LocationInfo } from './locations';
 
 export type JsonLd = Record<string, unknown>;
 
@@ -52,17 +52,17 @@ export function localBusinessJsonLd(): JsonLd {
     ],
     areaServed: {
       '@type': 'City',
-      name: '嘉義市',
+      name: serviceArea,
     },
     subOrganization: {
       '@type': 'EducationalOrganization',
       name: LOCATIONS.shinobi.name,
       address: {
         '@type': 'PostalAddress',
-        streetAddress: LOCATIONS.shinobi.address.replace('嘉義市西區', ''),
-        addressLocality: '嘉義市',
-        addressRegion: '西區',
-        addressCountry: 'TW',
+        streetAddress: LOCATION_DATA.shinobi.streetAddress,
+        addressLocality: LOCATION_DATA.shinobi.addressLocality,
+        addressRegion: LOCATION_DATA.shinobi.addressRegion,
+        addressCountry: LOCATION_DATA.shinobi.addressCountry,
       },
       ...(LOCATIONS.shinobi.foundedYear
         ? { foundingDate: String(LOCATIONS.shinobi.foundedYear) }

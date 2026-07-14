@@ -1,6 +1,18 @@
 /**
  * SEO 工具函式
+ *
+ * ⚠ adapter 層：機構事實的唯一權威來源是 src/content/site/info.json，
+ * 本檔案只負責讀取＋zod 驗證（siteInfoSchema）＋推導衍生值（brandYears 等），
+ * 對外匯出介面（SITE / buildMeta / getActiveSocials …）維持不變，consumer 不必改 import。
+ *
+ * client-safe：只 import JSON 與 zod（siteSchema.ts 不 import astro:content），
+ * 因此 TrialForm.tsx 等 React island 可直接引用（見 responseSla）。
  */
+import infoRaw from '~/content/site/info.json';
+import { siteInfoSchema } from './siteSchema';
+
+// JSON 壞掉（缺欄位/型別不符）時，build 立刻報清楚錯誤，而不是讓錯誤悄悄流到頁面上。
+const info = siteInfoSchema.parse(infoRaw);
 
 export interface SeoMeta {
   title: string;
@@ -11,9 +23,14 @@ export interface SeoMeta {
   noindex?: boolean;
 }
 
-const SITE_NAME = '賈伯斯數理教室';
-const DEFAULT_DESCRIPTION =
-  '嘉義在地的精英小班補習機構，由臺大資工碩士領軍，師資來自臺、交、高師大、嘉義大學、臺北市立大學等不同背景，2014 年返鄉創立、品牌資歷 12 年，專攻國中至高中數理與相關科目。';
+const SITE_NAME = info.name;
+
+/** 品牌資歷（年）：當年 - 創立年份，build 當下計算，逐年自動遞增。 */
+export const brandYears = new Date().getFullYear() - info.founded;
+/** 版權年份區間文字，如「2014–2026」。 */
+export const copyrightRange = `${info.founded}–${new Date().getFullYear()}`;
+
+const DEFAULT_DESCRIPTION = info.descriptionTemplate.replace('{years}', String(brandYears));
 
 export function buildTitle(pageTitle?: string): string {
   if (!pageTitle || pageTitle === SITE_NAME) {
@@ -101,45 +118,43 @@ export function buildOgImageUrl(input: OgImageInput = {}): string {
   return `/og/${slugRaw}.png${qs ? `?${qs}` : ''}`;
 }
 
+const jobsLocation = info.locations.jobs;
+
 export const SITE = {
-  name: SITE_NAME,
-  legalName: '賈伯斯數理教室',
-  url: 'https://jobsedu.com.tw',
+  name: info.name,
+  legalName: info.legalName,
+  url: info.url,
   description: DEFAULT_DESCRIPTION,
   address: {
-    streetAddress: '康樂街 10 號',
-    addressLocality: '嘉義市',
-    addressRegion: '東區',
-    postalCode: '600',
-    addressCountry: 'TW',
-    full: '嘉義市東區康樂街 10 號',
+    streetAddress: jobsLocation.streetAddress,
+    addressLocality: jobsLocation.addressLocality,
+    addressRegion: jobsLocation.addressRegion,
+    postalCode: jobsLocation.postalCode ?? '',
+    addressCountry: jobsLocation.addressCountry,
+    full: jobsLocation.full,
   },
-  phone: '+886-5-223-0303',
-  phoneDisplay: '(05) 223-0303',
-  email: 'contact@jobsedu.com.tw',
-  geo: { latitude: 23.4796, longitude: 120.4538 },
+  phone: info.phone.e164,
+  phoneDisplay: info.phone.display,
+  email: info.email,
+  geo: {
+    latitude: jobsLocation.geo?.lat ?? 0,
+    longitude: jobsLocation.geo?.lng ?? 0,
+  },
   // 營業時間單一資料來源：Footer 與 JSON-LD 一律引用以下欄位，勿在各頁硬寫。
   // ⚠ 2026-07 改為週一至五 17:00–21:30；Google 商家檔案需業主手動同步更新。
-  openingHours: ['Mo-Fr 17:00-21:30'],
-  openingHoursDisplay: '週一至週五 17:00–21:30（週六日休）',
+  openingHours: info.hours.openingHours,
+  openingHoursDisplay: info.hours.display,
   hours: {
-    opens: '17:00',
-    closes: '21:30',
-    days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    opens: info.hours.opens,
+    closes: info.hours.closes,
+    days: info.hours.days,
   },
-  founded: 2014,
+  founded: info.founded,
   socials: {
-    instagram:
-      import.meta.env.PUBLIC_INSTAGRAM_URL || 'https://www.instagram.com/jobschool_ig/',
-    facebook:
-      import.meta.env.PUBLIC_FACEBOOK_URL ||
-      'https://www.facebook.com/JobsSchool/?locale=zh_TW',
-    youtube:
-      import.meta.env.PUBLIC_YOUTUBE_URL ||
-      'https://www.youtube.com/@%E8%B3%88%E4%BC%AF%E6%96%AF%E4%B8%AD%E5%B0%8F%E7%8F%AD%E9%AB%98%E4%B8%AD%E6%95%B8%E7%90%86',
-    googleBusiness:
-      import.meta.env.PUBLIC_GOOGLE_BUSINESS_URL ||
-      'https://maps.app.goo.gl/E95P1Mk4JU9PGZAF8',
+    instagram: import.meta.env.PUBLIC_INSTAGRAM_URL || info.socials.instagram,
+    facebook: import.meta.env.PUBLIC_FACEBOOK_URL || info.socials.facebook,
+    youtube: import.meta.env.PUBLIC_YOUTUBE_URL || info.socials.youtube,
+    googleBusiness: import.meta.env.PUBLIC_GOOGLE_BUSINESS_URL || info.socials.googleBusiness,
   },
 } as const;
 
@@ -154,3 +169,18 @@ export function getActiveSocials(): Array<{ key: SocialKey; url: string }> {
     .map(([key, url]) => ({ key, url: url.trim() }))
     .filter((s) => s.url.length > 0);
 }
+
+/** 服務區域（JSON-LD areaServed 用），如「嘉義市」。 */
+export const serviceArea = info.serviceArea;
+
+/** 班級規模／學生數等統計數字（首頁數據區、about、各頁佐證文案共用）。 */
+export const stats = info.stats;
+
+/** 客服回覆 SLA 對外文字，如「1 個工作日」。全站 14 處硬寫的單一來源。 */
+export const responseSla = info.responseSla;
+
+/** 教室鄰近學校步行時間，如「距嘉中、嘉女步行約 8-12 分鐘」（contact.astro）。 */
+export const nearbySchoolsNote = info.nearbySchoolsNote;
+
+/** 公司大事紀（about.astro 用），desc 內 {jobsAddress}/{shinobiAddress} 需呼叫端以 LOCATIONS 代入。 */
+export const milestones = info.milestones;
