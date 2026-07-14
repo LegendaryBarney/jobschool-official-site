@@ -202,6 +202,21 @@ const GSC_VERIFICATION = (import.meta.env.PUBLIC_GSC_VERIFICATION as string | un
     <SmoothScroll />
     <SiteScripts />
 
+    {/* 全站 LINE 點擊轉換追蹤：事件委派一次涵蓋所有 LINE CTA（Nav / Footer / 行動 sticky / 表單成功頁）。
+        缺 GA/Pixel 時不渲染；點擊不阻擋導流。LINE 加好友是補習班核心轉換動作，需單獨計數。 */}
+    {(GA_ID || META_PIXEL_ID) && (
+      <script is:inline>{`
+        (function () {
+          document.addEventListener('click', function (e) {
+            var a = e.target && e.target.closest ? e.target.closest('a[href*="line.me"], a[href*="lin.ee"]') : null;
+            if (!a) return;
+            try { if (typeof window.gtag === 'function') window.gtag('event', 'line_click', { event_category: 'engagement', link_url: a.href }); } catch (_) {}
+            try { if (typeof window.fbq === 'function') window.fbq('trackCustom', 'LineClick', { url: a.href }); } catch (_) {}
+          }, true);
+        })();
+      `}</script>
+    )}
+
     {/* Pagefind UI script 預留（build 後 /pagefind/ 才會生成） */}
   </body>
 </html>
