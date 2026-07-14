@@ -1,0 +1,92 @@
+{
+  "name": "賈伯斯數理教室",
+  "legalName": "賈伯斯數理教室",
+  "url": "https://jobsedu.com.tw",
+  "descriptionTemplate": "嘉義在地的精英小班補習機構，由臺大資工碩士領軍，師資來自臺、交、高師大、嘉義大學、臺北市立大學等不同背景，2014 年返鄉創立、品牌資歷 {years} 年，專攻國中至高中數理與相關科目。",
+  "founded": 2014,
+  "phone": {
+    "e164": "+886-5-223-0303",
+    "display": "(05) 223-0303"
+  },
+  "email": "contact@jobsedu.com.tw",
+  "hours": {
+    "openingHours": ["Mo-Fr 17:00-21:30"],
+    "display": "週一至週五 17:00–21:30（週六日休）",
+    "opens": "17:00",
+    "closes": "21:30",
+    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+  },
+  "socials": {
+    "instagram": "https://www.instagram.com/jobschool_ig/",
+    "facebook": "https://www.facebook.com/JobsSchool/?locale=zh_TW",
+    "youtube": "https://www.youtube.com/@%E8%B3%88%E4%BC%AF%E6%96%AF%E4%B8%AD%E5%B0%8F%E7%8F%AD%E9%AB%98%E4%B8%AD%E6%95%B8%E7%90%86",
+    "googleBusiness": "https://maps.app.goo.gl/E95P1Mk4JU9PGZAF8"
+  },
+  "serviceArea": "嘉義市",
+  "locations": {
+    "jobs": {
+      "key": "jobs",
+      "name": "賈伯斯數理教室",
+      "streetAddress": "康樂街 10 號",
+      "addressLocality": "嘉義市",
+      "addressRegion": "東區",
+      "postalCode": "600",
+      "addressCountry": "TW",
+      "full": "嘉義市東區康樂街 10 號",
+      "phone": {
+        "e164": "+886-5-223-0303",
+        "display": "(05) 223-0303"
+      },
+      "geo": { "lat": 23.4796, "lng": 120.4538 }
+    },
+    "shinobi": {
+      "key": "shinobi",
+      "name": "忍文理教室",
+      "streetAddress": "杭州一街 38 號",
+      "addressLocality": "嘉義市",
+      "addressRegion": "西區",
+      "addressCountry": "TW",
+      "full": "嘉義市西區杭州一街 38 號",
+      "phone": {
+        "e164": "+886-5-223-0303",
+        "display": "(05) 223-0303"
+      },
+      "parentBrand": "jobs",
+      "foundedYear": 2023,
+      "website": "https://www.shinobicodeschool.com/"
+    }
+  },
+  "stats": {
+    "studentsServed": 1000,
+    "studentsServedDisplay": "1000+",
+    "classSizeMin": 2,
+    "classSizeMax": 14,
+    "classTiers": ["極小班 2-5 人", "精緻班 6-10 人", "小班 10-14 人"],
+    "maxTeacherYears": 15
+  },
+  "responseSla": "1 個工作日",
+  "nearbySchoolsNote": "距嘉中、嘉女步行約 8-12 分鐘",
+  "milestones": [
+    {
+      "year": "2014",
+      "title": "創立於嘉義東區",
+      "desc": "Barney 老師（黃韋誌）取得臺大資工碩士後選擇回到家鄉嘉義，從一間租借的小教室開始。"
+    },
+    {
+      "year": "2017",
+      "title": "裝潢現址、立穩基地",
+      "desc": "裝潢{jobsAddress}現址，成為教室至今的家。"
+    },
+    {
+      "year": "2023",
+      "title": "新增姊妹品牌「忍文理教室」",
+      "desc": "為了服務嘉義西區家庭，新增姊妹品牌「忍文理教室」，位於{shinobiAddress}。",
+      "link": { "href": "https://www.shinobicodeschool.com/", "label": "忍文理教室官網" }
+    },
+    {
+      "year": "2026",
+      "title": "啟用全新官方網站",
+      "desc": "替換舊有 Weebly 站，整合課程資訊、學生見證與線上試聽預約，把溝通做到更貼心。"
+    }
+  ]
+}

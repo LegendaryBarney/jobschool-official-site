@@ -1,4 +1,5 @@
 import { defineCollection, z } from 'astro:content';
+import { siteInfoSchema } from '~/lib/siteSchema';
 
 const teachers = defineCollection({
   type: 'content',
@@ -140,12 +141,11 @@ const landing = defineCollection({
     }),
 });
 
+// 全站機構事實唯一權威（src/content/site/info.json）。
+// schema 抽到 ~/lib/siteSchema（client-safe），與 seo.ts/locations.ts adapter 共用，避免雙寫。
 const site = defineCollection({
   type: 'data',
-  schema: z.object({
-    key: z.string(),
-    value: z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]),
-  }),
+  schema: siteInfoSchema,
 });
 
 const fees = defineCollection({
