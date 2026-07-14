@@ -6,7 +6,7 @@ import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
 import ScheduleFilter, { type ScheduleFilterRow } from '~/components/ScheduleFilter';
 import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, responseSla } from '~/lib/seo';
 import { getClassData, WEEKDAY_LABELS } from '~/lib/classData';
 
 // ── 課表：資料驅動（getClassData → offerings 聚合）─────────────
@@ -323,7 +323,7 @@ const jsonLd = [
               >
                 <p class="text-sm text-charcoal/70">
                   找不到符合條件的課程。請放寬篩選條件，或來電
-                  <a href="tel:+88652230303" class="text-espresso hover:underline">(05) 223-0303</a>
+                  <a href={`tel:${SITE.phone}`} class="text-espresso hover:underline">{SITE.phoneDisplay}</a>
                   由課務人員為您查詢。
                 </p>
               </div>
@@ -340,7 +340,7 @@ const jsonLd = [
         說明：每一列為一門課程（科目與授課老師），星期欄內之標籤標示當日授課教室（{
           locationLegend.map((r) => `${r.short}＝${r.label}`).join('、')
         }）；同一門課可能橫跨多天、多間教室。實際各教室開班科目以現場公告與排課為準。如需確認特定班別時段，歡迎來電
-        <a href="tel:+88652230303" class="text-espresso hover:underline">(05) 223-0303</a> 詢問。
+        <a href={`tel:${SITE.phone}`} class="text-espresso hover:underline">{SITE.phoneDisplay}</a> 詢問。
       </p>
 
       <p class="mt-6 text-base text-charcoal/80 leading-relaxed">
@@ -356,7 +356,7 @@ const jsonLd = [
       <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
         想確認時段或安排試聽？
       </h2>
-      <p class="mt-4 text-charcoal/80">課務人員會在 1 個工作日內回覆，協助您安排合適的班別。</p>
+      <p class="mt-4 text-charcoal/80">課務人員會在 {responseSla}內回覆，協助您安排合適的班別。</p>
       <div class="mt-8 flex flex-wrap justify-center gap-4">
         <Button href="/contact" variant="primary" size="lg">聯絡我們</Button>
         <Button href="/courses" variant="secondary" size="lg">看課程</Button>

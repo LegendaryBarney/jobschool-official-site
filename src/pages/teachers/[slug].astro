@@ -9,7 +9,7 @@ import Tag from '~/components/Tag.astro';
 import IconChalk from '~/components/IconChalk.astro';
 import CourseCard from '~/components/CourseCard.astro';
 import { personJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, responseSla } from '~/lib/seo';
 
 export async function getStaticPaths() {
   const teachers = await getCollection('teachers');
@@ -159,7 +159,7 @@ const jsonLd = [
       <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
         想試聽 {name} 老師的課？
       </h2>
-      <p class="mt-4 text-charcoal/80">填寫簡短表單，我們會在 1 個工作日內聯絡您。</p>
+      <p class="mt-4 text-charcoal/80">填寫簡短表單，我們會在 {responseSla}內聯絡您。</p>
       <div class="mt-8 flex flex-wrap justify-center gap-4">
         <Button href="/contact" variant="primary" size="lg">立即試聽</Button>
         <Button href="/teachers" variant="secondary" size="lg">看看其他師資</Button>

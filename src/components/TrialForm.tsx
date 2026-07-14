@@ -10,6 +10,8 @@ import {
   type TrialFormData,
   type TrialFormOptions,
 } from '~/lib/trialSchema';
+// seo.ts 只 import JSON + zod（無 astro:content），client-safe，可安全進 React island bundle。
+import { responseSla } from '~/lib/seo';
 
 const WEEKDAY_LABELS = ['', '週一', '週二', '週三', '週四', '週五', '週六', '週日'] as const;
 
@@ -314,7 +316,7 @@ export default function TrialForm({
       <div className="rounded-xl bg-chalk border border-cream p-6 text-center">
         <h3 className="font-serif text-2xl font-bold text-charcoal">已收到您的試聽申請</h3>
         <p className="mt-3 text-charcoal/80 leading-relaxed">
-          我們會於 1 個工作日內聯絡您，確認試聽時段。
+          我們會於 {responseSla}內聯絡您，確認試聽時段。
           <br />
           若想更快收到課程資訊，歡迎加入 LINE。
         </p>
@@ -624,7 +626,7 @@ export default function TrialForm({
           {submitting ? '送出中…' : '送出試聽申請'}
         </button>
         <p className="text-xs text-charcoal/60">
-          送出後我們會於 1 個工作日內以電話或 LINE 聯絡您。
+          送出後我們會於 {responseSla}內以電話或 LINE 聯絡您。
         </p>
       </div>
 

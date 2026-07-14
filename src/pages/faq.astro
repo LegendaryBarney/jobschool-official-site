@@ -6,7 +6,7 @@ import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
 import { faqPageJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, responseSla } from '~/lib/seo';
 
 const all = await getCollection('faq');
 const sorted = all.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
@@ -81,7 +81,7 @@ const jsonLd = [
     <Fragment slot="heading">家長與學生常問的事</Fragment>
     <p class="max-w-3xl text-lg text-charcoal/80 leading-relaxed">
       如果你的疑問沒有出現在下方，歡迎透過 <a href="/contact" class="text-espresso underline hover:text-caramel">聯絡表單</a>
-      或 LINE 直接詢問，我們會在 1 個工作日內回覆。
+      或 LINE 直接詢問，我們會在 {responseSla}內回覆。
     </p>
 
     {sortedCategories.length > 0 && (
@@ -155,7 +155,7 @@ const jsonLd = [
       <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
         還有其他問題？
       </h2>
-      <p class="mt-4 text-charcoal/80">直接聯絡我們，我們會在 1 個工作日內回覆。</p>
+      <p class="mt-4 text-charcoal/80">直接聯絡我們，我們會在 {responseSla}內回覆。</p>
       <div class="mt-8 flex flex-wrap justify-center gap-4">
         <Button href="/contact" variant="primary" size="lg">聯絡我們</Button>
         <Button href="/courses" variant="secondary" size="lg">看課程</Button>

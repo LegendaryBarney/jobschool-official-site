@@ -2,8 +2,14 @@ import type { APIRoute } from 'astro';
 import { trialSchema, GRADE_TO_STAGE, type TrialFormParsed, type TrialFormOptions } from '~/lib/trialSchema';
 import { getTrialFormOptions } from '~/lib/classData';
 import { getSupabaseAdmin } from '~/lib/supabase';
+import { SITE, responseSla } from '~/lib/seo';
 
 const WEEKDAY_LABELS = ['', '週一', '週二', '週三', '週四', '週五', '週六', '週日'] as const;
+
+/** 系統通知信寄件位址：由 SITE.url 網域推導，避免與 jobsedu.com.tw 各處硬寫脫鉤。 */
+const DEFAULT_NOTIFY_FROM = `noreply@${new URL(SITE.url).host}`;
+/** 業主個人信箱 fallback（RESEND 環境變數缺值時使用）：業主原話保留，僅集中成具名常數。 */
+const OWNER_FALLBACK_EMAIL = 'hwjnctucsie92@gmail.com';
 
 /** 解析家長關係：選「其他」時取自填文字。 */
 function relationText(d: TrialFormParsed): string {
@@ -65,10 +71,10 @@ function gcBuckets() {
 /*  CORS                                                              */
 /* ------------------------------------------------------------------ */
 function getAllowedOrigins(): string[] {
-  const siteUrl = (import.meta.env.PUBLIC_SITE_URL as string | undefined) ?? 'https://jobsedu.com.tw';
+  const siteUrl = (import.meta.env.PUBLIC_SITE_URL as string | undefined) ?? SITE.url;
   return [
     siteUrl,
-    'https://jobsedu.com.tw',
+    SITE.url,
     'http://localhost:4321',
     'http://localhost:3000',
   ];
@@ -130,11 +136,11 @@ async function sendNotifications(data: TrialFormParsed, options: TrialFormOption
   const fromAddr =
     (process.env.NOTIFY_EMAIL_FROM as string | undefined) ??
     (import.meta.env.NOTIFY_EMAIL_FROM as string | undefined) ??
-    'noreply@jobsedu.com.tw';
+    DEFAULT_NOTIFY_FROM;
   const toAddr =
     (process.env.NOTIFY_EMAIL_TO as string | undefined) ??
     (import.meta.env.NOTIFY_EMAIL_TO as string | undefined) ??
-    'hwjnctucsie92@gmail.com';
+    OWNER_FALLBACK_EMAIL;
 
   try {
     const { Resend } = await import('resend');
@@ -203,7 +209,7 @@ function renderOwnerEmail(d: TrialFormParsed, options: TrialFormOptions | null):
   return `<!doctype html><html><body style="font-family:'Noto Sans TC',sans-serif;background:#F5EFE6;padding:24px;">
   <div style="max-width:560px;margin:0 auto;background:#FFFEFB;border:1px solid #E8DFD2;border-radius:12px;padding:24px;">
     <h1 style="font-family:'Noto Serif TC',serif;color:#3E342B;font-size:22px;margin:0 0 16px;">新試聽申請</h1>
-    <p style="color:#1F1A16;line-height:1.6;margin:0 0 16px;">收到一筆新的試聽預約，請於 1 個工作日內聯絡。</p>
+    <p style="color:#1F1A16;line-height:1.6;margin:0 0 16px;">收到一筆新的試聽預約，請於 ${responseSla}內聯絡。</p>
     <table style="width:100%;border-collapse:collapse;font-size:14px;">${tr}</table>
     <h2 style="font-family:'Noto Serif TC',serif;color:#3E342B;font-size:16px;margin:20px 0 8px;">試聽科目與時段</h2>
     <table style="width:100%;border-collapse:collapse;font-size:14px;">
@@ -349,7 +355,7 @@ export const POST: APIRoute = async ({ request }) => {
     {
       ok: true,
       mode: mailResult.ok ? mailResult.mode : 'mail_failed',
-      message: '已收到，將於 1 個工作日內聯絡您',
+      message: `已收到，將於 ${responseSla}內聯絡您`,
     },
     origin,
   );

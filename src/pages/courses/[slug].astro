@@ -14,7 +14,7 @@ import {
   courseInstanceJsonLd,
   breadcrumbJsonLd,
 } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, responseSla } from '~/lib/seo';
 import { getTrialFormOptions } from '~/lib/classData';
 
 export async function getStaticPaths() {
@@ -272,7 +272,7 @@ const jsonLd = [
           </h2>
           <p class="mt-4 text-charcoal/80 leading-relaxed">
             填寫右側表單，並在「想諮詢的科目」勾選 <strong>{subject}</strong>。
-            我們會在 1 個工作日內聯絡您，安排試聽時段。
+            我們會在 {responseSla}內聯絡您，安排試聽時段。
           </p>
         </div>
         <div class="rounded-xl bg-chalk border border-cream p-5 lg:p-7">

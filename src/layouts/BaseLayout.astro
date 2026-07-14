@@ -6,7 +6,7 @@ import Footer from '~/components/Footer.astro';
 import MobileStickyCTA from '~/components/MobileStickyCTA.astro';
 import SmoothScroll from '~/components/SmoothScroll.astro';
 import SiteScripts from '~/components/SiteScripts.astro';
-import { buildMeta, buildOgImageUrl } from '~/lib/seo';
+import { buildMeta, buildOgImageUrl, SITE } from '~/lib/seo';
 import '~/styles/global.css';
 
 type JsonLdValue = Record<string, unknown> | Record<string, unknown>[];
@@ -87,7 +87,7 @@ const GSC_VERIFICATION = (import.meta.env.PUBLIC_GSC_VERIFICATION as string | un
     {(noindex || meta.noindex) && <meta name="robots" content="noindex, nofollow" />}
 
     <meta property="og:type" content={meta.type} />
-    <meta property="og:site_name" content="賈伯斯數理教室" />
+    <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={meta.title} />
     <meta property="og:description" content={meta.description} />
     <meta property="og:url" content={canonical} />
@@ -100,7 +100,7 @@ const GSC_VERIFICATION = (import.meta.env.PUBLIC_GSC_VERIFICATION as string | un
     <meta name="twitter:image" content={resolvedOg} />
 
     {/* RSS / sitemap discovery */}
-    <link rel="alternate" type="application/rss+xml" title="賈伯斯數理教室 部落格" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} 部落格`} href="/feed.xml" />
     <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
 
     {jsonLdArray.map((data) => (

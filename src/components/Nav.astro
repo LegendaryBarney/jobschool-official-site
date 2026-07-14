@@ -1,5 +1,6 @@
 ---
 import Button from './Button.astro';
+import { SITE } from '~/lib/seo';
 
 const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
 
@@ -29,9 +30,9 @@ const links = [
     <a
       href="/"
       class="font-serif text-xl font-bold text-charcoal hover:text-espresso transition-colors"
-      aria-label="賈伯斯數理教室 首頁"
+      aria-label={`${SITE.name} 首頁`}
     >
-      賈伯斯數理教室
+      {SITE.name}
     </a>
 
     <ul class="hidden lg:flex items-center gap-6 text-[15px] font-medium text-charcoal">

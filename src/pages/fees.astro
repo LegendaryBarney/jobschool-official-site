@@ -6,7 +6,7 @@ import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
 import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, responseSla } from '~/lib/seo';
 import { getFeePrice, PRICE_KEYS } from '~/lib/feeData';
 
 const entry = await getEntry('fees', 'policy');
@@ -271,7 +271,7 @@ const jsonLd = [
       <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
         想了解特定課程的費用？
       </h2>
-      <p class="mt-4 text-charcoal/80">歡迎查看課程頁面，或直接聯絡我們，我們會在 1 個工作日內回覆。</p>
+      <p class="mt-4 text-charcoal/80">歡迎查看課程頁面，或直接聯絡我們，我們會在 {responseSla}內回覆。</p>
       <div class="mt-8 flex flex-wrap justify-center gap-4">
         <Button href="/contact" variant="primary" size="lg">聯絡我們</Button>
         <Button href="/courses" variant="secondary" size="lg">看課程</Button>

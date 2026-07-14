@@ -6,6 +6,7 @@ import Button from '~/components/Button.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import CountUp from '~/components/CountUp';
 import { localBusinessJsonLd, educationalOrgJsonLd } from '~/lib/jsonld';
+import { SITE, brandYears, stats } from '~/lib/seo';
 
 /* ---------- collections ---------- */
 const featuredCoursesAll = await getCollection('courses');
@@ -36,19 +37,19 @@ const advantages = [
   {
     num: '01',
     title: '臺大資工碩士領軍',
-    desc: '師資來自臺、交、高師大、嘉義大學、臺北市立大學等不同背景，多元互補，最資深者教學經驗達 15 年。學科之外，也帶得動讀書方法。',
+    desc: `師資來自臺、交、高師大、嘉義大學、臺北市立大學等不同背景，多元互補，最資深者教學經驗達 ${stats.maxTeacherYears} 年。學科之外，也帶得動讀書方法。`,
     tag: '教得久，也教得對',
   },
   {
     num: '02',
     title: '極小班 · 精緻班 · 小班三種規模',
-    desc: '依孩子的程度與性格安排班別，每班 2–14 人。老師看得到每一張臉、每一次卡關，走到桌邊就跟得上。',
-    tag: '2–14 人，看得見每個人',
+    desc: `依孩子的程度與性格安排班別，每班 ${stats.classSizeMin}–${stats.classSizeMax} 人。老師看得到每一張臉、每一次卡關，走到桌邊就跟得上。`,
+    tag: `${stats.classSizeMin}–${stats.classSizeMax} 人，看得見每個人`,
   },
   {
     num: '03',
     title: '自編教材與盲點筆記',
-    desc: '12 年累積的自編講義與盲點筆記，重觀念、不灌題海。把孩子真正會錯的地方挑出來，一個一個補起來。',
+    desc: `${brandYears} 年累積的自編講義與盲點筆記，重觀念、不灌題海。把孩子真正會錯的地方挑出來，一個一個補起來。`,
     tag: '重觀念，不堆題海',
   },
 ];
@@ -71,7 +72,7 @@ const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
 
 <BaseLayout
   title="賈伯斯數理教室"
-  description="嘉義東區精英小班補習推薦 — 由臺大資工碩士領軍，師資來自臺、交、高師大、嘉義大學、臺北市立大學等背景，過去 12 年品牌資歷、極小班 / 精緻班 / 小班三種規模與自編教材，協助嘉中、嘉女、協同、輔仁學生踏實累積。歡迎安排免費試聽。"
+  description={`嘉義東區精英小班補習推薦 — 由臺大資工碩士領軍，師資來自臺、交、高師大、嘉義大學、臺北市立大學等背景，過去 ${brandYears} 年品牌資歷、極小班 / 精緻班 / 小班三種規模與自編教材，協助嘉中、嘉女、協同、輔仁學生踏實累積。歡迎安排免費試聽。`}
   jsonLd={jsonLd}
 >
   {/* ===== 黑板 HERO ===== */}
@@ -99,7 +100,7 @@ const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
       </h1>
 
       <p class="hero-sub">
-        <b>臺大資工碩士領軍</b> · 過去 12 年品牌資歷 · 極小班／精緻班／小班三種規模。
+        <b>臺大資工碩士領軍</b> · 過去 {brandYears} 年品牌資歷 · 極小班／精緻班／小班三種規模。
       </p>
 
       <div class="hero-cta">
@@ -150,26 +151,26 @@ const jsonLd = [localBusinessJsonLd(), educationalOrgJsonLd()];
     <div class="wrap">
       <div class="section-head section-head-center">
         <span class="eyebrow">寫在黑板上的數字</span>
-        <h2 id="stats-title">十二年，留在嘉義東區的累積</h2>
+        <h2 id="stats-title">{brandYears} 年，留在嘉義東區的累積</h2>
       </div>
       <div class="stats-grid">
         <div class="stat">
           <div class="num">
-            <CountUp client:visible to={12} /><span class="suffix">+</span>
+            <CountUp client:visible to={brandYears} /><span class="suffix">+</span>
           </div>
           <div class="label">年品牌資歷</div>
-          <div class="sub">EST. 2014 · 在地深耕</div>
+          <div class="sub">EST. {SITE.founded} · 在地深耕</div>
         </div>
         <div class="stat">
           <div class="num">
-            <CountUp client:visible to={1000} /><span class="suffix">+</span>
+            <CountUp client:visible to={stats.studentsServed} /><span class="suffix">+</span>
           </div>
           <div class="label">在地學生</div>
           <div class="sub">嘉中 · 嘉女 · 協同 · 輔仁</div>
         </div>
         <div class="stat">
           <div class="num">
-            <CountUp client:visible to={2} /><span class="suffix">–14</span>
+            <CountUp client:visible to={stats.classSizeMin} /><span class="suffix">–{stats.classSizeMax}</span>
           </div>
           <div class="label">人小班規模</div>
           <div class="sub">三種班型，因材施教</div>

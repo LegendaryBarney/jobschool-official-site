@@ -6,7 +6,7 @@ import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import PostCard from '~/components/PostCard.astro';
 import Button from '~/components/Button.astro';
 import { blogJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, brandYears } from '~/lib/seo';
 
 export async function getStaticPaths() {
   const all = await getCollection('posts', ({ data }) => !data.draft);
@@ -38,7 +38,7 @@ const jsonLd = [
 
 <BaseLayout
   title={`#${tag} — 學習筆記`}
-  description={`賈伯斯數理教室「${tag}」相關文章彙整。嘉義在地補習班過去 12 年教學經驗筆記分享。`}
+  description={`賈伯斯數理教室「${tag}」相關文章彙整。嘉義在地補習班過去 ${brandYears} 年教學經驗筆記分享。`}
   jsonLd={jsonLd}
 >
   <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
