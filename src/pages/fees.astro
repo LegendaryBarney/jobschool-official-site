@@ -7,12 +7,23 @@ import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
 import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
 import { SITE } from '~/lib/seo';
+import { getFeePrice, PRICE_KEYS } from '~/lib/feeData';
 
 const entry = await getEntry('fees', 'policy');
 if (!entry) {
   throw new Error('找不到收費政策資料：src/content/fees/policy.json');
 }
 const fees = entry.data;
+
+// 程式設計／資訊科學季繳價：實時查 DB（course_prices），查無結果則用 policy.json 定值。
+// DB 尚未備妥前為「假 call」，永遠安全落回定值，畫面不變。詳見 src/lib/feeData.ts。
+const quarterlyPrices = await Promise.all(
+  fees.quarterly.prices.map(async (p) =>
+    p.label.includes('程式設計')
+      ? { ...p, price: await getFeePrice(PRICE_KEYS.programmingQuarterly, p.price) }
+      : p,
+  ),
+);
 
 const sections = [
   { id: 'overview', label: '收費方式總覽' },
@@ -113,7 +124,7 @@ const jsonLd = [
               </tr>
             </thead>
             <tbody>
-              {fees.quarterly.prices.map((p) => (
+              {quarterlyPrices.map((p) => (
                 <tr>
                   <td>{p.label}</td>
                   <td>{p.hours}</td>
