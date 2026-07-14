@@ -19,7 +19,7 @@ priceRange: 9,300 元 / 12 節
 featured: false
 order: 14
 seoDescription: 嘉義東區國中數學補習推薦 — 賈伯斯數理教室國中數學，由 Jason 老師（臺北市立大學數學系）授課。每堂課末巡視確認真懂、同一觀念換多種說法重講，循序補實基礎、穩穩銜接高中，協助民生、北興、蘭潭、協同、輔仁學生重新跟上。
-cover: ../../assets/images/courses/pre-high-math-rescue.webp
+cover: ../../assets/images/courses/junior-math.webp
 ---
 
 ## 寫給「明明很努力，分數卻上不去」的孩子
