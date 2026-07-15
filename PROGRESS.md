@@ -19,7 +19,8 @@
 - **營業時間改制**：週一至五 17:00–21:30（週六日休），業主 2026-07-14 拍板。⚠ **Google 商家檔案待業主手動同步**。
 - **維運手冊 v2.0 `docs/CONTENT_EDITING.md`**：開頭「我要改什麼→去哪裡改→影響哪些頁→要不要 redeploy」路由表。
 - 驗證：check 0 errors、build 全綠（本機無網路走 content fallback 屬預期）；dist 抽驗價格/JSON-LD/llms 正確。
-- **待業主確認**：① /fees「1.5 小時 4,650 元」一列對不上任何現存課程（疑舊資料殘留）；② 課程 frontmatter 原有的週六/日時段（python、gsat-math-sprint、senior-social 等）已刪，正式環境時段以 DB 為準——若這些課真的在週末上課，需業主把時段補進 `teacher_availability`，否則課程頁只顯示「見課表頁」。
+- **待業主確認**：課程 frontmatter 原有的週六/日時段（python、gsat-math-sprint、senior-social 等）已刪，正式環境時段以 DB 為準——若這些課真的在週末上課，需業主把時段補進 `teacher_availability`，否則課程頁只顯示「見課表頁」。
+- **2026-07-15 追加（業主拍板）**：「1.5 小時 4,650 元」＝國中生物（Barney）。已獨立成頁 `/courses/junior-biology`（order 9、4,650 進 coursePricing.overrides、封面用既有孤兒資產 junior-biology.webp 免生圖）；國中自然改稱「國中自然（理化＋地科）」（生物段落移出、補地科課綱段落）。**DB 側待業主執行** `docs/db/2026-07-15-add-junior-biology.sql`（courses 加列＋改名＋排課佔位）→ Redeploy。新開課 SOP 固化為 skill `.claude/skills/new-course/SKILL.md`。
 
 ---
 
