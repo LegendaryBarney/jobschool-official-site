@@ -35,7 +35,7 @@
 - [/](https://jobsedu.com.tw/) — 首頁，含品牌定位、三大優勢、課程總覽
 - [/about](https://jobsedu.com.tw/about) — 關於我們：創辦故事、教學理念、教室空間
 - [/teachers](https://jobsedu.com.tw/teachers) — 師資介紹（共 8 位）
-- [/courses](https://jobsedu.com.tw/courses) — 小班課程總覽（共 16 門）
+- [/courses](https://jobsedu.com.tw/courses) — 小班課程總覽（共 17 門）
 - [/tutors](https://jobsedu.com.tw/tutors) — 1 對 1 家教總覽（共 4 門）
 - [/posts](https://jobsedu.com.tw/posts) — 學習筆記（共 4 篇）
 - [/testimonials](https://jobsedu.com.tw/testimonials) — 學生見證（共 6 則）
@@ -62,7 +62,8 @@
 - [高中物理小班](https://jobsedu.com.tw/courses/high-physics) — 高中 · 物理 · 9,300 元 / 12 節（每節 3 小時）
 - [高中化學小班](https://jobsedu.com.tw/courses/high-chemistry) — 高中 · 化學 · 9,300 元 / 12 節（每節 3 小時）
 - [高中英文小班](https://jobsedu.com.tw/courses/high-english) — 高中 · 英文 · 9,300 元 / 12 節（每節 3 小時）
-- [國中自然小班](https://jobsedu.com.tw/courses/junior-science) — 國中 · 自然 · 9,300 元 / 12 節（每節 3 小時）
+- [國中自然（理化＋地科）](https://jobsedu.com.tw/courses/junior-science) — 國中 · 自然 · 9,300 元 / 12 節（每節 3 小時）
+- [國中生物小班](https://jobsedu.com.tw/courses/junior-biology) — 國中 · 生物 · 4,650 元 / 12 節（每節 1.5 小時）
 - [升高中數學基礎搶救班](https://jobsedu.com.tw/courses/pre-high-math-rescue) — 國中 · 數學 · 9,300 元 / 12 節（每節 3 小時）
 - [Python 程式設計小班](https://jobsedu.com.tw/courses/python-programming) — 國中 · Python 程式設計 · 11,400 元 / 12 節（每節 3 小時）
 - [國中社會小班](https://jobsedu.com.tw/courses/junior-social-studies) — 國中 · 社會 · 9,300 元 / 12 節（每節 3 小時）

@@ -9,7 +9,8 @@
     "default": "9,300 元 / 12 節（每節 3 小時）",
     "overrides": {
       "elementary-math": "9,300 元 / 24 節（每節 1.5 小時）",
-      "python-programming": "11,400 元 / 12 節（每節 3 小時）"
+      "python-programming": "11,400 元 / 12 節（每節 3 小時）",
+      "junior-biology": "4,650 元 / 12 節（每節 1.5 小時）"
     }
   },
   "quarterly": {
