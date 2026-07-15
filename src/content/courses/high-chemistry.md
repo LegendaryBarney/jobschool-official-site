@@ -14,8 +14,6 @@ schedule:
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: false
 order: 6
 seoDescription: 嘉義東區高中化學補習推薦 — 賈伯斯數理教室高中化學小班，嘉大應用物理系豪理老師授課，從原子結構到有機化學系統性建立觀念。

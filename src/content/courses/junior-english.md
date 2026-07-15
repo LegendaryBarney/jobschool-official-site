@@ -14,8 +14,6 @@ schedule:
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: false
 order: 15
 seoDescription: 嘉義東區國中英文補習推薦 — 賈伯斯數理教室國中英文，由高師大英語系畢業的 Joker 老師授課。用「發音正確 → 背單字 → 基本文法」三步驟有先後地循序打底，把生字放進句子與故事裡記，協助嘉義國中生扎實建立英文地基。

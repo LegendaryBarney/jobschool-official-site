@@ -139,7 +139,6 @@ export interface CourseLikeData {
   grade: string;
   gradeLevel?: string[];
   schedule?: string[];
-  priceRange?: string;
   slug: string;
 }
 

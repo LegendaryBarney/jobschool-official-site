@@ -12,8 +12,6 @@ schedule:
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: false
 order: 4
 seoDescription: 嘉義東區學測數學衝刺班 — 賈伯斯數理教室專為嘉中、嘉女、協同、輔仁高三生設計，3 個月密集模擬考＋錯題檢討，由臺、交、高師大、嘉義大學、臺北市立大學資歷的師資親自帶班。

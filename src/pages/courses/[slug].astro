@@ -16,6 +16,7 @@ import {
 } from '~/lib/jsonld';
 import { SITE, responseSla } from '~/lib/seo';
 import { getTrialFormOptions } from '~/lib/classData';
+import { getCoursePrice } from '~/lib/pricing';
 
 export async function getStaticPaths() {
   const courses = await getCollection('courses');
@@ -31,8 +32,6 @@ const {
   name,
   summary,
   schedule,
-  priceRange,
-  pricePerPack,
   classType,
   trialLessons,
   lessonHours,
@@ -43,8 +42,9 @@ const {
   cover,
   seoDescription,
 } = course.data;
-const priceDisplay = pricePerPack ?? priceRange;
 const slug = course.id.replace(/\.(md|mdx)$/, '');
+// 學費單一來源：src/lib/pricing.ts（policy.json coursePricing，Python 課即時查 DB）
+const priceDisplay = await getCoursePrice(slug);
 
 /* 依科目推導 banner 大字水印符號（與首頁 hero 同一套視覺語言） */
 function courseSymbol(s: string): string {
@@ -75,8 +75,8 @@ const trialFormOptions = await getTrialFormOptions();
 const defaultSubjects = subject ? [subject] : [];
 
 const jsonLd = [
-  courseJsonLd({ name, summary, subject, grade, gradeLevel, schedule, priceRange, slug }),
-  courseInstanceJsonLd({ name, summary, subject, grade, gradeLevel, schedule, priceRange, slug }),
+  courseJsonLd({ name, summary, subject, grade, gradeLevel, schedule, slug }),
+  courseInstanceJsonLd({ name, summary, subject, grade, gradeLevel, schedule, slug }),
   breadcrumbJsonLd([
     { label: '首頁', href: SITE.url + '/' },
     { label: '課程總覽', href: SITE.url + '/courses' },

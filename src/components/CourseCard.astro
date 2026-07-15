@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import Tag from './Tag.astro';
+import { getCoursePriceStatic } from '~/lib/pricing';
 
 interface Props {
   course: CollectionEntry<'courses'>;
@@ -9,8 +10,10 @@ interface Props {
 }
 
 const { course, class: className = '' } = Astro.props;
-const { name, grade, gradeLevel, subject, summary, priceRange, cover } = course.data;
+const { name, grade, gradeLevel, subject, summary, cover } = course.data;
 const href = `/courses/${course.slug}`;
+// 卡片為列表頁縮圖，用定值即可（不查 DB）；課程內頁側欄才即時查 DB，見 [slug].astro。
+const priceDisplay = getCoursePriceStatic(course.slug);
 ---
 
 <article
@@ -43,9 +46,7 @@ const href = `/courses/${course.slug}`;
     <p class="mt-2 text-sm text-charcoal/80 leading-relaxed line-clamp-3">{summary}</p>
 
     <div class="mt-4 flex items-center justify-between border-t border-cream/80 pt-4">
-      {priceRange ? (
-        <span class="text-sm text-charcoal/70">{priceRange}</span>
-      ) : <span class="text-sm text-charcoal/50">價格洽詢</span>}
+      <span class="text-sm text-charcoal/70">{priceDisplay}</span>
       <a
         href={href}
         class="inline-flex items-center gap-1 text-sm font-medium text-espresso hover:text-caramel transition-colors"

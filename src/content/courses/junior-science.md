@@ -13,8 +13,6 @@ schedule:
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: false
 order: 8
 seoDescription: 嘉義東區國中自然（理化＋生物）補習推薦 — 賈伯斯數理教室國中自然小班，由臺大資工碩士 Barney 老師親自授課，理化與生物整合教學，協助蘭潭、北興、民生、協同、輔仁學生會考穩穩拿分。

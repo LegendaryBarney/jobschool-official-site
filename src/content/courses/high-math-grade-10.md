@@ -12,8 +12,6 @@ schedule:
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: true
 order: 1
 seoDescription: 嘉義東區高一數學補習推薦 — 賈伯斯數理教室高一數學奠基班，Barney 老師（臺大資工碩士）授課，精緻小班、依 108 課綱循序漸進，協助嘉中、嘉女、協同、輔仁新生穩穩起跑。

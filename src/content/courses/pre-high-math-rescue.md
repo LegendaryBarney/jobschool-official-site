@@ -13,8 +13,6 @@ schedule:
 classType: 精緻班
 trialLessons: 1
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: true
 order: 10
 seoDescription: 嘉義東區升高中數學銜接 — 賈伯斯數理教室升高中數學基礎搶救班，Jason 老師授課，提供 1 節免費試聽，從國中代數補強到高一三角函數先修。

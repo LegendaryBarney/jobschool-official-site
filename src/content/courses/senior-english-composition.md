@@ -14,8 +14,6 @@ schedule:
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: false
 order: 16
 seoDescription: 嘉義東區高中英文作文補習推薦 — 賈伯斯數理教室高中英文作文，由高師大英語系畢業的 Joker 老師授課。先把方法講清楚，從篇章結構、敘事邏輯到內容發想三大主軸切入，逐句拆解優秀範文，單字量不多也能立馬上手學測寫作。

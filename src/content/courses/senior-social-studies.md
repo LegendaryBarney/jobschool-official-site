@@ -14,8 +14,6 @@ schedule:
 classType: 小班
 trialLessons: 1
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: false
 order: 13
 seoDescription: 嘉義東區高中社會補習 — 賈伯斯數理教室高中社會小班，由 Barney 老師授課，提供 1 節免費試聽，協助嘉中、嘉女、協同學生面對學測社會。

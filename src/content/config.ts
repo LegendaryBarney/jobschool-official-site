@@ -55,11 +55,6 @@ const courses = defineCollection({
         .number()
         .default(3)
         .describe('每堂時數；國中生物 = 1.5；其餘 = 3'),
-      pricePerPack: z
-        .string()
-        .optional()
-        .describe('完整描述，如「9,300 元 / 12 節」；新欄位優先於 priceRange 顯示'),
-      priceRange: z.string().optional(),
       cover: image().optional(),
       featured: z.boolean().default(false),
       order: z.number().default(0),
@@ -155,6 +150,11 @@ const fees = defineCollection({
     methods: z
       .array(z.object({ name: z.string(), summary: z.string() }))
       .default([]),
+    // 課程頁價格單一來源：小班標準價 + 非標準價課程（by slug）覆寫
+    coursePricing: z.object({
+      default: z.string(),
+      overrides: z.record(z.string(), z.string()).default({}),
+    }),
     // 季繳
     quarterly: z.object({
       subjects: z.array(z.string()).default([]),

@@ -12,8 +12,6 @@ schedule:
 classType: 精緻班
 trialLessons: 2
 lessonHours: 1.5
-pricePerPack: 9,300 元 / 24 節（每節 1.5 小時）
-priceRange: 9,300 元 / 24 節
 featured: false
 order: 17
 cover: ../../assets/images/courses/pre-high-math-rescue.webp

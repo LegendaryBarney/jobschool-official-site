@@ -45,6 +45,28 @@ const CLASS_TIERS_TEXT = siteInfo.stats.classTiers
   .join('／');
 
 /* ------------------------------------------------------------------ */
+/*  課程學費：唯一權威來源是 src/content/fees/policy.json 的 coursePricing */
+/*  （與 src/lib/pricing.ts 的 getCoursePriceStatic 同一套邏輯；本腳本   */
+/*  不跑 Astro runtime，故不查即時 DB，僅用定值——與 CourseCard.astro    */
+/*  列表卡片相同的取捨）                                                */
+/* ------------------------------------------------------------------ */
+interface CoursePricingMinimal {
+  default: string;
+  overrides: Record<string, string>;
+}
+
+const coursePricing = (
+  JSON.parse(await readFile(join(CONTENT, 'fees', 'policy.json'), 'utf8')) as {
+    coursePricing: CoursePricingMinimal;
+  }
+).coursePricing;
+
+/** 依課程 slug 取得學費字串（定值：overrides[slug] ?? default）。 */
+function coursePriceFor(slug: string): string {
+  return coursePricing.overrides[slug] ?? coursePricing.default;
+}
+
+/* ------------------------------------------------------------------ */
 /*  簡易 YAML frontmatter parser（足以處理本專案 schema）             */
 /* ------------------------------------------------------------------ */
 
@@ -216,7 +238,7 @@ function renderCourse(d: ParsedDoc): string {
     data.lessonHours !== undefined ? `- 每節時數：${data.lessonHours} 小時` : '',
     `- 課程簡介：${data.summary ?? ''}`,
     `- 上課時間：${fmtArr(data.schedule)}`,
-    data.pricePerPack ? `- 學費：${data.pricePerPack}` : data.priceRange ? `- 學費：${data.priceRange}` : '',
+    `- 學費：${coursePriceFor(d.slug)}`,
     data.seoDescription ? `- SEO 摘要：${data.seoDescription}` : '',
     '',
     '#### 課程詳情',
@@ -327,7 +349,7 @@ const BRAND_SUMMARY = `## 品牌摘要
 - 小班課程：國中數學、高中數學、國中自然、國中生物、國中社會、高中社會、Python 程式設計、學測數學衝刺、高中物理、高中化學、高中英文、升高中數學基礎搶救班、國小自然手作班
 - 1 對 1 家教：英文作文遠端家教（Sandra）、喬克英文實體家教（Joker / 葉謹寬）、國高中英文實體家教（Chili / 陳淑儀）
 - 試聽政策：升高中數學搶救、Python、國中社會、高中社會、國小自然手作提供 1 節免費試聽；其餘小班提供 2 節免費試聽；1 對 1 家教提供 1 小時免費試聽
-- 學費：小班 9,300 元 / 12 節（每節 3 小時）；國中生物與國小自然手作 4,650 元 / 12 節（每節 1.5 小時）；1 對 1 家教依個案報價
+- 學費：小班 ${coursePricing.default}；Python 程式設計小班 ${coursePricing.overrides['python-programming']}；1 對 1 家教依個案報價（完整價格請見各課程頁或 /fees）
 - 網站：${SITE_URL}
 
 ## 不得用於以下用途
@@ -435,9 +457,9 @@ async function main() {
   liteParts.push('## 小班課程快覽');
   liteParts.push('');
   for (const c of courses) {
-    const price = c.data.pricePerPack ?? c.data.priceRange ?? '';
+    const price = coursePriceFor(c.slug);
     liteParts.push(
-      `- [${c.data.name ?? c.slug}](${SITE_URL}/courses/${c.slug}) — ${c.data.grade ?? ''} · ${c.data.subject ?? ''}${price ? ` · ${price}` : ''}`,
+      `- [${c.data.name ?? c.slug}](${SITE_URL}/courses/${c.slug}) — ${c.data.grade ?? ''} · ${c.data.subject ?? ''} · ${price}`,
     );
   }
   liteParts.push('');

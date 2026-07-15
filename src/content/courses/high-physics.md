@@ -15,8 +15,6 @@ schedule:
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: true
 order: 5
 seoDescription: 嘉義東區高中物理補習推薦 — 賈伯斯數理教室高中物理小班，嘉大應用物理系豪理老師授課，精緻小班、現象式教學，協助嘉中、嘉女、協同、輔仁學生建立扎實觀念。

@@ -25,6 +25,15 @@ const quarterlyPrices = await Promise.all(
   ),
 );
 
+// meta description 用的「標準季繳價」字串：直接從 policy.json 的季繳價格表推導，
+// 不重複寫死金額，避免與上方價格表漂移。
+const standardQuarterly = fees.quarterly.prices.find(
+  (p) => p.hours === '3 小時' && !p.label.includes('程式設計'),
+);
+const metaQuarterlyPrice = standardQuarterly
+  ? `${standardQuarterly.price} / ${standardQuarterly.lessons}`
+  : '';
+
 const sections = [
   { id: 'overview', label: '收費方式總覽' },
   { id: 'quarterly', label: '季繳' },
@@ -49,7 +58,7 @@ const jsonLd = [
 
 <BaseLayout
   title="收費與退費"
-  description="賈伯斯數理教室收費標準與退費規定：季繳每週 3 小時 9,300 元 / 12 節、套裝、客製化與家教計費方式，以及市府退費規定與季繳舊生本班優規退費表。"
+  description={`賈伯斯數理教室收費標準與退費規定：季繳每週 3 小時${metaQuarterlyPrice ? ` ${metaQuarterlyPrice}` : ''}、套裝、客製化與家教計費方式，以及市府退費規定與季繳舊生本班優規退費表。`}
   jsonLd={jsonLd}
 >
   <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
