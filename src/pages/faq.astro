@@ -22,7 +22,9 @@ const rendered: RenderedFaq[] = await Promise.all(
     const r = await render(entry);
     const plain = (entry.body ?? '')
       .replace(/^---[\s\S]*?---/m, '')
-      .replace(/[#*_`>\[\]]/g, '')
+      // markdown 連結 [文字](url) → 只留文字，避免 URL（含 # 錨點）滲入 JSON-LD 純文字
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/[#*_`>]/g, '')
       .replace(/\s+/g, ' ')
       .trim();
     return { entry, Body: r.Content, plainAnswer: plain };
