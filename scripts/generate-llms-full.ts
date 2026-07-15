@@ -237,7 +237,7 @@ function renderCourse(d: ParsedDoc): string {
     data.trialLessons !== undefined ? `- 試聽節數：${data.trialLessons} 節` : '',
     data.lessonHours !== undefined ? `- 每節時數：${data.lessonHours} 小時` : '',
     `- 課程簡介：${data.summary ?? ''}`,
-    `- 上課時間：${fmtArr(data.schedule)}`,
+    `- 上課時段：以官網課表頁為準：${SITE_URL}/schedule`,
     `- 學費：${coursePriceFor(d.slug)}`,
     data.seoDescription ? `- SEO 摘要：${data.seoDescription}` : '',
     '',

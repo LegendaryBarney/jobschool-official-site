@@ -8,9 +8,6 @@ gradeLevel:
 subject: 英文
 teacher: joker
 summary: 英文不是一口氣堆起來的，是一層一層疊上去的。Joker 老師（高師大英語系畢業）把國中英文拆成有先後順序的三步——發音正確 → 背單字 → 基本文法。每一步走實了，下一步才站得穩，地基紮實，國中三年才不會越補越慌。
-schedule:
-  - 週二 18:30-21:30
-  - 週五 18:30-21:30
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3

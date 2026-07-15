@@ -6,9 +6,6 @@ gradeLevel:
 subject: 數學
 teacher: barney
 summary: 高三是把三年觀念串起來的關鍵階段。本課程以「單元複習＋題型分類＋分科測驗模擬」三軸並行，精緻小班規模，確保每位學生在分科測驗前都能找到自己的盲區。
-schedule:
-  - 週四 19:00-22:00
-  - 週日 09:00-12:00
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3

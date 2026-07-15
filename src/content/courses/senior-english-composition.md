@@ -8,9 +8,6 @@ gradeLevel:
 subject: 英文作文
 teacher: joker
 summary: 寫不出作文，多半不是單字不夠，而是不知道怎麼起頭、怎麼把想法排好。Joker 老師（高師大英語系畢業）先把寫文章的方法講清楚，用篇章結構、敘事邏輯、內容發想三大主軸，讓單字量不多的同學也能立馬上手、寫出讀得進心裡的文章。
-schedule:
-  - 週一 19:00-22:00
-  - 週四 19:00-22:00
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3

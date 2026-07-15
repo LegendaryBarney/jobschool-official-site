@@ -6,9 +6,6 @@ gradeLevel:
 subject: 數學
 teacher: barney
 summary: 高二是高中數學概念密度最高的一年，從向量、空間到機率統計，本課程在精緻小班環境下協助學生穩定建立每個觀念，並提前鋪墊學測題型分類。
-schedule:
-  - 週三 19:00-22:00
-  - 週六 13:00-16:00
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3

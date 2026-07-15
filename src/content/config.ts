@@ -40,7 +40,6 @@ const courses = defineCollection({
       subject: z.string(),
       teacher: z.string().optional().describe('reference slug to teachers collection'),
       summary: z.string(),
-      schedule: z.array(z.string()).default([]),
       classType: z
         .enum(['極小班', '精緻班', '小班'])
         .optional()
@@ -50,7 +49,7 @@ const courses = defineCollection({
         .int()
         .nonnegative()
         .default(2)
-        .describe('試聽節數；升高搶救／Python／社會／手作 = 11；其餘 = 2'),
+        .describe('試聽節數；升高搶救／Python／社會／手作 = 1；其餘 = 2'),
       lessonHours: z
         .number()
         .default(3)

@@ -7,8 +7,6 @@ gradeLevel:
   - 國小六
 subject: 數學
 teacher: jason
-schedule:
-  - 週一至週五 18:00–21:00，任選 1.5 小時上課
 classType: 精緻班
 trialLessons: 2
 lessonHours: 1.5

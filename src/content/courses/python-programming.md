@@ -7,9 +7,6 @@ gradeLevel:
 subject: Python 程式設計
 teacher: barney
 summary: 由臺大資工碩士 Barney 老師親自授課的 Python 程式設計課程。從基礎語法到簡易演算法與資料處理，採極小班規模，特別適合對 AI 時代有興趣的國高中生。
-schedule:
-  - 週六 14:00-17:00
-  - 週日 14:00-17:00
 classType: 極小班
 trialLessons: 1
 lessonHours: 3

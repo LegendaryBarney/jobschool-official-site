@@ -8,9 +8,6 @@ gradeLevel:
 subject: 社會
 teacher: barney
 summary: 國中社會（歷史、地理、公民）常被視為「背的科目」，但會考的趨勢早已轉向素養題。Barney 老師以「先建立架構、再進細節」的方式帶領學生，把社會變成有邏輯可循的科目。
-schedule:
-  - 週一 18:30-21:30
-  - 週日 09:00-12:00
 classType: 小班
 trialLessons: 1
 lessonHours: 3

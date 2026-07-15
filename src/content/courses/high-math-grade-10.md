@@ -6,9 +6,6 @@ gradeLevel:
 subject: 數學
 teacher: barney
 summary: 銜接國中與高中數學的關鍵階段。本課程從多項式、三角函數到指對數，依教育部 108 課綱進度循序鋪陳，以精緻小班規模，確保每位高一新生都能穩穩接上節奏。
-schedule:
-  - 週二 19:00-22:00
-  - 週六 09:00-12:00
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3

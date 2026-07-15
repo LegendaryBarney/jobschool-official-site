@@ -8,9 +8,6 @@ gradeLevel:
 subject: 英文
 teacher: joker
 summary: 從文法、閱讀到寫作的整合課程。由高師大英語系畢業的 Joker 老師主授，以「把英文當故事讀」的方式帶領學生在小班環境下建立扎實的英文基本功。
-schedule:
-  - 週一 19:00-22:00（高一、高二合併）
-  - 週四 19:00-22:00（高三）
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3

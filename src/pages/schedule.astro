@@ -123,6 +123,14 @@ const locationLegend = [...data.locations]
   }));
 const shortToLabel = new Map(locationLegend.map((l) => [l.short, l.label]));
 
+// 上課時段說明文案：由 offerings 實際值推導，不寫死任何時間宣稱。
+// 全部固定班時段一致 → 顯示該統一時段；否則改中性文案，實際時段一律以下表為準。
+const offeringTimes = new Set(data.offerings.map((o) => `${o.startTime}–${o.endTime}`));
+const scheduleTimeNote =
+  offeringTimes.size === 1
+    ? `固定班上課時間為 ${[...offeringTimes][0]}。`
+    : '各班實際上課時段以下表為準。';
+
 const pageUrl = SITE.url + '/schedule';
 const jsonLd = [
   webPageJsonLd({
@@ -150,7 +158,7 @@ const jsonLd = [
     <Fragment slot="heading">課程授課日程</Fragment>
     <p class="max-w-3xl text-lg text-charcoal/80 leading-relaxed">
       下列以「課程（科目＋老師）」為單位，呈現賈伯斯教室與忍文理教室的固定班授課日程。
-      <strong class="font-semibold text-charcoal">固定班上課時間一律為週一至週五 18:00–21:00。</strong>
+      <strong class="font-semibold text-charcoal">{scheduleTimeNote}</strong>
       家教採個別排課，不列入固定課表，請逕洽課務人員安排。
     </p>
 

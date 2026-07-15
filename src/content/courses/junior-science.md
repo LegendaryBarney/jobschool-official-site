@@ -7,9 +7,6 @@ gradeLevel:
 subject: 自然
 teacher: barney
 summary: 國中自然是會考成敗的關鍵科目，涵蓋理化與生物的整合學習。Barney 老師以實物與圖示帶觀念，精緻小班、節奏適中，協助學生在會考前建立扎實的力學、電學、化學與生物基本功。
-schedule:
-  - 週二 18:30-21:30（國二）
-  - 週五 18:30-21:30（國三）
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3

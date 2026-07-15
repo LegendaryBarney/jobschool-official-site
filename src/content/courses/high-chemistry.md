@@ -8,9 +8,6 @@ gradeLevel:
 subject: 化學
 teacher: hao-li
 summary: 從原子結構、化學鍵到有機化學，豪理老師帶領學生建立「結構決定性質」的核心思維。精緻小班規模，搭配自編觀念地圖，協助學生告別死背。
-schedule:
-  - 週二 19:00-22:00（高一、高二合併）
-  - 週四 19:00-22:00（高三）
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
