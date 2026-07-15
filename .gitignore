@@ -57,6 +57,7 @@ _archive/
 !.claude/hooks/
 !.claude/scripts/
 !.claude/workflows/
+!.claude/skills/
 .claude/settings.local.json
 .claude/logs/
 prototypes/
