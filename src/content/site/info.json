@@ -1,14 +1,14 @@
 {
   "name": "賈伯斯數理教室",
   "legalName": "賈伯斯數理教室",
-  "url": "https://jobsedu.com.tw",
+  "url": "https://jobschool-edu.com",
   "descriptionTemplate": "嘉義在地的精英小班補習機構，由臺大資工碩士領軍，師資來自臺、交、高師大、嘉義大學、臺北市立大學等不同背景，2014 年返鄉創立、品牌資歷 {years} 年，專攻國中至高中數理與相關科目。",
   "founded": 2014,
   "phone": {
     "e164": "+886-5-223-0303",
     "display": "(05) 223-0303"
   },
-  "email": "contact@jobsedu.com.tw",
+  "email": "contact@jobschool-edu.com",
   "hours": {
     "openingHours": ["Mo-Fr 17:00-21:30"],
     "display": "週一至週五 17:00–21:30（週六日休）",

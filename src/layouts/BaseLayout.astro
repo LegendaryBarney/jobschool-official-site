@@ -51,7 +51,7 @@ const meta = buildMeta({
   canonical: canonicalProp,
 });
 
-const siteOrigin = Astro.site ?? new URL('https://jobsedu.com.tw');
+const siteOrigin = Astro.site ?? new URL(SITE.url);
 const canonical = canonicalProp ?? new URL(Astro.url.pathname, siteOrigin).toString();
 const resolvedOg = meta.image?.startsWith('http')
   ? meta.image

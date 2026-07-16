@@ -3,6 +3,8 @@
  * ShareButtons — 文章社群分享：FB / LINE / 複製連結。
  * 純 client JS，不需要 island。
  */
+import { SITE } from '~/lib/seo';
+
 interface Props {
   title: string;
   url?: string;
@@ -10,7 +12,7 @@ interface Props {
 }
 
 const { title, url, class: className = '' } = Astro.props;
-const siteOrigin = Astro.site ?? new URL('https://jobsedu.com.tw');
+const siteOrigin = Astro.site ?? new URL(SITE.url);
 const fullUrl = url ?? new URL(Astro.url.pathname, siteOrigin).toString();
 
 const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`;

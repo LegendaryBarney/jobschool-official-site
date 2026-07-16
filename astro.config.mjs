@@ -5,6 +5,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import vercel from '@astrojs/vercel';
 import sentry from '@sentry/astro';
+import siteInfo from './src/content/site/info.json' with { type: 'json' };
 
 const SENTRY_DSN = process.env.SENTRY_DSN;
 
@@ -31,7 +32,7 @@ if (SENTRY_DSN) {
 }
 
 export default defineConfig({
-  site: 'https://jobsedu.com.tw',
+  site: siteInfo.url,
   trailingSlash: 'never',
   // /locations 已併入 /contact（忍文理據點區塊，錨點 #locations）。保留舊網址導向避免 404。
   redirects: {

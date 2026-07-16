@@ -6,7 +6,7 @@ import { SITE, responseSla } from '~/lib/seo';
 
 const WEEKDAY_LABELS = ['', '週一', '週二', '週三', '週四', '週五', '週六', '週日'] as const;
 
-/** 系統通知信寄件位址：由 SITE.url 網域推導，避免與 jobsedu.com.tw 各處硬寫脫鉤。 */
+/** 系統通知信寄件位址：由 SITE.url 網域推導，避免與網域各處硬寫脫鉤。 */
 const DEFAULT_NOTIFY_FROM = `noreply@${new URL(SITE.url).host}`;
 /** 業主個人信箱 fallback（RESEND 環境變數缺值時使用）：業主原話保留，僅集中成具名常數。 */
 const OWNER_FALLBACK_EMAIL = 'hwjnctucsie92@gmail.com';
