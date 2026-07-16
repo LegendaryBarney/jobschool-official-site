@@ -5,6 +5,14 @@
     { "name": "客製化收費", "summary": "依家長需求與課程種類個別談定，量身打造的專屬課程。" },
     { "name": "家教計費", "summary": "與家長談定老師時薪，以 12 節課為一次收費的單位，上課時間完全依需求安排。" }
   ],
+  "coursePricing": {
+    "default": "9,300 元 / 12 節（每節 3 小時）",
+    "overrides": {
+      "elementary-math": "9,300 元 / 24 節（每節 1.5 小時）",
+      "python-programming": "11,400 元 / 12 節（每節 3 小時）",
+      "junior-biology": "4,650 元 / 12 節（每節 1.5 小時）"
+    }
+  },
   "quarterly": {
     "subjects": [
       "國中英文、數學、生物、理化",

@@ -7,13 +7,9 @@ gradeLevel:
   - 國小六
 subject: 數學
 teacher: jason
-schedule:
-  - 週一至週五 18:00–21:00，任選 1.5 小時上課
 classType: 精緻班
 trialLessons: 2
 lessonHours: 1.5
-pricePerPack: 9,300 元 / 24 節（每節 1.5 小時）
-priceRange: 9,300 元 / 24 節
 featured: false
 order: 17
 cover: ../../assets/images/courses/pre-high-math-rescue.webp

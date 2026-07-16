@@ -266,6 +266,25 @@ function parseTeacherSubject(raw: string): { subject: string; grade: '國小' | 
 export { GRADE_TO_STAGE } from './trialSchema';
 export type { TrialFormOptions } from './trialSchema';
 
+/**
+ * 依課程 slug 找出對應的實際開課時段（單一來源 = offerings）。
+ * 先以 slug 在 courses 找到該課程的 grade/subject/teacherSlug，
+ * 再過濾 offerings（grade+subject 相符；若課程指定了老師，teacherSlug 也需相符），
+ * 依星期、開始時間排序回傳。找不到課程或無匹配時段時回傳空陣列（呼叫端應優雅降級）。
+ */
+export function findOfferingsForCourse(data: ClassData, courseSlug: string): Offering[] {
+  const course = data.courses.find((c) => c.slug === courseSlug);
+  if (!course) return [];
+  return data.offerings
+    .filter(
+      (o) =>
+        o.grade === course.grade &&
+        o.subject === course.subject &&
+        (!course.teacherSlug || o.teacherSlug === course.teacherSlug),
+    )
+    .sort((a, b) => a.weekday - b.weekday || a.startTime.localeCompare(b.startTime));
+}
+
 export async function getTrialFormOptions(): Promise<TrialFormOptions> {
   const data = await getClassData();
   // 科目選項「以課表(offerings)為唯一來源」→ 試聽表與課表保證一致。

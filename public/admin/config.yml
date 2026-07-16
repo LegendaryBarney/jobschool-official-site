@@ -53,22 +53,21 @@ collections:
       - name: grade
         label: 年級
         widget: select
-        options: ['國中', '高中']
+        options: ['國小', '國中', '高中']
       - { name: gradeLevel, label: 適合年級, widget: list, required: false }
       - { name: subject, label: 科目, widget: string }
       - { name: teacher, label: 講師（slug）, widget: string, required: false }
       - { name: summary, label: 課程簡介, widget: text }
-      - { name: schedule, label: 上課時段, widget: list, required: false }
+      # 上課時段改由 Supabase class_offerings 單一來源（課表/試聽表/課程頁同源），CMS 不再提供此欄
       - name: classType
         label: 班級規模
         widget: select
         required: false
         options: ['極小班', '精緻班', '小班']
         hint: '極小班 2-5 / 精緻班 6-10 / 小班 10-14'
-      - { name: trialLessons, label: 試聽節數, widget: number, default: 2, value_type: int, min: 0, hint: '升高搶救／Python／社會／手作 = 11；其餘 = 2' }
+      - { name: trialLessons, label: 試聽節數, widget: number, default: 2, value_type: int, min: 0, hint: '升高搶救／Python／社會 = 1；其餘 = 2' }
       - { name: lessonHours, label: 每堂時數（小時）, widget: number, default: 3, value_type: float, hint: '國中生物 = 1.5；其餘 = 3' }
-      - { name: pricePerPack, label: 完整價格描述, widget: string, required: false, hint: '如「9,300 元 / 12 節」；新欄位優先於 priceRange' }
-      - { name: priceRange, label: 價格區間（舊欄位）, widget: string, required: false }
+      # 價格改由 src/content/fees/policy.json 的 coursePricing 單一來源，CMS 不再提供價格欄
       - { name: cover, label: 封面圖, widget: image, required: false }
       - { name: featured, label: 精選, widget: boolean, default: false }
       - { name: order, label: 排序, widget: number, default: 0, value_type: int }

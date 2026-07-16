@@ -6,7 +6,7 @@ import Footer from '~/components/Footer.astro';
 import MobileStickyCTA from '~/components/MobileStickyCTA.astro';
 import SmoothScroll from '~/components/SmoothScroll.astro';
 import SiteScripts from '~/components/SiteScripts.astro';
-import { buildMeta, buildOgImageUrl } from '~/lib/seo';
+import { buildMeta, buildOgImageUrl, SITE } from '~/lib/seo';
 import '~/styles/global.css';
 
 type JsonLdValue = Record<string, unknown> | Record<string, unknown>[];
@@ -87,7 +87,7 @@ const GSC_VERIFICATION = (import.meta.env.PUBLIC_GSC_VERIFICATION as string | un
     {(noindex || meta.noindex) && <meta name="robots" content="noindex, nofollow" />}
 
     <meta property="og:type" content={meta.type} />
-    <meta property="og:site_name" content="賈伯斯數理教室" />
+    <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={meta.title} />
     <meta property="og:description" content={meta.description} />
     <meta property="og:url" content={canonical} />
@@ -100,7 +100,7 @@ const GSC_VERIFICATION = (import.meta.env.PUBLIC_GSC_VERIFICATION as string | un
     <meta name="twitter:image" content={resolvedOg} />
 
     {/* RSS / sitemap discovery */}
-    <link rel="alternate" type="application/rss+xml" title="賈伯斯數理教室 部落格" href="/feed.xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} 部落格`} href="/feed.xml" />
     <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
 
     {jsonLdArray.map((data) => (
@@ -201,6 +201,21 @@ const GSC_VERIFICATION = (import.meta.env.PUBLIC_GSC_VERIFICATION as string | un
 
     <SmoothScroll />
     <SiteScripts />
+
+    {/* 全站 LINE 點擊轉換追蹤：事件委派一次涵蓋所有 LINE CTA（Nav / Footer / 行動 sticky / 表單成功頁）。
+        缺 GA/Pixel 時不渲染；點擊不阻擋導流。LINE 加好友是補習班核心轉換動作，需單獨計數。 */}
+    {(GA_ID || META_PIXEL_ID) && (
+      <script is:inline>{`
+        (function () {
+          document.addEventListener('click', function (e) {
+            var a = e.target && e.target.closest ? e.target.closest('a[href*="line.me"], a[href*="lin.ee"]') : null;
+            if (!a) return;
+            try { if (typeof window.gtag === 'function') window.gtag('event', 'line_click', { event_category: 'engagement', link_url: a.href }); } catch (_) {}
+            try { if (typeof window.fbq === 'function') window.fbq('trackCustom', 'LineClick', { url: a.href }); } catch (_) {}
+          }, true);
+        })();
+      `}</script>
+    )}
 
     {/* Pagefind UI script 預留（build 後 /pagefind/ 才會生成） */}
   </body>

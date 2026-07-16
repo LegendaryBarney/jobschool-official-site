@@ -8,14 +8,9 @@ gradeLevel:
 subject: 英文
 teacher: joker
 summary: 從文法、閱讀到寫作的整合課程。由高師大英語系畢業的 Joker 老師主授，以「把英文當故事讀」的方式帶領學生在小班環境下建立扎實的英文基本功。
-schedule:
-  - 週一 19:00-22:00（高一、高二合併）
-  - 週四 19:00-22:00（高三）
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: false
 order: 7
 seoDescription: 嘉義東區高中英文補習推薦 — 賈伯斯數理教室高中英文小班，由高師大英語系畢業的 Joker 老師授課，從文法到寫作系統性建立。

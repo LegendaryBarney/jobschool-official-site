@@ -8,7 +8,8 @@ import Timeline from '~/components/Timeline.astro';
 import IconChalk from '~/components/IconChalk.astro';
 import PageHero from '~/components/PageHero.astro';
 import { educationalOrgJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, brandYears, stats, milestones as siteMilestones } from '~/lib/seo';
+import { LOCATIONS } from '~/lib/locations';
 
 import spaceMainClassroom from '~/assets/images/spaces/main-classroom.webp';
 import spaceDiscussion from '~/assets/images/spaces/discussion.webp';
@@ -49,12 +50,14 @@ const principles = [
   },
 ];
 
-const milestones = [
-  { year: '2014', title: '創立於嘉義東區', desc: 'Barney 老師（黃韋誌）取得臺大資工碩士後選擇回到家鄉嘉義，從一間租借的小教室開始。' },
-  { year: '2017', title: '裝潢現址、立穩基地', desc: '裝潢嘉義市東區康樂街 10 號現址，成為教室至今的家。' },
-  { year: '2023', title: '新增姊妹品牌「忍文理教室」', desc: '為了服務嘉義西區家庭，新增姊妹品牌「忍文理教室」，位於嘉義市西區杭州一街 38 號。', link: { href: 'https://www.shinobicodeschool.com/', label: '忍文理教室官網' } },
-  { year: '2026', title: '啟用全新官方網站', desc: '替換舊有 Weebly 站，整合課程資訊、學生見證與線上試聽預約，把溝通做到更貼心。' },
-];
+// 大事紀資料唯一權威來源是 info.json（透過 seo.ts 的 milestones 匯出）；desc 中
+// {jobsAddress}/{shinobiAddress} 佔位符在此以 LOCATIONS 代入，地址單一來源不重複硬寫。
+const milestones = siteMilestones.map((m) => ({
+  ...m,
+  desc: m.desc
+    .replace('{jobsAddress}', LOCATIONS.jobs.address)
+    .replace('{shinobiAddress}', LOCATIONS.shinobi.address),
+}));
 
 const jsonLd = [
   educationalOrgJsonLd(),
@@ -67,7 +70,7 @@ const jsonLd = [
 
 <BaseLayout
   title="關於我們"
-  description="認識賈伯斯數理教室：嘉義東區的精英小班補習機構，由臺大資工碩士 Barney 老師（黃韋誌）於 2014 年返鄉創立，過去 12 年陪伴上千位嘉中、嘉女、協同、輔仁學生踏實累積。"
+  description={`認識賈伯斯數理教室：嘉義東區的精英小班補習機構，由臺大資工碩士 Barney 老師（黃韋誌）於 2014 年返鄉創立，過去 ${brandYears} 年陪伴${stats.studentsServedDisplay} 位嘉中、嘉女、協同、輔仁學生踏實累積。`}
   jsonLd={jsonLd}
 >
   <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
@@ -79,7 +82,7 @@ const jsonLd = [
     <Fragment slot="heading">像咖啡館老闆一樣，<br />認真對待每一位學生</Fragment>
     <p class="max-w-3xl text-lg leading-relaxed">
       賈伯斯數理教室是嘉義東區的地方型精英小班補習機構，由臺大資工碩士 Barney 老師（黃韋誌）領軍，
-      2014 年返鄉創立至今已邁入第 12 年。我們不浮誇、不催促，相信教學是「陪伴」而不是「包裝」。
+      2014 年返鄉創立至今已邁入第 {brandYears} 年。我們不浮誇、不催促，相信教學是「陪伴」而不是「包裝」。
     </p>
   </PageHero>
 
@@ -100,15 +103,15 @@ const jsonLd = [
             </p>
             <p>
               2014 年，Barney 老師選擇回到家鄉嘉義，從一間租借的小教室開始。
-              2017 年裝潢嘉義市東區康樂街 10 號現址，成為教室至今的家。
-              2023 年，為了服務嘉義西區家庭，新增姊妹品牌「忍文理教室」（嘉義市西區杭州一街 38 號）。
+              2017 年裝潢{LOCATIONS.jobs.address}現址，成為教室至今的家。
+              2023 年，為了服務嘉義西區家庭，新增姊妹品牌「忍文理教室」（{LOCATIONS.shinobi.address}）。
             </p>
             <p>
               他想做的事很簡單：<strong>無論是極小班（2-5 人）、精緻班（6-10 人）或小班（10-14 人），老師都走得到每位學生桌邊</strong>。
               這個堅持從第一天到今天從沒有改變過。
             </p>
             <p>
-              過去 12 年來，上千位嘉中、嘉女、協同、輔仁、嘉工、嘉商、嘉華、興華的學生在這裡上過課。
+              過去 {brandYears} 年來，{stats.studentsServedDisplay} 位嘉中、嘉女、協同、輔仁、嘉工、嘉商、嘉華、興華的學生在這裡上過課。
               我們不開大班、不衝招生人數、不找加盟。我們只想把眼前這幾位學生，
               帶到他原本到不了的地方。
             </p>
@@ -211,7 +214,7 @@ const jsonLd = [
       <div class="max-w-2xl">
         <p class="font-handwriting text-2xl text-espresso">大事紀</p>
         <h2 class="mt-2 font-serif text-3xl lg:text-4xl font-bold text-charcoal">
-          12 年來的腳步
+          {brandYears} 年來的腳步
         </h2>
       </div>
       <div class="mt-10">

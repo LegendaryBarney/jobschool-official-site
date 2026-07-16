@@ -1,10 +1,11 @@
 import { getSupabaseRead } from './supabase';
 
 /**
- * 收費金額的「即時查詢」層。
+ * 收費金額的 DB 優先查詢層。
  *
- * 業主需求：程式設計／資訊科學季繳價要能實時反映資料庫（由業主在 DB 直接
- * 維護 price 欄位即可同步官網，不必改 code、不必 rebuild）。
+ * 業主需求：程式設計／資訊科學季繳價由業主在 DB 直接維護 price 欄位，
+ * 不必改 code。注意：全站為 static build，DB 查詢發生在部署當下，
+ * **改 DB 後仍需 Redeploy 才會反映到官網**（詳見 docs/CONTENT_EDITING.md §3）。
  *
  * 策略：**Supabase 優先，查無結果 → 回退到定值**。
  * - 未設定 PUBLIC_SUPABASE_* / 連線失敗 / 該表尚未建立 / 查無列 → 回傳傳入的

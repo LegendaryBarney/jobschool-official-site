@@ -8,14 +8,9 @@ gradeLevel:
 subject: 化學
 teacher: hao-li
 summary: 從原子結構、化學鍵到有機化學，豪理老師帶領學生建立「結構決定性質」的核心思維。精緻小班規模，搭配自編觀念地圖，協助學生告別死背。
-schedule:
-  - 週二 19:00-22:00（高一、高二合併）
-  - 週四 19:00-22:00（高三）
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: false
 order: 6
 seoDescription: 嘉義東區高中化學補習推薦 — 賈伯斯數理教室高中化學小班，嘉大應用物理系豪理老師授課，從原子結構到有機化學系統性建立觀念。

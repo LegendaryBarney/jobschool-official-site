@@ -74,7 +74,7 @@ const sections = [
       '請求刪除',
     ],
     after: [
-      '若您希望行使上述任一權利，歡迎透過電話 (05) 223-0303，或本網站的「聯絡我們」表單與我們聯繫，我們會在合理期間內協助處理。',
+      `若您希望行使上述任一權利，歡迎透過電話 ${SITE.phoneDisplay}，或本網站的「聯絡我們」表單與我們聯繫，我們會在合理期間內協助處理。`,
     ],
   },
   {
@@ -159,7 +159,7 @@ const sections = [
         <p class="font-handwriting text-2xl text-espresso">有任何疑問？</p>
         <p class="mt-2 text-charcoal/80 leading-relaxed">
           若您對本政策或個人資料的處理有任何疑問，歡迎透過電話
-          <a href="tel:+88652230303" class="text-espresso hover:underline">(05) 223-0303</a>
+          <a href={`tel:${SITE.phone}`} class="text-espresso hover:underline">{SITE.phoneDisplay}</a>
           或聯絡表單與我們聯繫。
         </p>
         <div class="mt-5">

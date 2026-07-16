@@ -10,7 +10,7 @@ import {
   reviewJsonLd,
   breadcrumbJsonLd,
 } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, brandYears } from '~/lib/seo';
 
 const all = await getCollection('testimonials');
 const sorted = all.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
@@ -60,7 +60,7 @@ const avgRating = ratings.length
 
 <BaseLayout
   title="學生見證"
-  description="來自嘉中、嘉女、協同、輔仁等校學生與家長的真實心得。賈伯斯數理教室嘉義東區精英小班過去 12 年累積的學習回饋。"
+  description={`來自嘉中、嘉女、協同、輔仁等校學生與家長的真實心得。賈伯斯數理教室嘉義東區精英小班過去 ${brandYears} 年累積的學習回饋。`}
   jsonLd={jsonLd}
 >
   <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
@@ -68,7 +68,7 @@ const avgRating = ratings.length
   </div>
 
   <PageHero variant="paper" eyebrow="學生見證" glyph="“" tint="caramel">
-    <Fragment slot="heading">12 年來的真實回饋</Fragment>
+    <Fragment slot="heading">{brandYears} 年來的真實回饋</Fragment>
     <p class="max-w-3xl text-lg text-charcoal/80 leading-relaxed">
       來自嘉中、嘉女、協同、輔仁等校學生與家長的心得。
       我們不為了好看而修飾，只把他們真正寫下的話放在這裡。

@@ -7,14 +7,9 @@ gradeLevel:
 subject: 數學
 teacher: jason
 summary: 為國中升高中的暑期銜接設計，由 Jason 老師主授。從國中代數、幾何盤點開始，補強升高一前必備的基礎，搭配大量手把手教具與視覺化教材，特別適合擔心高一數學跟不上的同學。
-schedule:
-  - 暑期 週一 19:00-22:00
-  - 暑期 週五 19:00-22:00
 classType: 精緻班
 trialLessons: 1
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: true
 order: 10
 seoDescription: 嘉義東區升高中數學銜接 — 賈伯斯數理教室升高中數學基礎搶救班，Jason 老師授課，提供 1 節免費試聽，從國中代數補強到高一三角函數先修。

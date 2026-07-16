@@ -31,8 +31,9 @@
 
 - 永遠在 feature branch 工作（如 `feat/xxx`、`fix/xxx`），**不直接在 main 上開發**。
 - Branch push → Vercel 自動 preview deploy：隨時可做，不必請示。
-- **push 到 main、`vercel --prod`、promote = 正式上線**：一律停下來等業主白天親自確認。夜間/headless 模式下絕對禁止觸碰。
-- 禁止 force push、`git reset --hard`、刪除遠端資源（settings.json 已 deny，這裡是雙保險）。
+- **push 到 main = 正式上線**：一律停下來等業主白天親自確認。
+- **Vercel 全放行**（業主 2026-06-21 決策）：所有 vercel 操作（`--prod` / `promote` / `dns` / `domains` / `alias` / `rollback` / `rm` / `env rm`）皆由 Claude 自動執行，guard.mjs 不再攔截。（註：settings.json 靜態 deny 的 vercel 規則須業主自行移除，Claude 無權改自己的權限機制。）
+- 禁止 force push、`git reset --hard`、`rm -rf`、push 到 main、刪除遠端 git 分支（settings.json + guard.mjs 雙保險）。
 
 ### 視覺自我驗證（每次改動 UI 後必做）
 

@@ -9,7 +9,7 @@ import Countdown from '~/components/Countdown.astro';
 import TrialForm from '~/components/TrialForm';
 import IconChalk from '~/components/IconChalk.astro';
 import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, brandYears, responseSla, stats } from '~/lib/seo';
 import { getTrialFormOptions } from '~/lib/classData';
 
 export async function getStaticPaths() {
@@ -28,9 +28,9 @@ const fmtDate = (d: Date) =>
   new Intl.DateTimeFormat('zh-Hant-TW', { dateStyle: 'long' }).format(d);
 
 const sellingPoints = [
-  { icon: 'users' as const, label: '極小班 / 精緻班 / 小班', desc: '依科目與年級配置 2-14 人多種規模' },
+  { icon: 'users' as const, label: '極小班 / 精緻班 / 小班', desc: `依科目與年級配置 ${stats.classSizeMin}-${stats.classSizeMax} 人多種規模` },
   { icon: 'cup' as const, label: '臺、交、高師大、嘉大、市北大資歷師資', desc: '由臺大資工碩士領軍' },
-  { icon: 'note' as const, label: '自編教材與盲點筆記', desc: '過去 12 年累積精煉題型' },
+  { icon: 'note' as const, label: '自編教材與盲點筆記', desc: `過去 ${brandYears} 年累積精煉題型` },
   { icon: 'target' as const, label: '免費試聽', desc: '多數課程 2 節、特色課程 1 節，不滿意零壓力' },
 ];
 
@@ -135,7 +135,7 @@ const jsonLd = [
               現在預約，立即試聽
             </h2>
             <p class="mt-4 text-charcoal/80 leading-relaxed">
-              填寫右側表單，我們會在 1 個工作日內以電話或 LINE 聯絡您。
+              填寫右側表單，我們會在 {responseSla}內以電話或 LINE 聯絡您。
               試聽免費，沒有任何壓力。
             </p>
           </div>

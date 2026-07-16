@@ -7,14 +7,9 @@ gradeLevel:
 subject: Python 程式設計
 teacher: barney
 summary: 由臺大資工碩士 Barney 老師親自授課的 Python 程式設計課程。從基礎語法到簡易演算法與資料處理，採極小班規模，特別適合對 AI 時代有興趣的國高中生。
-schedule:
-  - 週六 14:00-17:00
-  - 週日 14:00-17:00
 classType: 極小班
 trialLessons: 1
 lessonHours: 3
-pricePerPack: 10,800 元 / 12 節（每節 3 小時）
-priceRange: 10,800 元 / 12 節
 featured: true
 order: 11
 seoDescription: 嘉義東區 Python 程式設計補習 — 賈伯斯數理教室 Python 小班，由臺大資工碩士 Barney 老師親自授課，提供 1 節免費試聽，適合國中與高中生。

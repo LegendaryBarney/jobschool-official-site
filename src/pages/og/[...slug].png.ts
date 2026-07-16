@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { ImageResponse } from '@vercel/og';
+import { SITE, brandYears } from '~/lib/seo';
 
 // 動態 OG 圖必須在 SSR 跑（hybrid 模式下標記）
 export const prerender = false;
@@ -78,9 +79,10 @@ function fallbackRedirect(reqUrl: URL): Response {
 /*  GET                                                                */
 /* ------------------------------------------------------------------ */
 export const GET: APIRoute = async ({ url }) => {
-  const title = clamp(url.searchParams.get('title') ?? '賈伯斯數理教室', 60);
+  const title = clamp(url.searchParams.get('title') ?? SITE.name, 60);
   const subtitle = clamp(
-    url.searchParams.get('subtitle') ?? '嘉義精英小班補習 · 臺、交、高師大、嘉大、市北大資歷師資 · 12 年品牌資歷',
+    url.searchParams.get('subtitle') ??
+      `嘉義精英小班補習 · 臺、交、高師大、嘉大、市北大資歷師資 · ${brandYears} 年品牌資歷`,
     120,
   );
 
@@ -149,7 +151,7 @@ export const GET: APIRoute = async ({ url }) => {
                     },
                   },
                 },
-                '賈伯斯數理教室',
+                SITE.name,
               ],
             },
           },
@@ -235,7 +237,7 @@ export const GET: APIRoute = async ({ url }) => {
                           },
                         },
                       },
-                      '嘉義 · 東區 · 康樂街',
+                      `${SITE.address.addressLocality.replace(/市$/, '')} · ${SITE.address.addressRegion} · ${SITE.address.streetAddress.split(' ')[0]}`,
                     ],
                   },
                 },
@@ -248,7 +250,7 @@ export const GET: APIRoute = async ({ url }) => {
                       gap: '8px',
                       letterSpacing: '0.05em',
                     },
-                    children: 'jobsedu.com.tw',
+                    children: new URL(SITE.url).host,
                   },
                 },
               ],

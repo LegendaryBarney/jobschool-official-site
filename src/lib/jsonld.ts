@@ -2,8 +2,8 @@
  * JSON-LD 結構化資料工廠函式
  * 涵蓋：LocalBusiness、EducationalOrganization、Course、Person、Article、FAQPage、Review、Breadcrumb
  */
-import { SITE, getActiveSocials } from './seo';
-import { LOCATIONS, type LocationInfo } from './locations';
+import { SITE, getActiveSocials, serviceArea } from './seo';
+import { LOCATIONS, LOCATION_DATA, type LocationInfo } from './locations';
 
 export type JsonLd = Record<string, unknown>;
 
@@ -52,17 +52,17 @@ export function localBusinessJsonLd(): JsonLd {
     ],
     areaServed: {
       '@type': 'City',
-      name: '嘉義市',
+      name: serviceArea,
     },
     subOrganization: {
       '@type': 'EducationalOrganization',
       name: LOCATIONS.shinobi.name,
       address: {
         '@type': 'PostalAddress',
-        streetAddress: LOCATIONS.shinobi.address.replace('嘉義市西區', ''),
-        addressLocality: '嘉義市',
-        addressRegion: '西區',
-        addressCountry: 'TW',
+        streetAddress: LOCATION_DATA.shinobi.streetAddress,
+        addressLocality: LOCATION_DATA.shinobi.addressLocality,
+        addressRegion: LOCATION_DATA.shinobi.addressRegion,
+        addressCountry: LOCATION_DATA.shinobi.addressCountry,
       },
       ...(LOCATIONS.shinobi.foundedYear
         ? { foundingDate: String(LOCATIONS.shinobi.foundedYear) }
@@ -138,10 +138,25 @@ export interface CourseLikeData {
   subject: string;
   grade: string;
   gradeLevel?: string[];
-  schedule?: string[];
-  priceRange?: string;
   slug: string;
 }
+
+/** CourseInstance 結構化時段一筆：weekday(1=週一…7=週日) + HH:MM 時間範圍，與 classData.Offering 對應。 */
+export interface CourseInstanceSchedule {
+  weekday: number;
+  startTime: string;
+  endTime: string;
+}
+
+const SCHEMA_DAY_URI: Record<number, string> = {
+  1: 'https://schema.org/Monday',
+  2: 'https://schema.org/Tuesday',
+  3: 'https://schema.org/Wednesday',
+  4: 'https://schema.org/Thursday',
+  5: 'https://schema.org/Friday',
+  6: 'https://schema.org/Saturday',
+  7: 'https://schema.org/Sunday',
+};
 
 export function courseJsonLd(course: CourseLikeData): JsonLd {
   return {
@@ -162,7 +177,21 @@ export function courseJsonLd(course: CourseLikeData): JsonLd {
   };
 }
 
-export function courseInstanceJsonLd(course: CourseLikeData): JsonLd {
+/**
+ * 課程實際開課時段以呼叫端傳入的結構化 schedule 為準（由 classData.findOfferingsForCourse
+ * 推導而來），與課表頁 /schedule 同一份資料，不再吃 frontmatter 的自由文字。
+ * 無匹配時段 → 省略 eventSchedule 欄位（省略合法，勝過輸出錯誤或過時的資料）。
+ */
+export function courseInstanceJsonLd(course: CourseLikeData, schedule?: CourseInstanceSchedule[]): JsonLd {
+  const eventSchedule =
+    schedule && schedule.length > 0
+      ? schedule.map((s) => ({
+          '@type': 'Schedule',
+          byDay: SCHEMA_DAY_URI[s.weekday],
+          startTime: s.startTime,
+          endTime: s.endTime,
+        }))
+      : undefined;
   return {
     '@context': 'https://schema.org',
     '@type': 'CourseInstance',
@@ -174,7 +203,7 @@ export function courseInstanceJsonLd(course: CourseLikeData): JsonLd {
       address: baseAddress(),
     },
     inLanguage: 'zh-Hant-TW',
-    ...(course.schedule && course.schedule.length > 0 ? { eventSchedule: course.schedule } : {}),
+    ...(eventSchedule ? { eventSchedule } : {}),
   };
 }
 

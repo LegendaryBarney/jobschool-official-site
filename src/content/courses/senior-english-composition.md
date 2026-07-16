@@ -8,14 +8,9 @@ gradeLevel:
 subject: 英文作文
 teacher: joker
 summary: 寫不出作文，多半不是單字不夠，而是不知道怎麼起頭、怎麼把想法排好。Joker 老師（高師大英語系畢業）先把寫文章的方法講清楚，用篇章結構、敘事邏輯、內容發想三大主軸，讓單字量不多的同學也能立馬上手、寫出讀得進心裡的文章。
-schedule:
-  - 週一 19:00-22:00
-  - 週四 19:00-22:00
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: false
 order: 16
 seoDescription: 嘉義東區高中英文作文補習推薦 — 賈伯斯數理教室高中英文作文，由高師大英語系畢業的 Joker 老師授課。先把方法講清楚，從篇章結構、敘事邏輯到內容發想三大主軸切入，逐句拆解優秀範文，單字量不多也能立馬上手學測寫作。

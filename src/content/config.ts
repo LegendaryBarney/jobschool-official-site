@@ -1,4 +1,5 @@
 import { defineCollection, z } from 'astro:content';
+import { siteInfoSchema } from '~/lib/siteSchema';
 
 const teachers = defineCollection({
   type: 'content',
@@ -39,7 +40,6 @@ const courses = defineCollection({
       subject: z.string(),
       teacher: z.string().optional().describe('reference slug to teachers collection'),
       summary: z.string(),
-      schedule: z.array(z.string()).default([]),
       classType: z
         .enum(['極小班', '精緻班', '小班'])
         .optional()
@@ -49,16 +49,11 @@ const courses = defineCollection({
         .int()
         .nonnegative()
         .default(2)
-        .describe('試聽節數；升高搶救／Python／社會／手作 = 11；其餘 = 2'),
+        .describe('試聽節數；升高搶救／Python／社會／手作 = 1；其餘 = 2'),
       lessonHours: z
         .number()
         .default(3)
         .describe('每堂時數；國中生物 = 1.5；其餘 = 3'),
-      pricePerPack: z
-        .string()
-        .optional()
-        .describe('完整描述，如「9,300 元 / 12 節」；新欄位優先於 priceRange 顯示'),
-      priceRange: z.string().optional(),
       cover: image().optional(),
       featured: z.boolean().default(false),
       order: z.number().default(0),
@@ -140,12 +135,11 @@ const landing = defineCollection({
     }),
 });
 
+// 全站機構事實唯一權威（src/content/site/info.json）。
+// schema 抽到 ~/lib/siteSchema（client-safe），與 seo.ts/locations.ts adapter 共用，避免雙寫。
 const site = defineCollection({
   type: 'data',
-  schema: z.object({
-    key: z.string(),
-    value: z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]),
-  }),
+  schema: siteInfoSchema,
 });
 
 const fees = defineCollection({
@@ -155,6 +149,11 @@ const fees = defineCollection({
     methods: z
       .array(z.object({ name: z.string(), summary: z.string() }))
       .default([]),
+    // 課程頁價格單一來源：小班標準價 + 非標準價課程（by slug）覆寫
+    coursePricing: z.object({
+      default: z.string(),
+      overrides: z.record(z.string(), z.string()).default({}),
+    }),
     // 季繳
     quarterly: z.object({
       subjects: z.array(z.string()).default([]),

@@ -5,7 +5,7 @@ import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
 import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, responseSla } from '~/lib/seo';
 
 // ── 課務政策（請假・補課・颱風・不可抗力・補課券）：Markdown 驅動 ──
 const policyEntries = (await getCollection('policy')).sort(
@@ -128,7 +128,7 @@ const jsonLd = [
       <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
         對請假或補課安排有疑問？
       </h2>
-      <p class="mt-4 text-charcoal/80">課務人員會在 1 個工作日內回覆，協助您處理個別狀況。</p>
+      <p class="mt-4 text-charcoal/80">課務人員會在 {responseSla}內回覆，協助您處理個別狀況。</p>
       <div class="mt-8 flex flex-wrap justify-center gap-4">
         <Button href="/contact" variant="primary" size="lg">聯絡我們</Button>
         <Button href="/schedule" variant="secondary" size="lg">看課表</Button>

@@ -4,7 +4,23 @@
 > 即可知道：做到哪、有哪些設置、業主拍板了什麼、下一步、待決策。
 > 記憶另存於 `~/.claude/projects/<本專案>/memory/`（索引 MEMORY.md，每 session 自動載入）。
 
-最後更新：2026-06-20（Supabase 課表/試聽資料庫上線；課表改課程列+filter；試聽表級聯檢核 — 已上 production）
+最後更新：2026-07-15（資料與呈現解耦重構 — branch feat/data-decouple，待業主 merge）
+
+---
+
+## 🆕 2026-07-15 — 資料與呈現解耦（branch `feat/data-decouple`，已 PR 待業主拍板）
+
+業主要求：全盤檢查資料散落、設計解耦（改資料 SEO 要跟著變）、交付維運手冊。
+
+- **機構事實唯一權威 `src/content/site/info.json`**（zod schema `src/lib/siteSchema.ts`；`seo.ts`/`locations.ts` 降為 adapter、對外介面不變）：名稱/電話/email/營業時間/社群/兩據點結構化地址/stats/里程碑/responseSla。年資與 © 年份由 `founded` 自動推算（brandYears/copyrightRange），**2027 起不再過期**。全站 ≥40 處硬寫（電話 9 處、「12 年」15 處、SLA 14 處…）已收斂。
+- **價格唯一權威 `policy.json` 的 `coursePricing`**（default 9,300 + overrides：elementary-math、python-programming 11,400）＋ DB `course_prices` 即時覆蓋（經 `src/lib/pricing.ts`）。課程 frontmatter 的 `pricePerPack`/`priceRange` 已刪。**修正線上漂移：python 課程頁 10,800 → 11,400**。
+- **開課時段單源化**：課程內頁「上課時段」與 CourseInstance JSON-LD 改吃 `class_offerings`（與課表/試聽表同源，`findOfferingsForCourse()`）；課程 frontmatter `schedule` 欄已刪；schedule.astro 寫死的「一律週一至五 18:00–21:00」改由 offerings 推導。
+- **內容矛盾修正**：FAQ class-size「12 人以下」→ 三級距；trial-cost 點名清單 → 通則；pricing 去金額改連 /fees；makeup-classes 失效錨點 → /policy；faq.astro JSON-LD markdown 連結外洩 bug 順手修。
+- **營業時間改制**：週一至五 17:00–21:30（週六日休），業主 2026-07-14 拍板。⚠ **Google 商家檔案待業主手動同步**。
+- **維運手冊 v2.0 `docs/CONTENT_EDITING.md`**：開頭「我要改什麼→去哪裡改→影響哪些頁→要不要 redeploy」路由表。
+- 驗證：check 0 errors、build 全綠（本機無網路走 content fallback 屬預期）；dist 抽驗價格/JSON-LD/llms 正確。
+- **待業主確認**：課程 frontmatter 原有的週六/日時段（python、gsat-math-sprint、senior-social 等）已刪，正式環境時段以 DB 為準——若這些課真的在週末上課，需業主把時段補進 `teacher_availability`，否則課程頁只顯示「見課表頁」。
+- **2026-07-15 追加（業主拍板）**：「1.5 小時 4,650 元」＝國中生物（Barney）。已獨立成頁 `/courses/junior-biology`（order 9、4,650 進 coursePricing.overrides、封面用既有孤兒資產 junior-biology.webp 免生圖）；國中自然改稱「國中自然（理化＋地科）」（生物段落移出、補地科課綱段落）。**DB 側待業主執行** `docs/db/2026-07-15-add-junior-biology.sql`（courses 加列＋改名＋排課佔位）→ Redeploy。新開課 SOP 固化為 skill `.claude/skills/new-course/SKILL.md`。
 
 ---
 

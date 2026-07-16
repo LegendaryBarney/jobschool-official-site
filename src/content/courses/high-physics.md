@@ -8,15 +8,9 @@ gradeLevel:
 subject: 物理
 teacher: hao-li
 summary: 由嘉大應用物理系豪理老師主授，從力學、電磁學到近代物理，採「現象先行、再導公式」的節奏。精緻小班規模，特別適合覺得物理「沒感覺」的同學。
-schedule:
-  - 週一 19:00-22:00（高一）
-  - 週三 19:00-22:00（高二）
-  - 週五 19:00-22:00（高三）
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: true
 order: 5
 seoDescription: 嘉義東區高中物理補習推薦 — 賈伯斯數理教室高中物理小班，嘉大應用物理系豪理老師授課，精緻小班、現象式教學，協助嘉中、嘉女、協同、輔仁學生建立扎實觀念。

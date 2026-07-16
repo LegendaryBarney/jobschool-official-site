@@ -6,14 +6,9 @@ gradeLevel:
 subject: 數學
 teacher: barney
 summary: 銜接國中與高中數學的關鍵階段。本課程從多項式、三角函數到指對數，依教育部 108 課綱進度循序鋪陳，以精緻小班規模，確保每位高一新生都能穩穩接上節奏。
-schedule:
-  - 週二 19:00-22:00
-  - 週六 09:00-12:00
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: true
 order: 1
 seoDescription: 嘉義東區高一數學補習推薦 — 賈伯斯數理教室高一數學奠基班，Barney 老師（臺大資工碩士）授課，精緻小班、依 108 課綱循序漸進，協助嘉中、嘉女、協同、輔仁新生穩穩起跑。

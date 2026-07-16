@@ -6,14 +6,9 @@ gradeLevel:
 subject: 數學
 teacher: barney
 summary: 高二是高中數學概念密度最高的一年，從向量、空間到機率統計，本課程在精緻小班環境下協助學生穩定建立每個觀念，並提前鋪墊學測題型分類。
-schedule:
-  - 週三 19:00-22:00
-  - 週六 13:00-16:00
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: true
 order: 2
 seoDescription: 嘉義東區高二數學補習推薦 — 賈伯斯數理教室高二數學進階班，精緻小班、由臺、交、高師大、嘉義大學、臺北市立大學資歷的師資授課，協助嘉中、嘉女、協同、輔仁學生在學測前一年穩定累積實力。

@@ -6,7 +6,7 @@ import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import IconChalk from '~/components/IconChalk.astro';
 import TrialForm from '~/components/TrialForm';
 import { localBusinessJsonLd, placeJsonLd, breadcrumbJsonLd } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, responseSla, nearbySchoolsNote } from '~/lib/seo';
 import { LOCATIONS } from '~/lib/locations';
 import { getTrialFormOptions } from '~/lib/classData';
 
@@ -38,7 +38,7 @@ const jsonLd = [
 
 <BaseLayout
   title="聯絡我們 / 試聽預約"
-  description="嘉義市東區康樂街 10 號 · (05)223-0303 · 賈伯斯數理教室。歡迎填表預約免費試聽，或加 LINE 詢問課程。試聽免費，沒有任何壓力。"
+  description={`${SITE.address.full} · ${SITE.phoneDisplay} · ${SITE.name}。歡迎填表預約免費試聽，或加 LINE 詢問課程。試聽免費，沒有任何壓力。`}
   jsonLd={jsonLd}
 >
   <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
@@ -48,7 +48,7 @@ const jsonLd = [
   <PageHero variant="photo" eyebrow="聯絡我們" image={spaceEntrance} imageAlt="賈伯斯數理教室入口櫃台與玻璃門招牌">
     <Fragment slot="heading">試聽是免費的，<br class="md:hidden" />沒有任何壓力。</Fragment>
     <p class="max-w-2xl text-lg leading-relaxed">
-      填寫右側表單，我們會在 1 個工作日內以電話或 LINE 聯絡您，安排試聽時段。
+      填寫右側表單，我們會在 {responseSla}內以電話或 LINE 聯絡您，安排試聽時段。
       或直接加 LINE / 撥電話與我們聊聊。
     </p>
   </PageHero>
@@ -106,7 +106,7 @@ const jsonLd = [
               <div>
                 <p class="text-xs font-semibold tracking-wider text-espresso uppercase">教室地址</p>
                 <p class="mt-1 text-charcoal">{SITE.address.full}</p>
-                <p class="mt-1 text-xs text-charcoal/60">距嘉中、嘉女步行約 8-12 分鐘</p>
+                <p class="mt-1 text-xs text-charcoal/60">{nearbySchoolsNote}</p>
               </div>
             </div>
             <div class="flex gap-3">

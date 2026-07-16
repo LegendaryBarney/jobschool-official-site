@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import { LOCATIONS } from '~/lib/locations';
-import { getActiveSocials, type SocialKey, SITE } from '~/lib/seo';
+import { getActiveSocials, type SocialKey, SITE, brandYears, copyrightRange, stats } from '~/lib/seo';
 
 const lineUrl = import.meta.env.PUBLIC_LINE_URL || '#';
 
@@ -59,13 +59,13 @@ try {
   <div class="mx-auto max-w-6xl px-4 py-12 lg:px-8 lg:py-16">
     <div class="grid gap-10 md:grid-cols-3">
       <div>
-        <h3 class="font-serif text-xl font-bold text-charcoal">賈伯斯數理教室</h3>
+        <h3 class="font-serif text-xl font-bold text-charcoal">{SITE.name}</h3>
         <p class="mt-3 text-sm text-charcoal/80 leading-relaxed">
           嘉義在地的精緻小班補習機構，由臺、交、高師大、嘉義大學、臺北市立大學資歷師資組成，專攻國中至高中數理與英文科目。
         </p>
         <address class="mt-4 not-italic text-sm text-charcoal/80 leading-relaxed">
-          <span class="block">嘉義市東區康樂街 10 號</span>
-          <span class="block">電話：<a href="tel:+88652230303" class="hover:text-espresso">(05) 223-0303</a></span>
+          <span class="block">{SITE.address.full}</span>
+          <span class="block">電話：<a href={`tel:${SITE.phone}`} class="hover:text-espresso">{SITE.phoneDisplay}</a></span>
           <span class="block mt-1">營業時間：{SITE.openingHoursDisplay}</span>
         </address>
         <a
@@ -185,7 +185,7 @@ try {
           </ul>
         ) : (
           <p class="mt-3 text-sm text-charcoal/70 leading-relaxed">
-            過去 12 年來，累積上千位嘉義在地學生在這裡踏實累積。
+            過去 {brandYears} 年來，累積 {stats.studentsServedDisplay} 位嘉義在地學生在這裡踏實累積。
             <a href="/testimonials" class="block mt-2 text-espresso hover:underline">
               查看所有學生見證 →
             </a>
@@ -195,7 +195,7 @@ try {
     </div>
 
     <div class="mt-12 pt-6 border-t border-cream/80 flex flex-col gap-3 md:flex-row md:items-center md:justify-between text-xs text-charcoal/60">
-      <span>&copy; 2014–2026 賈伯斯數理教室</span>
+      <span>&copy; {copyrightRange} {SITE.name}</span>
       <ul class="flex flex-wrap gap-x-4 gap-y-1">
         <li><a href="/privacy" class="hover:text-espresso">隱私權政策</a></li>
         <li><a href="#" class="hover:text-espresso">Cookie 設定</a></li>

@@ -6,7 +6,7 @@ import Breadcrumbs from '~/components/Breadcrumbs.astro';
 import SectionFadeUp from '~/components/SectionFadeUp.astro';
 import Button from '~/components/Button.astro';
 import { breadcrumbJsonLd, webPageJsonLd } from '~/lib/jsonld';
-import { SITE } from '~/lib/seo';
+import { SITE, responseSla } from '~/lib/seo';
 import { getFeePrice, PRICE_KEYS } from '~/lib/feeData';
 
 const entry = await getEntry('fees', 'policy');
@@ -24,6 +24,15 @@ const quarterlyPrices = await Promise.all(
       : p,
   ),
 );
+
+// meta description 用的「標準季繳價」字串：直接從 policy.json 的季繳價格表推導，
+// 不重複寫死金額，避免與上方價格表漂移。
+const standardQuarterly = fees.quarterly.prices.find(
+  (p) => p.hours === '3 小時' && !p.label.includes('程式設計'),
+);
+const metaQuarterlyPrice = standardQuarterly
+  ? `${standardQuarterly.price} / ${standardQuarterly.lessons}`
+  : '';
 
 const sections = [
   { id: 'overview', label: '收費方式總覽' },
@@ -49,7 +58,7 @@ const jsonLd = [
 
 <BaseLayout
   title="收費與退費"
-  description="賈伯斯數理教室收費標準與退費規定：季繳每週 3 小時 9,300 元 / 12 節、套裝、客製化與家教計費方式，以及市府退費規定與季繳舊生本班優規退費表。"
+  description={`賈伯斯數理教室收費標準與退費規定：季繳每週 3 小時${metaQuarterlyPrice ? ` ${metaQuarterlyPrice}` : ''}、套裝、客製化與家教計費方式，以及市府退費規定與季繳舊生本班優規退費表。`}
   jsonLd={jsonLd}
 >
   <div class="mx-auto max-w-6xl px-4 pt-8 lg:px-8">
@@ -271,7 +280,7 @@ const jsonLd = [
       <h2 class="font-serif text-3xl lg:text-4xl font-bold text-charcoal">
         想了解特定課程的費用？
       </h2>
-      <p class="mt-4 text-charcoal/80">歡迎查看課程頁面，或直接聯絡我們，我們會在 1 個工作日內回覆。</p>
+      <p class="mt-4 text-charcoal/80">歡迎查看課程頁面，或直接聯絡我們，我們會在 {responseSla}內回覆。</p>
       <div class="mt-8 flex flex-wrap justify-center gap-4">
         <Button href="/contact" variant="primary" size="lg">聯絡我們</Button>
         <Button href="/courses" variant="secondary" size="lg">看課程</Button>

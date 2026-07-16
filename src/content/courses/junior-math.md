@@ -8,14 +8,9 @@ gradeLevel:
 subject: 數學
 teacher: jason
 summary: 給「明明很努力，分數卻上不去」的孩子的數學課。Jason 老師每堂課最後都會走一圈，確認沒有人是「點頭、其實沒懂」；同一個觀念換 2-3 種說法重講，把缺的基礎一個一個補回來，再循序帶你穩穩銜接高中。
-schedule:
-  - 週三 18:30-21:30
-  - 週六 14:00-17:00
 classType: 精緻班
 trialLessons: 2
 lessonHours: 3
-pricePerPack: 9,300 元 / 12 節（每節 3 小時）
-priceRange: 9,300 元 / 12 節
 featured: false
 order: 14
 seoDescription: 嘉義東區國中數學補習推薦 — 賈伯斯數理教室國中數學，由 Jason 老師（臺北市立大學數學系）授課。每堂課末巡視確認真懂、同一觀念換多種說法重講，循序補實基礎、穩穩銜接高中，協助民生、北興、蘭潭、協同、輔仁學生重新跟上。
