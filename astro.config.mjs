@@ -31,7 +31,7 @@ if (SENTRY_DSN) {
 }
 
 export default defineConfig({
-  site: 'https://jobsedu.com.tw',
+  site: 'https://jobschool-edu.com',
   trailingSlash: 'never',
   // /locations 已併入 /contact（忍文理據點區塊，錨點 #locations）。保留舊網址導向避免 404。
   redirects: {

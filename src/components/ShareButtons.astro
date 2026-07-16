@@ -10,7 +10,7 @@ interface Props {
 }
 
 const { title, url, class: className = '' } = Astro.props;
-const siteOrigin = Astro.site ?? new URL('https://jobsedu.com.tw');
+const siteOrigin = Astro.site ?? new URL('https://jobschool-edu.com');
 const fullUrl = url ?? new URL(Astro.url.pathname, siteOrigin).toString();
 
 const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`;

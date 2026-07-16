@@ -24,4 +24,4 @@ Allow: /
 User-agent: Applebot-Extended
 Allow: /
 
-Sitemap: https://jobsedu.com.tw/sitemap-index.xml
+Sitemap: https://jobschool-edu.com/sitemap-index.xml

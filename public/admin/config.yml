@@ -7,9 +7,9 @@ publish_mode: editorial_workflow
 media_folder: public/uploads
 public_folder: /uploads
 
-site_url: https://jobsedu.com.tw
-display_url: https://jobsedu.com.tw
-logo_url: https://jobsedu.com.tw/favicon.svg
+site_url: https://jobschool-edu.com
+display_url: https://jobschool-edu.com
+logo_url: https://jobschool-edu.com/favicon.svg
 
 collections:
   - name: teachers
